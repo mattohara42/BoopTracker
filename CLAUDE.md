@@ -63,6 +63,13 @@ doesn't re-litigate them.
   this build; treat as intended-but-unconfirmed.
 - 2026-08-11 — Docs committed straight to `main` (fresh repo, planning only,
   no PR flow needed at this stage).
+- 2026-08-11 — Stack **confirmed**: Expo + Firebase. M0 scaffolded on a branch
+  via PR (code changes now use the PR flow, unlike the planning docs).
+- 2026-08-11 — M0 stack pinned to Expo SDK 52 (React Native 0.76, React 18.3.1)
+  with React Navigation v7 (bottom tabs). TypeScript, `strict` on, `@/*` path
+  alias → `src/*`. The single tuning file is `src/config/constants.ts`; its
+  values are pulled from `docs/SPEC.md` (week-one thresholds are still the
+  guessed numbers, to be retuned after M1–M3).
 
 ## Open questions still to settle
 

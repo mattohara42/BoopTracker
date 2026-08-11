@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "BoopTracker",
+    "slug": "booptracker",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "booptracker",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF6E9"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.booptracker.app"
+    },
+    "android": {
+      "package": "com.booptracker.app"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

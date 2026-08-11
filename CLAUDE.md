@@ -70,6 +70,17 @@ doesn't re-litigate them.
   alias → `src/*`. The single tuning file is `src/config/constants.ts`; its
   values are pulled from `docs/SPEC.md` (week-one thresholds are still the
   guessed numbers, to be retuned after M1–M3).
+- 2026-08-11 — Switched to committing **straight to `main`** (no branches, no
+  PRs); solo project, Matt's call. Earlier planning-doc note about a PR flow no
+  longer applies.
+- 2026-08-11 — M1 built on fake data. Three-tap flow is a modal over Home
+  (`src/features/boop/`), boops stored in an in-memory context
+  (`src/state/BoopLog.tsx`). Added `expo-haptics` + `expo-image-picker`.
+  Decision: the optional photo is offered on the **finish screen**, not as a
+  step between pick-type and finish, so the three-tap core loop stays exactly
+  three taps. In M1 all four v1 boop types are selectable (no achievement
+  engine yet); M4 will lock Boopstache/Bellyboop/Underboop per
+  `unlockedByDefault`.
 
 ## Open questions still to settle
 

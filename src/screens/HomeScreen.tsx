@@ -1,23 +1,28 @@
+import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { BoopFlow } from '@/features/boop/BoopFlow';
+import { useBoopLog } from '@/state/BoopLog';
 import { colors } from '@/theme/colors';
 
 /**
  * HomeScreen — "just the big BOOP button" (SPEC.md → Core Loop).
  *
- * M0 stub: the button is here and shows the header stats, but tapping it only
- * acknowledges the press. The real three-tap flow (pick who → pick type) lands
- * in M1. No feed, ever — that's a permanent constraint (CLAUDE.md).
+ * The button opens the three-tap record flow (pick who → pick type → finish).
+ * Header stats come from the local BoopLog. No feed, ever — that's a permanent
+ * constraint (CLAUDE.md).
  */
 export function HomeScreen() {
+  const { totalBoops, uniquePeopleBooped } = useBoopLog();
+  const [flowOpen, setFlowOpen] = useState(false);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {/* Placeholder stats — wired to real data in M2. */}
         <Text style={styles.name}>You</Text>
         <View style={styles.statsRow}>
-          <Stat label="Boops given" value="0" />
-          <Stat label="People booped" value="0" />
+          <Stat label="Boops given" value={String(totalBoops)} />
+          <Stat label="People booped" value={String(uniquePeopleBooped)} />
         </View>
       </View>
 
@@ -27,14 +32,14 @@ export function HomeScreen() {
           activeOpacity={0.85}
           accessibilityRole="button"
           accessibilityLabel="Record a boop"
-          onPress={() => {
-            // M1: open the pick-who → pick-type flow.
-          }}
+          onPress={() => setFlowOpen(true)}
         >
           <Text style={styles.boopButtonText}>BOOP</Text>
         </TouchableOpacity>
         <Text style={styles.hint}>Tap to record a boop</Text>
       </View>
+
+      <BoopFlow visible={flowOpen} onClose={() => setFlowOpen(false)} />
     </View>
   );
 }

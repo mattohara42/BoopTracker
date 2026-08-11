@@ -19,6 +19,14 @@
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "BoopTracker lets you attach a photo of a boop from your camera roll as proof."
+        }
+      ]
+    ]
   }
 }

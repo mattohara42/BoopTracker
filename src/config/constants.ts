@@ -49,6 +49,13 @@ export interface BoopType {
   unlockedByDefault: boolean;
 }
 
+/**
+ * How many greyed-out "coming soon" slots to tease in the type picker, beyond
+ * the four v1 types. Purely a motivational teaser — there's more to unlock.
+ * (The real ~40-type roster lives in docs/ACHIEVEMENTS.md / BACKLOG.md.)
+ */
+export const LOCKED_TYPE_TEASER_SLOTS = 4;
+
 export const BOOP_TYPES: readonly BoopType[] = [
   {
     id: 'classic',

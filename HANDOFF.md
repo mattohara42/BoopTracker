@@ -8,8 +8,8 @@ Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
 - **Repo created:** `mattohara42/BoopTracker`, private.
 - **Planning docs landed** under `docs/`: `SPEC.md`, `BUILD_PLAN.md`,
   `BACKLOG.md`, `ACHIEVEMENTS.md`. `README.md` orients and links them.
-- **M0 done:** Expo/React Native skeleton is scaffolded (see below). M1 (the
-  boop button + three-tap flow, fake data) is next.
+- **M0 + M1 done:** Expo skeleton plus the working three-tap boop flow on fake
+  data (see below). M2 (real accounts + Firestore) is next.
 
 ## What's done
 
@@ -28,27 +28,46 @@ Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
     values sourced from `docs/SPEC.md`.
   - `npm run typecheck` passes; `npx expo config` loads. (expo-doctor's
     network-only checks fail in the sandbox — no outbound to api.expo.dev.)
+- [x] **M1 — the boop button (fake data)** (committed to `main`):
+  - Three-tap flow as a modal over Home: **BOOP → pick who → pick type**, then
+    a finish screen. Lives in `src/features/boop/` (`BoopFlow` + `steps/`).
+  - Pick-who: recent people on top, hardcoded `FAKE_FRIENDS`, and "Someone
+    else…" (typed name) for people not in the app.
+  - Pick-type: all four v1 types tappable + greyed locked teaser slots. NOTE:
+    achievement-gated locking (respecting `unlockedByDefault`) is deferred to
+    M4 — see the comment in `steps/PickType.tsx`.
+  - Finish: haptic buzz (`expo-haptics`) + confetti *placeholder* + optional
+    camera-roll photo (`expo-image-picker`). The photo lives on the finish
+    screen, not as its own step, to keep the three-tap core loop intact.
+  - Boops are stored in `src/state/BoopLog.tsx` (in-memory React context); Home
+    stats read from it live. No persistence — resets on reload, by design.
+  - Verified with a full Metro bundle (`expo export`, 796 modules) + typecheck.
 
 ## Decisions made so far
 
 - Docs go in `docs/`; committed straight to `main` at the planning stage.
-  Code changes (M0 onward) go through a branch + PR.
-- Stack **confirmed**: Expo/React Native + Firebase. M0 scaffolds the Expo
-  client; Firebase isn't wired until M2.
+  Code changes now commit **straight to `main`** too (solo project, no PR flow).
+- Stack **confirmed**: Expo/React Native + Firebase. M0/M1 build the Expo
+  client on fake data; Firebase isn't wired until M2.
+- Optional photo lives on the finish screen, not as its own step, to protect
+  the three-tap core loop (CLAUDE.md hard constraint).
 
-## Recommended next step: M1 (the boop button, fake data)
+## Checkpoint due: hand M1 to Frankie
+
+Before M2, the plan calls for a real playtest of the three-tap flow: is three
+taps actually fast? Does picking the boop type feel fun or annoying? Retune
+`src/config/constants.ts` / the flow based on what comes back.
+
+## Recommended next step: M2 (real accounts and data)
 
 From `docs/BUILD_PLAN.md`:
 
-1. Build the real three-tap flow on top of Home: BOOP → pick person (hardcoded
-   fake friend list) → pick boop type (Classic + the locked Boopstache /
-   Bellyboop / Underboop from `BOOP_TYPES`, greyed out).
-2. Optional photo-attach step (camera roll, no in-app camera).
-3. Finish screen: haptic buzz + confetti placeholder.
-4. Everything in local state — no backend yet. The goal is the *feel*.
-
-**Checkpoint at end of M1:** hand the boop-button flow to Frankie and find out
-if three taps actually feels fast, and whether picking the type feels fun.
+1. Firebase project + Firestore schema for users, boops, friendships.
+2. Signup: username + email.
+3. Friends list: add by username, "someone else" for non-app people (replaces
+   `src/data/fakeFriends.ts`).
+4. Boop recording writes to Firestore instead of the in-memory `BoopLog`; the
+   recent-people list comes from real history.
 
 ## Open questions before/around building
 

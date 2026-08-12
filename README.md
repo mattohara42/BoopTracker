@@ -1,5 +1,7 @@
 # BoopTracker
 
+[![CI](https://github.com/mattohara42/BoopTracker/actions/workflows/ci.yml/badge.svg)](https://github.com/mattohara42/BoopTracker/actions/workflows/ci.yml)
+
 Frankie's idea. A *boop* is when you pretend someone has something on their
 shirt, they look down, and you boop their nose. BoopTracker keeps score — with
 friends, leaderboards, and a whole lot of achievements.

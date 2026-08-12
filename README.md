@@ -18,10 +18,12 @@ npm install
 npm start        # then press i / a / w, or scan the QR with Expo Go
 ```
 
-`npm run typecheck` runs the TypeScript check. So far there are three tabs —
-Home (the BOOP button), Friends, and Leaderboard — with the Friends/Leaderboard
-screens as placeholders until later milestones. Every tunable number lives in
-[`src/config/constants.ts`](src/config/constants.ts).
+`npm run typecheck` runs the TypeScript check and `npm test` runs the unit
+tests. So far there are three tabs — Home (the BOOP button), Friends, and
+Leaderboard — with the Friends/Leaderboard screens as placeholders until later
+milestones. Every tunable number lives in
+[`src/config/constants.ts`](src/config/constants.ts). To try the app on a phone,
+see [`docs/PLAYTEST.md`](docs/PLAYTEST.md).
 
 ## Planning docs
 

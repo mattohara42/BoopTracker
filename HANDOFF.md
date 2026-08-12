@@ -42,6 +42,10 @@ Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
   - Boops are stored in `src/state/BoopLog.tsx` (in-memory React context); Home
     stats read from it live. No persistence — resets on reload, by design.
   - Verified with a full Metro bundle (`expo export`, 796 modules) + typecheck.
+  - Hardening pass: boop-log logic extracted to pure `src/state/boopLogCore.ts`
+    and unit-tested (jest-expo). `src/config/__tests__/constants.test.ts` guards
+    the SPEC hard constraints (powerup caps = 3, one default-unlocked type,
+    big-deal set stays rare). `npm test` — 17 tests. `docs/PLAYTEST.md` added.
 
 ## Decisions made so far
 

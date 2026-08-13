@@ -73,8 +73,11 @@ npm run typecheck  # TypeScript check
 npm test           # run the unit tests
 ```
 
-## Heads-up: nothing is saved yet
+## Heads-up: saved on the phone, not synced
 
-M1 keeps boops in memory only — reload the app and the score resets to zero.
-That's by design; persistence arrives in M2 (real accounts + Firestore). So a
-playtest session is a fresh slate every time.
+Boops and your people list now persist locally on the device (via
+AsyncStorage), so a score builds up across reloads and days — good for a
+week-long family playtest. It's **per-device** and not shared between phones
+yet; real accounts and cross-device sync arrive in M2 (Firebase). To wipe the
+slate for a fresh test, delete the app from the phone and re-open it from
+Expo Go.

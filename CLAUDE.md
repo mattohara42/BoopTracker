@@ -87,6 +87,14 @@ doesn't re-litigate them.
   should be pre-loaded so mid-boop is a tap, not typing — import phone contacts
   (M2 candidate) and voice-add (deferred). Logged in `docs/BACKLOG.md` →
   "Adding people" and folded into the M2 plan in `HANDOFF.md`.
+- 2026-08-13 — Added local persistence (`@react-native-async-storage/async-storage`)
+  so boops + people survive a reload, making a week-long family playtest usable
+  before M2. Generic `usePersistentState(key, initial)` hook (hydrate-then-write,
+  with a guard so the initial value never clobbers stored data) backs both
+  `BoopLog` and `People`; keys namespaced `booptracker:*`. Also added
+  `removePerson` + an ✕ on the Friends tab (it was add-only). This is a local
+  cache; M2 makes Firestore the source of truth and this becomes offline cache
+  (or gets replaced).
 - 2026-08-13 — Contacts import built on the fake-data build (the M1 friction
   fix, pulled ahead of M2). Uses `expo-contacts` **native single-contact
   picker** (`presentContactPickerAsync`) — deliberately not reading the whole

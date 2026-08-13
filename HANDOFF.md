@@ -75,9 +75,14 @@ candidate) and **add people up front by voice** (deferred/stretch).
 `expo-contacts`. "📇 Pick from Contacts" in the boop flow and "Add from
 Contacts" on the (now real) Friends tab both use the *native* single-contact
 picker — no full-address-book access, no heavy permission gate. People live in
-a new in-memory `src/state/People.tsx` (seeded from `FAKE_FRIENDS`, grown by
-imports); pure mapping/dedupe logic is in `src/state/contactsCore.ts` and
-unit-tested. Voice-add still deferred.
+`src/state/People.tsx` (seeded from `FAKE_FRIENDS`, grown by imports, with
+`removePerson` + an ✕ on the Friends tab); pure mapping/dedupe logic is in
+`src/state/contactsCore.ts` and unit-tested. Voice-add still deferred.
+
+**Local persistence added:** boops + people now survive a reload
+(`@react-native-async-storage/async-storage`) via a generic `usePersistentState`
+hook, so a week-long family playtest builds up instead of resetting to zero.
+Per-device only; M2 makes Firebase the source of truth.
 
 ## Recommended next step: M2 (real accounts and data)
 

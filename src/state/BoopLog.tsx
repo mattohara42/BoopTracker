@@ -3,7 +3,6 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from 'react';
 
@@ -17,6 +16,8 @@ import {
   type RecentPerson,
   type RecordBoopInput,
 } from './boopLogCore';
+import { storageKey } from './persistence';
+import { usePersistentState } from './usePersistentState';
 
 // Re-exported so screens can keep importing these from '@/state/BoopLog'.
 export type { Boop, RecentPerson, RecordBoopInput } from './boopLogCore';
@@ -27,9 +28,10 @@ export type { Boop, RecentPerson, RecordBoopInput } from './boopLogCore';
  * Everything lives in in-memory React state (no persistence, no backend). It
  * exists only so the three-tap flow has somewhere to write and the Home stats
  * have something real to count. The logic itself lives in `boopLogCore.ts`
- * (pure + unit-tested); this file just wires it to React state. M2 swaps the
- * storage for Firestore.
+ * (pure + unit-tested); this file just wires it to React state, persisted
+ * locally so a playtest survives a reload. M2 swaps the storage for Firestore.
  */
+const BOOPS_KEY = storageKey('boops');
 interface BoopLogValue {
   boops: Boop[];
   totalBoops: number;
@@ -42,7 +44,7 @@ interface BoopLogValue {
 const BoopLogContext = createContext<BoopLogValue | null>(null);
 
 export function BoopLogProvider({ children }: { children: ReactNode }) {
-  const [boops, setBoops] = useState<Boop[]>([]);
+  const [boops, setBoops] = usePersistentState<Boop[]>(BOOPS_KEY, []);
 
   const recordBoop = useCallback((input: RecordBoopInput): Boop => {
     const boop = createBoop(input, Date.now(), Math.random());

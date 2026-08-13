@@ -16,7 +16,7 @@ import { colors } from '@/theme/colors';
  * for now the list is in-memory and resets on reload.
  */
 export function FriendsScreen() {
-  const { people, addPeople } = usePeople();
+  const { people, addPeople, removePerson } = usePeople();
   const [busy, setBusy] = useState(false);
 
   async function addFromContacts() {
@@ -39,10 +39,26 @@ export function FriendsScreen() {
 
         {people.map((p) => (
           <View key={p.id} style={styles.row}>
-            <Text style={styles.rowName}>{p.name}</Text>
-            {p.relation ? <Text style={styles.rowSubtitle}>{p.relation}</Text> : null}
+            <View style={styles.rowText}>
+              <Text style={styles.rowName}>{p.name}</Text>
+              {p.relation ? <Text style={styles.rowSubtitle}>{p.relation}</Text> : null}
+            </View>
+            <TouchableOpacity
+              onPress={() => removePerson(p.id)}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={`Remove ${p.name}`}
+            >
+              <Text style={styles.remove}>✕</Text>
+            </TouchableOpacity>
           </View>
         ))}
+
+        {people.length === 0 && (
+          <Text style={styles.empty}>
+            No people yet. Add some from your contacts below.
+          </Text>
+        )}
       </ScrollView>
 
       <TouchableOpacity
@@ -73,8 +89,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  rowText: { flex: 1 },
   rowName: { fontSize: 18, fontWeight: '600', color: colors.text },
-  rowSubtitle: { fontSize: 14, color: colors.muted },
+  rowSubtitle: { fontSize: 14, color: colors.muted, marginTop: 2 },
+  remove: { fontSize: 18, color: colors.muted, paddingHorizontal: 6 },
+  empty: { fontSize: 15, color: colors.muted, textAlign: 'center', marginTop: 24 },
   addButton: {
     margin: 20,
     backgroundColor: colors.primary,

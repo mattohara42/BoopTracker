@@ -8,29 +8,39 @@ import {
   View,
 } from 'react-native';
 
-import { FAKE_FRIENDS, type Person } from '@/data/fakeFriends';
+import { pickContactAsPerson } from '@/features/contacts/pickContact';
+import { type Person } from '@/data/fakeFriends';
 import { useBoopLog } from '@/state/BoopLog';
+import { usePeople } from '@/state/People';
 import { colors } from '@/theme/colors';
 
 /**
  * Step 2 of the three-tap loop: pick who you booped.
- * Recent people at the top (SPEC), then the rest of the list, then
- * "Someone else" for people not in the app.
+ * Recent people at the top (SPEC), then your people, then ways to add someone
+ * not in the list — picking from Contacts (fast) or typing a name (fallback).
  */
 export function PickPerson({ onPick }: { onPick: (person: Person) => void }) {
   const { recentPeople } = useBoopLog();
+  const { people, addPeople } = usePeople();
   const [addingGuest, setAddingGuest] = useState(false);
   const [guestName, setGuestName] = useState('');
 
   // Don't repeat a person in "Friends" if they're already shown under Recent.
   const recentIds = new Set(recentPeople.map((p) => p.id));
-  const otherFriends = FAKE_FRIENDS.filter((f) => !recentIds.has(f.id));
+  const otherFriends = people.filter((f) => !recentIds.has(f.id));
 
   function confirmGuest() {
     const name = guestName.trim();
     if (!name) return;
     // Stable id so the same guest name dedupes in recents / unique counts.
     onPick({ id: `guest:${name.toLowerCase()}`, name });
+  }
+
+  async function pickFromContacts() {
+    const person = await pickContactAsPerson();
+    if (!person) return; // cancelled or unavailable
+    addPeople([person]); // remember them for next time
+    onPick(person); // ...and use them for this boop right now
   }
 
   return (
@@ -54,7 +64,8 @@ export function PickPerson({ onPick }: { onPick: (person: Person) => void }) {
         ))}
       </Section>
 
-      <Section title="Not in the app">
+      <Section title="Add someone">
+        <PersonRow name="📇  Pick from Contacts" onPress={pickFromContacts} />
         {addingGuest ? (
           <View style={styles.guestBox}>
             <TextInput

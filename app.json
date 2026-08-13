@@ -26,6 +26,12 @@
         {
           "photosPermission": "BoopTracker lets you attach a photo of a boop from your camera roll as proof."
         }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "BoopTracker uses your contacts so you can quickly pick who you booped."
+        }
       ]
     ]
   }

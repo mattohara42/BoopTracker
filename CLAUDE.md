@@ -87,6 +87,14 @@ doesn't re-litigate them.
   should be pre-loaded so mid-boop is a tap, not typing — import phone contacts
   (M2 candidate) and voice-add (deferred). Logged in `docs/BACKLOG.md` →
   "Adding people" and folded into the M2 plan in `HANDOFF.md`.
+- 2026-08-13 — Contacts import built on the fake-data build (the M1 friction
+  fix, pulled ahead of M2). Uses `expo-contacts` **native single-contact
+  picker** (`presentContactPickerAsync`) — deliberately not reading the whole
+  address book, for privacy and to skip the "allow all contacts" gate. People
+  now live in `src/state/People.tsx` (in-memory, seeded from `FAKE_FRIENDS`);
+  the Friends tab became a real add-people screen. Pure logic in
+  `src/state/contactsCore.ts`, unit-tested. Bulk/read-all import stays a later
+  option if single-pick proves too slow for loading many people.
 - 2026-08-13 — Upgraded Expo SDK 52 → **54** (RN 0.76→0.81, React 18.3→19.1,
   TypeScript 5.9). Reason: Expo Go on the App Store only ships the *latest* SDK,
   so an SDK 52 project can't open in Expo Go on a real device (it errored with

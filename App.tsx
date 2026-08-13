@@ -4,16 +4,19 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { BoopLogProvider } from '@/state/BoopLog';
+import { PeopleProvider } from '@/state/People';
 
 export default function App() {
   return (
-    <BoopLogProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-        <StatusBar style="auto" />
-      </SafeAreaProvider>
-    </BoopLogProvider>
+    <PeopleProvider>
+      <BoopLogProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+          <StatusBar style="auto" />
+        </SafeAreaProvider>
+      </BoopLogProvider>
+    </PeopleProvider>
   );
 }

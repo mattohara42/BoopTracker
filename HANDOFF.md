@@ -71,6 +71,14 @@ always a tap, not typing. Two ideas from the session (details in
 `docs/BACKLOG.md` → "Adding people"): **import phone contacts** (strong M2
 candidate) and **add people up front by voice** (deferred/stretch).
 
+**Fix built (on the fake-data build, ahead of M2):** contacts import via
+`expo-contacts`. "📇 Pick from Contacts" in the boop flow and "Add from
+Contacts" on the (now real) Friends tab both use the *native* single-contact
+picker — no full-address-book access, no heavy permission gate. People live in
+a new in-memory `src/state/People.tsx` (seeded from `FAKE_FRIENDS`, grown by
+imports); pure mapping/dedupe logic is in `src/state/contactsCore.ts` and
+unit-tested. Voice-add still deferred.
+
 ## Recommended next step: M2 (real accounts and data)
 
 From `docs/BUILD_PLAN.md`, now shaped by the playtest:

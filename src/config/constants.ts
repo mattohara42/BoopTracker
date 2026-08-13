@@ -43,6 +43,8 @@ export type BoopTypeId = 'classic' | 'boopstache' | 'bellyboop' | 'underboop';
 export interface BoopType {
   id: BoopTypeId;
   label: string;
+  /** Playful icon shown on the type card + the finish screen. */
+  emoji: string;
   /** One-line description shown on the pick-a-type step. */
   blurb: string;
   /** Classic is always available; the rest start locked and unlock later. */
@@ -60,24 +62,28 @@ export const BOOP_TYPES: readonly BoopType[] = [
   {
     id: 'classic',
     label: 'Classic Boop',
+    emoji: '👆',
     blurb: 'The original. Finger to the nose.',
     unlockedByDefault: true,
   },
   {
     id: 'boopstache',
     label: 'Boopstache',
+    emoji: '🥸',
     blurb: 'Sideways finger under the nose.',
     unlockedByDefault: false,
   },
   {
     id: 'bellyboop',
     label: 'Bellyboop',
+    emoji: '🫃',
     blurb: 'Bellybutton boop.',
     unlockedByDefault: false,
   },
   {
     id: 'underboop',
     label: 'Underboop',
+    emoji: '👇',
     blurb: 'Boop under a table.',
     unlockedByDefault: false,
   },

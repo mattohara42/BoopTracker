@@ -87,6 +87,10 @@ doesn't re-litigate them.
   should be pre-loaded so mid-boop is a tap, not typing — import phone contacts
   (M2 candidate) and voice-add (deferred). Logged in `docs/BACKLOG.md` →
   "Adding people" and folded into the M2 plan in `HANDOFF.md`.
+- 2026-08-13 — Gave each boop type an `emoji` (config field, one place to tune),
+  shown on the type cards and the finish screen — a small kid-facing delight on
+  the type-picking beat Frankie liked most. Not the M7.5 juice pass; just
+  content. A constants test asserts every type has a label + emoji.
 - 2026-08-13 — Added an **Undo** on the finish screen (deletes the just-recorded
   boop, `removeBoop`), prompted by persistence: an accidental boop now sticks, so
   an immediate undo matters. Deliberately kept to the finish moment; a way to

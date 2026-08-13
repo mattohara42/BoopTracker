@@ -39,6 +39,13 @@ describe('boop types', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('gives every type a label and an emoji', () => {
+    for (const t of BOOP_TYPES) {
+      expect(t.label.trim().length).toBeGreaterThan(0);
+      expect(t.emoji.trim().length).toBeGreaterThan(0);
+    }
+  });
+
   it('unlocks only Classic by default', () => {
     // SPEC: Classic is always unlocked; the rest unlock via achievements.
     const unlocked = BOOP_TYPES.filter((t) => t.unlockedByDefault);

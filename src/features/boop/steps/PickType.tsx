@@ -30,6 +30,7 @@ export function PickType({ onPick }: { onPick: (typeId: BoopTypeId) => void }) {
             activeOpacity={0.8}
             onPress={() => onPick(t.id)}
           >
+            <Text style={styles.cardEmoji}>{t.emoji}</Text>
             <Text style={styles.cardLabel}>{t.label}</Text>
             <Text style={styles.cardBlurb}>{t.blurb}</Text>
           </TouchableOpacity>
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     justifyContent: 'center',
   },
+  cardEmoji: { fontSize: 28, marginBottom: 6 },
   cardLabel: { fontSize: 17, fontWeight: '800', color: colors.text },
   cardBlurb: { fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 18 },
   cardLocked: {

@@ -14,7 +14,8 @@ import { PickType } from './steps/PickType';
 type Step = 'person' | 'type' | 'finish';
 
 function typeLabel(id: BoopTypeId): string {
-  return BOOP_TYPES.find((t) => t.id === id)?.label ?? 'Boop';
+  const t = BOOP_TYPES.find((bt) => bt.id === id);
+  return t ? `${t.emoji}  ${t.label}` : 'Boop';
 }
 
 /**

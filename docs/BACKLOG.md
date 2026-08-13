@@ -17,6 +17,28 @@ first. Pull items into a future milestone as they come up.
 - How do we know someone's region for region leaderboards? Automatic from phone
   location, or manual selection?
 
+## Adding people (from the M1 playtest, 2026-08-13)
+
+Playtest verdict: three taps feels fast, type-picking is fun, locked slots +
+finish moment land. The one friction: adding a **brand-new** person mid-boop is
+too slow — typing a name is the worst thing to do while "fleeing the scene."
+The fix is to make sure you rarely type mid-boop: have your people already
+loaded, so the mid-boop step is almost always a tap on a recent/known face.
+
+Ideas that came out of it:
+
+- **Import contacts from the phone** — the fast way to populate your people up
+  front (device Contacts → pick who to add). Strong candidate for the M2
+  friend-adding UX; needs a privacy decision (whose contacts, kid-appropriate
+  consent) before building. Client capability is `expo-contacts` (works in Expo
+  Go), so it *could* be prototyped on the M1 fake-data build ahead of full M2.
+- **Add people up front by speaking their names** (voice input) — a fun,
+  kid-friendly way to add several people quickly at setup. Deferred/stretch;
+  revisit after contacts import (which likely covers most of the need).
+
+Keep the mid-boop "Someone else…" typed entry as a fallback, just not the
+primary path.
+
 ## Additional Boop Types (beyond v1's Classic/Boopstache/Bellyboop/Underboop)
 
 Hand/Finger: Double-Finger Boop, Knuckle Boop, Palm Boop, Pinky Boop, Boop Slap,

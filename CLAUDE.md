@@ -81,6 +81,12 @@ doesn't re-litigate them.
   three taps. In M1 all four v1 boop types are selectable (no achievement
   engine yet); M4 will lock Boopstache/Bellyboop/Underboop per
   `unlockedByDefault`.
+- 2026-08-13 — M1 playtested (Matt + Frankie): three-tap loop validated (fast,
+  type-picking fun, locked slots + finish moment land). Only friction: adding a
+  brand-new person mid-boop (typing a name) is too slow. Direction: people
+  should be pre-loaded so mid-boop is a tap, not typing — import phone contacts
+  (M2 candidate) and voice-add (deferred). Logged in `docs/BACKLOG.md` →
+  "Adding people" and folded into the M2 plan in `HANDOFF.md`.
 - 2026-08-13 — Upgraded Expo SDK 52 → **54** (RN 0.76→0.81, React 18.3→19.1,
   TypeScript 5.9). Reason: Expo Go on the App Store only ships the *latest* SDK,
   so an SDK 52 project can't open in Expo Go on a real device (it errored with

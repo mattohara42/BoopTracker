@@ -58,22 +58,34 @@ Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
 - Optional photo lives on the finish screen, not as its own step, to protect
   the three-tap core loop (CLAUDE.md hard constraint).
 
-## Checkpoint due: hand M1 to Frankie
+## Checkpoint DONE: M1 playtested (2026-08-13, Matt + Frankie)
 
-Before M2, the plan calls for a real playtest of the three-tap flow: is three
-taps actually fast? Does picking the boop type feel fun or annoying? Retune
-`src/config/constants.ts` / the flow based on what comes back.
+Verdict: **they love it.** Three taps feels fast, picking the boop type is fun,
+the locked slots and the finish moment (buzz + confetti) all land. Core loop is
+validated — no retune of the three-tap flow needed.
+
+One real friction: adding a **brand-new** person mid-boop (the "Someone else…"
+typed entry) takes too long — typing a name mid-flee kills the speed. Fix
+direction: make sure people are already loaded so the mid-boop step is almost
+always a tap, not typing. Two ideas from the session (details in
+`docs/BACKLOG.md` → "Adding people"): **import phone contacts** (strong M2
+candidate) and **add people up front by voice** (deferred/stretch).
 
 ## Recommended next step: M2 (real accounts and data)
 
-From `docs/BUILD_PLAN.md`:
+From `docs/BUILD_PLAN.md`, now shaped by the playtest:
 
 1. Firebase project + Firestore schema for users, boops, friendships.
 2. Signup: username + email.
-3. Friends list: add by username, "someone else" for non-app people (replaces
-   `src/data/fakeFriends.ts`).
+3. Friends list: add by username, **import from phone contacts** (the playtest
+   friction fix), and "someone else" typed entry kept as a fallback. Replaces
+   `src/data/fakeFriends.ts`.
 4. Boop recording writes to Firestore instead of the in-memory `BoopLog`; the
    recent-people list comes from real history.
+
+> Blocked on a real Firebase project (Matt's to create). Contacts import is a
+> device capability (`expo-contacts`) that could be prototyped on the current
+> fake-data build first, if we want the friction fix before standing up M2.
 
 ## Open questions before/around building
 

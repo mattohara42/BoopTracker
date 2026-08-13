@@ -84,6 +84,11 @@ picker — no full-address-book access, no heavy permission gate. People live in
 hook, so a week-long family playtest builds up instead of resetting to zero.
 Per-device only; M2 makes Firebase the source of truth.
 
+**Undo added:** the finish screen has an "Undo — that wasn't a boop" action
+(`removeBoop`) so an accidental boop doesn't stick now that data persists.
+Editing/deleting *older* boops is deferred (no boop list to delete from without
+breaking the no-feed rule) — see `docs/BACKLOG.md`.
+
 ## Recommended next step: M2 (real accounts and data)
 
 From `docs/BUILD_PLAN.md`, now shaped by the playtest:

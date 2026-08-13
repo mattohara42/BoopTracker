@@ -10,7 +10,11 @@ first. Pull items into a future milestone as they come up.
   hand/finger variations, 10 boops unlocks location variations, specific
   achievements unlock pose/style variations, mastering basics unlocks combos. Not
   finalized.)
-- Can Free Boops or Shields be gifted to another player?
+- Editing/deleting an *older* boop (not the one just recorded). The finish
+  screen has an immediate Undo, but correcting a mistake from days ago has no
+  home yet — there's deliberately no scrollable boop list to delete from
+  (no-feed constraint). Needs a design pass: a lightweight "recent boops"
+  correction view? per-person? Don't let it become a feed.
 - Hidden achievements: any hints given, or fully mysterious?
 - Do achievements ever expire or can they be lost, or are they permanent once
   unlocked?

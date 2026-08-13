@@ -65,6 +65,11 @@ export function attachPhotoTo(
   return boops.map((b) => (b.id === boopId ? { ...b, photoUri } : b));
 }
 
+/** Remove a boop by id (used by undo). No-op if the id isn't present. */
+export function removeBoopById(boops: readonly Boop[], boopId: string): Boop[] {
+  return boops.filter((b) => b.id !== boopId);
+}
+
 /** Distinct people, most-recently-booped first, deduped by personId. */
 export function deriveRecentPeople(boops: readonly Boop[]): RecentPerson[] {
   const seen = new Set<string>();

@@ -87,6 +87,11 @@ doesn't re-litigate them.
   should be pre-loaded so mid-boop is a tap, not typing — import phone contacts
   (M2 candidate) and voice-add (deferred). Logged in `docs/BACKLOG.md` →
   "Adding people" and folded into the M2 plan in `HANDOFF.md`.
+- 2026-08-13 — Added an **Undo** on the finish screen (deletes the just-recorded
+  boop, `removeBoop`), prompted by persistence: an accidental boop now sticks, so
+  an immediate undo matters. Deliberately kept to the finish moment; a way to
+  edit/delete *older* boops is an open question because there's no boop list to
+  delete from (the no-feed constraint) — logged in `docs/BACKLOG.md`.
 - 2026-08-13 — Added local persistence (`@react-native-async-storage/async-storage`)
   so boops + people survive a reload, making a week-long family playtest usable
   before M2. Generic `usePersistentState(key, initial)` hook (hydrate-then-write,

@@ -4,6 +4,7 @@ import {
   deriveRecentPeople,
   deriveStats,
   prependBoop,
+  removeBoopById,
   type Boop,
 } from '../boopLogCore';
 
@@ -60,6 +61,19 @@ describe('attachPhotoTo', () => {
   it('is a no-op when the id is unknown', () => {
     const boops = [boop({ personId: 'a', id: 'a1' })];
     expect(attachPhotoTo(boops, 'nope', 'x')).toEqual(boops);
+  });
+});
+
+describe('removeBoopById', () => {
+  it('drops the matching boop and leaves the rest', () => {
+    const boops = [boop({ personId: 'a', id: 'a1' }), boop({ personId: 'b', id: 'b1' })];
+    expect(removeBoopById(boops, 'a1').map((x) => x.id)).toEqual(['b1']);
+  });
+
+  it('is a no-op when the id is unknown, without mutating', () => {
+    const boops = [boop({ personId: 'a', id: 'a1' })];
+    expect(removeBoopById(boops, 'nope')).toEqual(boops);
+    expect(boops).toHaveLength(1);
   });
 });
 

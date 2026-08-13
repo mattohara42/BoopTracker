@@ -20,11 +20,13 @@ export function Finish({
   personName,
   typeLabel,
   onAttachPhoto,
+  onUndo,
   onDone,
 }: {
   personName: string;
   typeLabel: string;
   onAttachPhoto: (uri: string) => void;
+  onUndo: () => void;
   onDone: () => void;
 }) {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -72,9 +74,14 @@ export function Finish({
         )}
       </View>
 
-      <TouchableOpacity style={styles.doneButton} activeOpacity={0.85} onPress={onDone}>
-        <Text style={styles.doneButtonText}>Done</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.doneButton} activeOpacity={0.85} onPress={onDone}>
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onUndo} hitSlop={8} accessibilityRole="button">
+          <Text style={styles.undoText}>Undo — that wasn’t a boop</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -97,11 +104,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   photoButtonText: { fontSize: 15, color: colors.text },
+  actions: { gap: 14, alignItems: 'center' },
   doneButton: {
+    alignSelf: 'stretch',
     backgroundColor: colors.primary,
     borderRadius: 16,
     paddingVertical: 18,
     alignItems: 'center',
   },
   doneButtonText: { color: colors.primaryText, fontSize: 18, fontWeight: '800' },
+  undoText: { color: colors.muted, fontSize: 15, fontWeight: '600' },
 });

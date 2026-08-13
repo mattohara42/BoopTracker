@@ -12,6 +12,7 @@ import {
   deriveRecentPeople,
   deriveStats,
   prependBoop,
+  removeBoopById,
   type Boop,
   type RecentPerson,
   type RecordBoopInput,
@@ -39,6 +40,7 @@ interface BoopLogValue {
   recentPeople: RecentPerson[];
   recordBoop: (input: RecordBoopInput) => Boop;
   attachPhoto: (boopId: string, photoUri: string) => void;
+  removeBoop: (boopId: string) => void;
 }
 
 const BoopLogContext = createContext<BoopLogValue | null>(null);
@@ -46,15 +48,28 @@ const BoopLogContext = createContext<BoopLogValue | null>(null);
 export function BoopLogProvider({ children }: { children: ReactNode }) {
   const [boops, setBoops] = usePersistentState<Boop[]>(BOOPS_KEY, []);
 
-  const recordBoop = useCallback((input: RecordBoopInput): Boop => {
-    const boop = createBoop(input, Date.now(), Math.random());
-    setBoops((prev) => prependBoop(prev, boop));
-    return boop;
-  }, []);
+  const recordBoop = useCallback(
+    (input: RecordBoopInput): Boop => {
+      const boop = createBoop(input, Date.now(), Math.random());
+      setBoops((prev) => prependBoop(prev, boop));
+      return boop;
+    },
+    [setBoops],
+  );
 
-  const attachPhoto = useCallback((boopId: string, photoUri: string) => {
-    setBoops((prev) => attachPhotoTo(prev, boopId, photoUri));
-  }, []);
+  const attachPhoto = useCallback(
+    (boopId: string, photoUri: string) => {
+      setBoops((prev) => attachPhotoTo(prev, boopId, photoUri));
+    },
+    [setBoops],
+  );
+
+  const removeBoop = useCallback(
+    (boopId: string) => {
+      setBoops((prev) => removeBoopById(prev, boopId));
+    },
+    [setBoops],
+  );
 
   const value = useMemo<BoopLogValue>(() => {
     const stats = deriveStats(boops);
@@ -65,8 +80,9 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
       recentPeople: deriveRecentPeople(boops),
       recordBoop,
       attachPhoto,
+      removeBoop,
     };
-  }, [boops, recordBoop, attachPhoto]);
+  }, [boops, recordBoop, attachPhoto, removeBoop]);
 
   return <BoopLogContext.Provider value={value}>{children}</BoopLogContext.Provider>;
 }

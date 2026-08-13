@@ -24,7 +24,7 @@ function typeLabel(id: BoopTypeId): string {
  * photo). Everything resets when the modal closes.
  */
 export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { recordBoop, attachPhoto } = useBoopLog();
+  const { recordBoop, attachPhoto, removeBoop } = useBoopLog();
   const [step, setStep] = useState<Step>('person');
   const [person, setPerson] = useState<Person | null>(null);
   const [recorded, setRecorded] = useState<Boop | null>(null);
@@ -55,6 +55,11 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
     setStep('finish');
   }
 
+  function handleUndo() {
+    if (recorded) removeBoop(recorded.id);
+    close();
+  }
+
   const title = step === 'person' ? 'Who did you boop?' : step === 'type' ? 'What kind of boop?' : '';
 
   return (
@@ -82,6 +87,7 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
               personName={recorded.personName}
               typeLabel={typeLabel(recorded.boopType)}
               onAttachPhoto={(uri) => attachPhoto(recorded.id, uri)}
+              onUndo={handleUndo}
               onDone={close}
             />
           )}

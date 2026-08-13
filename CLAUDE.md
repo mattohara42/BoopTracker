@@ -81,6 +81,16 @@ doesn't re-litigate them.
   three taps. In M1 all four v1 boop types are selectable (no achievement
   engine yet); M4 will lock Boopstache/Bellyboop/Underboop per
   `unlockedByDefault`.
+- 2026-08-13 — Upgraded Expo SDK 52 → **54** (RN 0.76→0.81, React 18.3→19.1,
+  TypeScript 5.9). Reason: Expo Go on the App Store only ships the *latest* SDK,
+  so an SDK 52 project can't open in Expo Go on a real device (it errored with
+  "Project is incompatible"). This is a standing constraint — when Expo cuts a
+  new SDK, bump the project to match before the next on-device playtest.
+  `babel-preset-expo` is now a direct devDependency (it's a peer dep in SDK 54,
+  no longer auto-installed); dropped `react-test-renderer` (deprecated in React
+  19, and the tests are pure logic). Exact versions come from
+  `node_modules/expo/bundledNativeModules.json` since the Expo version API isn't
+  reachable from the build sandbox.
 
 ## Open questions still to settle
 

@@ -19,7 +19,9 @@ Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
 - [x] `CLAUDE.md` written (conventions + assumptions log).
 - [x] This handoff doc.
 - [x] **M0 — repo skeleton** (this branch):
-  - Expo SDK 52 + React Native 0.76 + TypeScript (`strict`), `@/*` → `src/*`.
+  - Expo SDK 54 + React Native 0.81 + React 19 + TypeScript (`strict`),
+    `@/*` → `src/*`. (Started on SDK 52; bumped to 54 on 2026-08-13 so the
+    project opens in Expo Go, which only ships the latest SDK.)
   - Bottom-tab navigation (React Navigation v7): Home / Friends / Leaderboard.
   - `HomeScreen` shows the BOOP button + placeholder stats (button is inert
     until M1). Friends / Leaderboard are labelled placeholders.

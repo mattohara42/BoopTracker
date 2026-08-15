@@ -123,6 +123,15 @@ doesn't re-litigate them.
   `node_modules/expo/bundledNativeModules.json` since the Expo version API isn't
   reachable from the build sandbox.
 
+- 2026-08-13 — M2 started. Accounts decision: **own login each** (username +
+  email + password) via Firebase Auth; kids can use Gmail `+aliases`. Using the
+  **Firebase JS SDK** (not `@react-native-firebase`) so the app keeps running in
+  Expo Go — no dev build. Web config lives in `EXPO_PUBLIC_FIREBASE_*` env vars
+  (`.env` gitignored, `.env.example` committed); these values aren't secret,
+  Firestore rules are the real guard. `getReactNativePersistence` is reached
+  defensively (RN-build-only, missing from web types). Auth foundation built
+  first; People + Boops migrate to Firestore next. Schema in `docs/DATA_MODEL.md`.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

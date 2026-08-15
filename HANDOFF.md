@@ -89,21 +89,30 @@ Per-device only; M2 makes Firebase the source of truth.
 Editing/deleting *older* boops is deferred (no boop list to delete from without
 breaking the no-feed rule) — see `docs/BACKLOG.md`.
 
-## Recommended next step: M2 (real accounts and data)
+## In progress: M2 (real accounts and data)
 
-From `docs/BUILD_PLAN.md`, now shaped by the playtest:
+Decision: **own login each** — username + email + password (Firebase Auth).
+Using the **Firebase JS SDK** so it keeps running in Expo Go. Schema + setup
+steps live in `docs/DATA_MODEL.md`.
 
-1. Firebase project + Firestore schema for users, boops, friendships.
-2. Signup: username + email.
-3. Friends list: add by username, **import from phone contacts** (the playtest
-   friction fix), and "someone else" typed entry kept as a fallback. Replaces
-   `src/data/fakeFriends.ts`.
-4. Boop recording writes to Firestore instead of the in-memory `BoopLog`; the
-   recent-people list comes from real history.
+- [x] **Auth foundation** (built, needs live testing once the project exists):
+  - `src/firebase/app.ts` — init app/auth/firestore from `EXPO_PUBLIC_FIREBASE_*`
+    env (`.env.example` committed, `.env` gitignored). RN auth persistence via
+    AsyncStorage; Firestore auto long-polling.
+  - `src/auth/` — `AuthContext` (signUp reserves a unique username in a
+    transaction, signIn, signOut) + `AuthScreen` (signup/login form).
+  - `App.tsx` gates: no config → `SetupNeededScreen`; signed out → `AuthScreen`;
+    signed in → the app. Home shows the username + a Sign out.
+  - Verified: typecheck, 28 tests, full Metro bundle (Firebase resolves under
+    Metro, RN persistence path included).
+- [ ] **People in Firestore** — migrate `src/state/People.tsx` to
+  `users/{uid}/people`; keep contacts import; add "add by username".
+- [ ] **Boops in Firestore** — migrate `src/state/BoopLog.tsx` to `boops`.
+- [ ] **Lock down Firestore rules** before real use (starts in test mode).
 
-> Blocked on a real Firebase project (Matt's to create). Contacts import is a
-> device capability (`expo-contacts`) that could be prototyped on the current
-> fake-data build first, if we want the friction fix before standing up M2.
+> **Waiting on Matt:** create the Firebase project and paste the config into
+> `.env` (steps in `docs/DATA_MODEL.md` and in chat). Then: test signup/login →
+> build the People + Boops migrations.
 
 ## Open questions before/around building
 

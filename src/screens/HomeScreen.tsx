@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { useAuth } from '@/auth/AuthContext';
 import { BoopFlow } from '@/features/boop/BoopFlow';
 import { useBoopLog } from '@/state/BoopLog';
 import { colors } from '@/theme/colors';
@@ -14,12 +15,18 @@ import { colors } from '@/theme/colors';
  */
 export function HomeScreen() {
   const { totalBoops, uniquePeopleBooped } = useBoopLog();
+  const { profile, signOut } = useAuth();
   const [flowOpen, setFlowOpen] = useState(false);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.name}>You</Text>
+        <View style={styles.nameRow}>
+          <Text style={styles.name}>{profile?.username ?? 'You'}</Text>
+          <TouchableOpacity onPress={() => signOut()} hitSlop={8}>
+            <Text style={styles.signOut}>Sign out</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.statsRow}>
           <Stat label="Boops given" value={String(totalBoops)} />
           <Stat label="People booped" value={String(uniquePeopleBooped)} />
@@ -63,10 +70,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    alignSelf: 'stretch',
+  },
   name: {
     fontSize: 20,
     fontWeight: '700',
     color: colors.text,
+  },
+  signOut: {
+    fontSize: 14,
+    color: colors.muted,
+    fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',

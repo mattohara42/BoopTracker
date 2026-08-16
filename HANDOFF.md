@@ -21,20 +21,18 @@ _Last updated: 2026-08-16._
    - Watch A's score react (a denied boop stops counting).
    - If you see **"Missing or insufficient permissions"**, tell Claude — a rule
      needs a tweak.
-3. **Decide two things for M3b** (the email nudge), whenever. The Cloud Function
-   is already written and typechecks (`functions/`) — these two calls are all
-   that stand between it and `firebase deploy`:
-   - Upgrade Firebase to the **Blaze plan**? (Needed for Cloud Functions; free
-     tier is generous.)
-   - **Email provider** — recommendation is Firebase's *Trigger Email* extension.
-   Once both are done, follow `functions/README.md` to install the extension and
-   deploy.
+3. ~~Decide two things for M3b (the email nudge).~~ **Decided: skip the email for
+   v1.** Verification is **in-app only** (M3a already covers it), so no Blaze plan
+   and no email provider are needed. The drafted `functions/` code stays
+   **dormant** (documented, re-deployable) in case a nudge is wanted later —
+   likely as push (M7) rather than email.
 
 ## Where we are
 
 The app is real: **Expo + Firebase**, running in Expo Go. Accounts, cloud data,
 friends-by-username, and in-app boop **confirmation** all work. Milestones M0–M2
-are done; **M3 is in progress** (M3a done; M3b/M3c pending Matt's decisions).
+are done; **M3a shipped** (in-app confirm — the v1 verification), **M3b (email)
+deferred**, **M3c (photos) optional/pending**.
 
 ### Milestone status (see `docs/BUILD_PLAN.md`)
 - **M0 Repo skeleton** — ✅ done
@@ -43,10 +41,10 @@ are done; **M3 is in progress** (M3a done; M3b/M3c pending Matt's decisions).
   add-by-username, security rules written). Pending: Matt publishes the rules.
 - **M3 Verification** — 🔨 in progress
   - **M3a** in-app confirm loop — ✅ built (needs the two-account test)
-  - **M3b** email nudge — 🔨 function **drafted** in `functions/` (typechecks),
-    **not deployed** — needs Blaze + the Trigger Email extension
-    (`functions/README.md`)
-  - **M3c** photo-as-proof → Firebase Storage — ⏳
+  - **M3b** email nudge — ⏸️ **deferred (not in v1).** Function is drafted and
+    left dormant in `functions/`; verification is in-app only. A push nudge (M7)
+    is the likelier future path.
+  - **M3c** photo-as-proof → Firebase Storage — ⏳ optional (needs Blaze/Storage)
 - **M4 Achievements** — 🔨 started. Design gate resolved (thresholds retuned,
   the-Ladder unlock, badges kept forever). Pure **evaluation core** built +
   tested (`src/features/achievements/achievementsCore.ts`); UI + live-data wiring

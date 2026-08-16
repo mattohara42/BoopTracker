@@ -4,7 +4,8 @@ Milestones are meant to be built and tested in order. Each one should produce
 something Frankie can actually try, even if it's rough.
 
 > **Status (2026-08-16):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
-> M3 🔨 in progress (M3a done; M3b/M3c pending) · M4–M8 not started.
+> M3 (M3a shipped — in-app confirm; M3b email **deferred**; M3c photos optional) ·
+> M4 🔨 started · M5–M8 not started.
 > Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
 > [`M3_PLAN.md`](M3_PLAN.md).
 
@@ -33,12 +34,14 @@ something Frankie can actually try, even if it's rough.
 - Boop recording now writes to Firestore instead of local state
 - Recent people list populated from real boop history
 
-## M3: Verification  🔨 (M3a done — see M3_PLAN.md)
-- Email notification sent when an app user gets booped
-- Notification includes a confirm step, and for boops with a claimed type, asks
-  "was it a Boopstache?" (yes/no)
-- Photo-as-proof path for non-app people: attach photo, mark as witnessed
-- Cloud Function to handle the confirm/deny logic
+## M3: Verification  (M3a shipped — see M3_PLAN.md)
+- ✅ In-app confirm: the booped app-user confirms/denies in a "boops to confirm"
+  list, and for a claimed type is asked "was it a Boopstache?" (yes/no). This is
+  the shipped v1 verification.
+- ⏸️ Email nudge to ping the booped person — **deferred (not in v1).** Function
+  drafted + dormant in `functions/`; a push nudge (M7) is the likelier future path.
+- ⏳ Photo-as-proof path for non-app people: attach photo, mark as witnessed (M3c,
+  optional — needs Storage/Blaze)
 
 ## M4: Achievements (Week One Set)  🔨 (started)
 - ✅ **Evaluation core** — `src/features/achievements/achievementsCore.ts`, a

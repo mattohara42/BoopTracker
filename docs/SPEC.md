@@ -26,15 +26,17 @@ Three taps to record a boop. Speed matters, you are usually fleeing the scene.
 
 ## Verification
 
-- If the person you booped is in the app: they get an email notification that they
-  got booped. That's the proof.
+- If the person you booped is in the app: they confirm the boop **in the app**
+  (the "boops to confirm" list on Home). That's the proof. *(v1 deliberately
+  skips the email nudge that would ping them to open the app — see the CLAUDE.md
+  assumptions log. A push nudge is a later option, M7.)*
 - If they're not in the app (a grandparent, someone without a phone): a photo of
   the two of you together is the proof instead.
 - Photos are taken by a THIRD PERSON mid-boop, not a selfie taken after. Whoever
   takes the photo is a witness and can be tagged. Witness photos are stronger proof
   than anything self-reported.
 - For claimed boop types (see Boop Types below) the booped person is asked to
-  confirm the type when they get the notification. If they say yes, it counts.
+  confirm the type when they open the app to confirm. If they say yes, it counts.
 
 ## Boop Types
 
@@ -126,7 +128,8 @@ Global and country/region leaderboards: BACKLOG, not v1.
 - Client: React Native / Expo (one codebase for iOS and Android)
 - Backend: Firebase (Firestore for data, Cloud Functions for achievement/validation
   logic, push notifications)
-- Email: needed for boop notifications to app users, provider TBD
+- Email: **not used in v1** — verification is in-app. An email/push nudge is
+  deferred (a push nudge, M7, is the likelier path)
 - Auth: username + email at signup
 
 ## Explicitly Out of Scope for v1

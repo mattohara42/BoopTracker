@@ -31,10 +31,11 @@ The player's people list — replaces the local `People` store, kept live with
 onSnapshot. `personId` is a sanitized source id (e.g. `contact:123`) so
 re-importing the same contact dedupes.
 ```
-{ name: string, relation?: string }
+{ name: string, relation?: string, friendUid?: string }
 ```
-> `kind` / `friendUid` (to link an app-user friend by username) come with the
-> "add by username" slice, still to build.
+> `friendUid` is set when the person is another BoopTracker account added by
+> username (doc id `app:{friendUid}`); absent for contacts/guests. It's the hook
+> for account-to-account features (M3 boop notifications).
 
 ### `boops/{boopId}`  *(done)*
 One recorded boop, replaces the local `BoopLog`. Queried by `booperUid == me`

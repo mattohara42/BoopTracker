@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { pickContactAsPerson } from '@/features/contacts/pickContact';
 import { usePeople } from '@/state/People';
@@ -16,8 +24,11 @@ import { colors } from '@/theme/colors';
  * for now the list is in-memory and resets on reload.
  */
 export function FriendsScreen() {
-  const { people, addPeople, removePerson } = usePeople();
+  const { people, addPeople, removePerson, addByUsername } = usePeople();
   const [busy, setBusy] = useState(false);
+  const [username, setUsername] = useState('');
+  const [addingFriend, setAddingFriend] = useState(false);
+  const [friendMsg, setFriendMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function addFromContacts() {
     if (busy) return;
@@ -30,12 +41,56 @@ export function FriendsScreen() {
     }
   }
 
+  async function addFriend() {
+    if (addingFriend || !username.trim()) return;
+    setAddingFriend(true);
+    setFriendMsg(null);
+    const result = await addByUsername(username);
+    if (result.ok) {
+      setFriendMsg({ ok: true, text: `Added ${result.name} 🎉` });
+      setUsername('');
+    } else {
+      setFriendMsg({ ok: false, text: result.error });
+    }
+    setAddingFriend(false);
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.hint}>
           Add your people here so booping is one tap — no typing mid-boop.
         </Text>
+
+        <View style={styles.addFriend}>
+          <TextInput
+            style={styles.friendInput}
+            placeholder="Add a friend by username"
+            placeholderTextColor={colors.muted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={username}
+            onChangeText={setUsername}
+            onSubmitEditing={addFriend}
+            returnKeyType="done"
+          />
+          <TouchableOpacity
+            style={[styles.friendAdd, (!username.trim() || addingFriend) && styles.friendAddDisabled]}
+            disabled={!username.trim() || addingFriend}
+            onPress={addFriend}
+          >
+            {addingFriend ? (
+              <ActivityIndicator color={colors.primaryText} />
+            ) : (
+              <Text style={styles.friendAddText}>Add</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+        {friendMsg ? (
+          <Text style={[styles.friendMsg, friendMsg.ok ? styles.friendMsgOk : styles.friendMsgErr]}>
+            {friendMsg.text}
+          </Text>
+        ) : null}
 
         {people.map((p) => (
           <View key={p.id} style={styles.row}>
@@ -77,6 +132,31 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingBottom: 8 },
   hint: { fontSize: 14, color: colors.muted, marginBottom: 16, lineHeight: 20 },
+  addFriend: { flexDirection: 'row', gap: 10, marginBottom: 8 },
+  friendInput: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.text,
+  },
+  friendAdd: {
+    backgroundColor: colors.primary,
+    borderRadius: 14,
+    paddingHorizontal: 22,
+    minWidth: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  friendAddDisabled: { opacity: 0.5 },
+  friendAddText: { color: colors.primaryText, fontWeight: '800', fontSize: 16 },
+  friendMsg: { fontSize: 14, marginBottom: 12 },
+  friendMsgOk: { color: '#2E7D32' },
+  friendMsgErr: { color: '#C0392B' },
   row: {
     backgroundColor: colors.surface,
     borderRadius: 14,

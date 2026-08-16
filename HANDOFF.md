@@ -112,8 +112,9 @@ steps live in `docs/DATA_MODEL.md`.
   `boops` collection (filtered to `booperUid == me`, sorted client-side so no
   index needed). `recordBoop` is async; the boop flow awaits it with a saving
   spinner + error alert. Undo/attach-photo/stats/recents all still work.
-- [ ] **Add friend by username** — look up `usernames/{lower}` → uid, store a
-  person with `kind:'app'` + `friendUid`. Next slice.
+- [x] **Add friend by username** — Friends tab has an "Add a friend by
+  username" field; `addByUsername` looks up `usernames/{lower}` → uid, stores a
+  person doc `app:{uid}` with `friendUid`. Blocks self-add + missing handles.
 - [ ] **Lock down Firestore rules** before real use (starts in test mode).
 - [ ] **Photo upload to Storage** (M3) — `photoUri` is still a local path, so
   photos don't load cross-device yet.

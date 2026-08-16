@@ -11,6 +11,12 @@ export interface Person {
   name: string;
   /** How they relate to the player — shown as a subtitle in the picker. */
   relation?: string;
+  /**
+   * When set, this person is another BoopTracker *account* (added by username),
+   * and this is their uid. Absent for contacts/guests. Used later for
+   * account-to-account features like boop notifications (M3).
+   */
+  friendUid?: string;
 }
 
 export const FAKE_FRIENDS: readonly Person[] = [

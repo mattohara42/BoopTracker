@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BOOP_TYPES, type BoopTypeId } from '@/config/constants';
@@ -29,11 +37,13 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
   const [step, setStep] = useState<Step>('person');
   const [person, setPerson] = useState<Person | null>(null);
   const [recorded, setRecorded] = useState<Boop | null>(null);
+  const [saving, setSaving] = useState(false);
 
   function reset() {
     setStep('person');
     setPerson(null);
     setRecorded(null);
+    setSaving(false);
   }
 
   function close() {
@@ -46,14 +56,22 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
     setStep('type');
   }
 
-  function handlePickType(typeId: BoopTypeId) {
-    const boop = recordBoop({
-      personId: person!.id,
-      personName: person!.name,
-      boopType: typeId,
-    });
-    setRecorded(boop);
-    setStep('finish');
+  async function handlePickType(typeId: BoopTypeId) {
+    if (saving) return; // guard against a double-tap while the write is in flight
+    setSaving(true);
+    try {
+      const boop = await recordBoop({
+        personId: person!.id,
+        personName: person!.name,
+        boopType: typeId,
+      });
+      setRecorded(boop);
+      setStep('finish');
+    } catch {
+      Alert.alert('Could not save your boop', 'Check your connection and try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleUndo() {
@@ -93,6 +111,12 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
             />
           )}
         </View>
+
+        {saving && (
+          <View style={styles.savingOverlay}>
+            <ActivityIndicator color={colors.primary} size="large" />
+          </View>
+        )}
       </SafeAreaView>
     </Modal>
   );
@@ -111,4 +135,10 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 17, fontWeight: '800', color: colors.text },
   headerSpacer: { minWidth: 60 },
   body: { flex: 1 },
+  savingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 246, 233, 0.6)',
+  },
 });

@@ -105,14 +105,21 @@ steps live in `docs/DATA_MODEL.md`.
     signed in → the app. Home shows the username + a Sign out.
   - Verified: typecheck, 28 tests, full Metro bundle (Firebase resolves under
     Metro, RN persistence path included).
-- [ ] **People in Firestore** — migrate `src/state/People.tsx` to
-  `users/{uid}/people`; keep contacts import; add "add by username".
-- [ ] **Boops in Firestore** — migrate `src/state/BoopLog.tsx` to `boops`.
+- [x] **People in Firestore** — `src/state/People.tsx` now reads/writes
+  `users/{uid}/people` live (onSnapshot); contacts import + remove still work.
+  Fake-friend seeding dropped (real accounts start empty).
+- [x] **Boops in Firestore** — `src/state/BoopLog.tsx` now reads/writes the
+  `boops` collection (filtered to `booperUid == me`, sorted client-side so no
+  index needed). `recordBoop` is async; the boop flow awaits it with a saving
+  spinner + error alert. Undo/attach-photo/stats/recents all still work.
+- [ ] **Add friend by username** — look up `usernames/{lower}` → uid, store a
+  person with `kind:'app'` + `friendUid`. Next slice.
 - [ ] **Lock down Firestore rules** before real use (starts in test mode).
+- [ ] **Photo upload to Storage** (M3) — `photoUri` is still a local path, so
+  photos don't load cross-device yet.
 
-> **Waiting on Matt:** create the Firebase project and paste the config into
-> `.env` (steps in `docs/DATA_MODEL.md` and in chat). Then: test signup/login →
-> build the People + Boops migrations.
+> Firebase project exists; signup/login verified on device. People + boops now
+> sync to the cloud — sign in on another phone and your data follows you.
 
 ## Open questions before/around building
 

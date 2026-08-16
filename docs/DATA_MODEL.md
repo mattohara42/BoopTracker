@@ -26,21 +26,25 @@ signup.
 { uid: string }
 ```
 
-### `users/{uid}/people/{personId}`  *(planned — next M2 slice)*
-The player's people list — replaces the local `People` store. Covers both app
-users (friends) and non-app people (imported contacts, typed guests).
+### `users/{uid}/people/{personId}`  *(done)*
+The player's people list — replaces the local `People` store, kept live with
+onSnapshot. `personId` is a sanitized source id (e.g. `contact:123`) so
+re-importing the same contact dedupes.
 ```
-{ name: string, relation?: string, kind: 'app' | 'contact' | 'guest',
-  friendUid?: string /* set when kind === 'app' */ }
+{ name: string, relation?: string }
 ```
+> `kind` / `friendUid` (to link an app-user friend by username) come with the
+> "add by username" slice, still to build.
 
-### `boops/{boopId}`  *(planned — next M2 slice)*
-One recorded boop. Replaces the local `BoopLog`. Verification fields
+### `boops/{boopId}`  *(done)*
+One recorded boop, replaces the local `BoopLog`. Queried by `booperUid == me`
+and sorted client-side (no composite index needed). Verification fields
 (confirmed/denied, witness) arrive in M3.
 ```
 { booperUid: string, personId: string, personName: string,
   boopType: 'classic' | 'boopstache' | 'bellyboop' | 'underboop',
-  photoUri?: string, at: Timestamp }
+  photoUri?: string /* local path for now; Storage upload is M3 */,
+  at: Timestamp }
 ```
 
 ## Build order within M2

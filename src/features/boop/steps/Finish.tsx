@@ -1,9 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { colors, gradients } from '@/theme/colors';
 
 /**
  * Finish screen. The boop is already recorded by the time we get here — this is
@@ -75,8 +76,15 @@ export function Finish({
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.doneButton} activeOpacity={0.85} onPress={onDone}>
-          <Text style={styles.doneButtonText}>Done</Text>
+        <TouchableOpacity style={styles.doneButton} activeOpacity={0.9} onPress={onDone}>
+          <LinearGradient
+            colors={gradients.boop}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.doneGradient}
+          >
+            <Text style={styles.doneButtonText}>Done</Text>
+          </LinearGradient>
         </TouchableOpacity>
         <TouchableOpacity onPress={onUndo} hitSlop={8} accessibilityRole="button">
           <Text style={styles.undoText}>Undo — that wasn’t a boop</Text>
@@ -107,11 +115,10 @@ const styles = StyleSheet.create({
   actions: { gap: 14, alignItems: 'center' },
   doneButton: {
     alignSelf: 'stretch',
-    backgroundColor: colors.primary,
     borderRadius: 16,
-    paddingVertical: 18,
-    alignItems: 'center',
+    overflow: 'hidden',
   },
+  doneGradient: { paddingVertical: 18, alignItems: 'center' },
   doneButtonText: { color: colors.primaryText, fontSize: 18, fontWeight: '800' },
   undoText: { color: colors.muted, fontSize: 15, fontWeight: '600' },
 });

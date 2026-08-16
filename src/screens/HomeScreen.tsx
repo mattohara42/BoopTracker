@@ -1,57 +1,74 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthContext';
 import { BoopFlow } from '@/features/boop/BoopFlow';
 import { useBoopLog } from '@/state/BoopLog';
-import { colors } from '@/theme/colors';
+import { colors, gradients, radius, shadow, space } from '@/theme/colors';
 
 /**
  * HomeScreen — "just the big BOOP button" (SPEC.md → Core Loop).
  *
- * The button opens the three-tap record flow (pick who → pick type → finish).
- * Header stats come from the local BoopLog. No feed, ever — that's a permanent
- * constraint (CLAUDE.md).
+ * Wrapped in a top SafeAreaView so the header clears the phone's status bar.
+ * The button opens the three-tap record flow. No feed, ever (CLAUDE.md).
  */
 export function HomeScreen() {
   const { totalBoops, uniquePeopleBooped } = useBoopLog();
   const { profile, signOut } = useAuth();
   const [flowOpen, setFlowOpen] = useState(false);
 
+  const name = profile?.username ?? 'You';
+  const initial = name.charAt(0).toUpperCase();
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <View style={styles.nameRow}>
-          <Text style={styles.name}>{profile?.username ?? 'You'}</Text>
-          <TouchableOpacity onPress={() => signOut()} hitSlop={8}>
-            <Text style={styles.signOut}>Sign out</Text>
-          </TouchableOpacity>
+        <View style={styles.identity}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initial}</Text>
+          </View>
+          <View>
+            <Text style={styles.hi}>Hi,</Text>
+            <Text style={styles.name}>{name}</Text>
+          </View>
         </View>
-        <View style={styles.statsRow}>
-          <Stat label="Boops given" value={String(totalBoops)} />
-          <Stat label="People booped" value={String(uniquePeopleBooped)} />
-        </View>
+        <TouchableOpacity style={styles.signOut} onPress={() => signOut()} hitSlop={8}>
+          <Text style={styles.signOutText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.statsRow}>
+        <Stat label="Boops given" value={totalBoops} />
+        <Stat label="People booped" value={uniquePeopleBooped} />
       </View>
 
       <View style={styles.center}>
-        <TouchableOpacity
-          style={styles.boopButton}
-          activeOpacity={0.85}
+        <Pressable
+          onPress={() => setFlowOpen(true)}
           accessibilityRole="button"
           accessibilityLabel="Record a boop"
-          onPress={() => setFlowOpen(true)}
+          style={({ pressed }) => [styles.boopWrap, pressed && styles.boopPressed]}
         >
-          <Text style={styles.boopButtonText}>BOOP</Text>
-        </TouchableOpacity>
+          <LinearGradient
+            colors={gradients.boop}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.boopButton}
+          >
+            <Text style={styles.boopButtonText}>BOOP</Text>
+          </LinearGradient>
+        </Pressable>
         <Text style={styles.hint}>Tap to record a boop</Text>
       </View>
 
       <BoopFlow visible={flowOpen} onClose={() => setFlowOpen(false)} />
-    </View>
+    </SafeAreaView>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -61,75 +78,67 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  safe: { flex: 1, backgroundColor: colors.background },
   header: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-  },
-  nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    alignSelf: 'stretch',
+    paddingHorizontal: space.lg,
+    paddingTop: space.sm,
   },
-  name: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  signOut: {
-    fontSize: 14,
-    color: colors.muted,
-    fontWeight: '600',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    marginTop: 12,
-    gap: 32,
-  },
-  stat: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  statLabel: {
-    fontSize: 13,
-    color: colors.muted,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boopButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+  identity: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+  },
+  avatarText: { color: colors.primaryText, fontSize: 20, fontWeight: '800' },
+  hi: { fontSize: 13, color: colors.muted, marginBottom: -2 },
+  name: { fontSize: 20, fontWeight: '800', color: colors.text },
+  signOut: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+  },
+  signOutText: { fontSize: 13, color: colors.muted, fontWeight: '700' },
+  statsRow: {
+    flexDirection: 'row',
+    gap: space.md,
+    paddingHorizontal: space.lg,
+    marginTop: space.lg,
+  },
+  stat: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingVertical: space.md,
+    paddingHorizontal: space.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+  statValue: { fontSize: 32, fontWeight: '900', color: colors.accent },
+  statLabel: { fontSize: 13, color: colors.muted, marginTop: 2, fontWeight: '600' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  boopWrap: { borderRadius: radius.pill, ...shadow.button },
+  boopPressed: { transform: [{ scale: 0.96 }] },
+  boopButton: {
+    width: 216,
+    height: 216,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   boopButtonText: {
     color: colors.primaryText,
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: '900',
-    letterSpacing: 2,
+    letterSpacing: 3,
   },
-  hint: {
-    marginTop: 20,
-    fontSize: 15,
-    color: colors.muted,
-  },
+  hint: { marginTop: space.lg, fontSize: 15, color: colors.muted, fontWeight: '600' },
 });

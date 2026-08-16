@@ -132,6 +132,15 @@ doesn't re-litigate them.
   defensively (RN-build-only, missing from web types). Auth foundation built
   first; People + Boops migrate to Firestore next. Schema in `docs/DATA_MODEL.md`.
 
+- 2026-08-16 — Design pass + safe-area fix. Home wasn't wrapped in a
+  SafeAreaView, so the username/Sign out sat under the status bar — fixed with
+  `SafeAreaView edges={['top']}`. Refreshed the theme into tokens
+  (`colors`/`gradients`/`radius`/`space`/`shadow` in `src/theme/colors.ts`);
+  Home got a greeting + avatar, stat pills, and a gradient BOOP button
+  (`expo-linear-gradient`); tabs got emoji icons. Same sunset gradient on the
+  finish "Done" button. Not the M7.5 juice pass (confetti is still a
+  placeholder) — just a visual uplift.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

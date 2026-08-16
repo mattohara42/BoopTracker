@@ -47,8 +47,11 @@ are done; **M3 is in progress** (M3a done; M3b/M3c pending Matt's decisions).
     **not deployed** — needs Blaze + the Trigger Email extension
     (`functions/README.md`)
   - **M3c** photo-as-proof → Firebase Storage — ⏳
-- **M4–M8** — not started (achievements, powerups, leaderboards, push, juice,
-  playtest).
+- **M4 Achievements** — 🔨 started. Design gate resolved (thresholds retuned,
+  the-Ladder unlock, badges kept forever). Pure **evaluation core** built +
+  tested (`src/features/achievements/achievementsCore.ts`); UI + live-data wiring
+  + relation picker still to come (see `docs/BUILD_PLAN.md` M4).
+- **M5–M8** — not started (powerups, leaderboards, push, juice, playtest).
 
 ## How to run
 

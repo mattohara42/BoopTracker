@@ -40,12 +40,17 @@ something Frankie can actually try, even if it's rough.
 - Photo-as-proof path for non-app people: attach photo, mark as witnessed
 - Cloud Function to handle the confirm/deny logic
 
-## M4: Achievements (Week One Set)
-- Cloud Function(s) to evaluate the 14 week-one achievements from SPEC.md against
-  boop history
-- Badge unlock UI: confetti + badge on the finish screen
-- "Big deal" achievements trigger the Free Boop / Shield choice screen
-- Achievement list screen (even if bare-bones) so you can see what you've unlocked
+## M4: Achievements (Week One Set)  🔨 (started)
+- ✅ **Evaluation core** — `src/features/achievements/achievementsCore.ts`, a
+  pure, unit-tested evaluator of all 14 week-one achievements (thresholds from
+  `constants.ts`, unlock ladder + retune from the design gate). No React/Firebase;
+  the app layer feeds it boops + context and diffs against what's already earned.
+- ⏳ Wire it to live data (join boops → people for `relation`; feed `timesBooped`
+  from PendingBoops/received, `friendsCount` from People).
+- ⏳ Badge unlock UI: confetti + badge on the finish screen
+- ⏳ "Big deal" achievements trigger the Free Boop / Shield choice screen
+- ⏳ Relation picker (mark a friend as brother/sister) — unblocks Sibling badges
+- ⏳ Achievement list screen (even if bare-bones) so you can see what you've unlocked
 
 ## M5: Powerups
 - Free Boop and Shield state per user, Firestore-backed

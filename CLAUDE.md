@@ -7,7 +7,7 @@ picking up this repo. Read this first, then `HANDOFF.md` for current state.
 
 BoopTracker: a family app that keeps score of *boops* (pretend there's
 something on someone's shirt, they look down, you boop their nose). Frankie
-(age 10) and Matt's project. See `docs/SPEC.md` for the v1 scope and
+(age 10, he/him) and Matt's project. See `docs/SPEC.md` for the v1 scope and
 `docs/BUILD_PLAN.md` for the milestone order.
 
 ## Hard constraints (do not violate without discussion)
@@ -189,6 +189,18 @@ doesn't re-litigate them.
   (a denial that drops you below a threshold does not revoke the badge). Sibling
   / Double Sibling need a **relation picker**, to be built as part of M4. This
   resolves the "unlock order blocks M4" open question for the v1 four.
+
+- 2026-08-16 — Frankie uses **he/him** (recorded in "What this is" + SPEC).
+- 2026-08-16 — M4 **kicked off** with the pure evaluation core
+  (`src/features/achievements/achievementsCore.ts`): `evaluateAchievements`
+  returns which of the 14 week-one badges are earned from a player's boops +
+  context, `newlyEarned` diffs against what's already unlocked (badges are kept
+  once earned), `isBigDeal` flags the two choice-granting ones. Follows the
+  `*Core.ts` pattern — no React/Firebase, thresholds from `constants.ts`,
+  day/hour encoders injectable for timezone-independent tests (25 tests). Still
+  to build: live-data wiring (join boops→people for `relation`), the
+  finish-screen badge/confetti, the "big deal" choice screen, the relation
+  picker, and the achievements-list screen.
 
 ## Open questions still to settle
 

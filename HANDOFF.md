@@ -115,12 +115,16 @@ steps live in `docs/DATA_MODEL.md`.
 - [x] **Add friend by username** — Friends tab has an "Add a friend by
   username" field; `addByUsername` looks up `usernames/{lower}` → uid, stores a
   person doc `app:{uid}` with `friendUid`. Blocks self-add + missing handles.
-- [ ] **Lock down Firestore rules** before real use (starts in test mode).
+- [x] **Firestore security rules** written (`firestore.rules` at repo root) —
+  owner-only people/boops, profile reads for friend lookup, unique usernames.
+  **Matt must paste them into the console to replace test mode** (steps in
+  `docs/DATA_MODEL.md`).
 - [ ] **Photo upload to Storage** (M3) — `photoUri` is still a local path, so
   photos don't load cross-device yet.
 
 > Firebase project exists; signup/login verified on device. People + boops now
-> sync to the cloud — sign in on another phone and your data follows you.
+> sync to the cloud, friends connect by username, and real security rules exist
+> (pending a console publish). That's the core of M2 done.
 
 ## Open questions before/around building
 

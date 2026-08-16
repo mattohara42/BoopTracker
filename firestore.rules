@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// BoopTracker Firestore security rules.
+//
+// Source of truth lives here in the repo; deploy by pasting into the Firebase
+// console (Firestore Database → Rules → paste → Publish). These replace the
+// wide-open "test mode" rules the project starts with.
+//
+// Scope note: reads are intentionally tight for M2 (you see your own boops).
+// M3 (verification — notify the booped person) and M6 (leaderboards) will widen
+// specific reads; do that deliberately, per feature, rather than opening it up.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Profiles. Any signed-in user can read a profile — needed to resolve a
+    // username → display name when adding a friend. Only the owner can write.
+    // NOTE: this exposes the profile's `email` to other signed-in users, which
+    // is acceptable for a family app. If that changes, split the doc into a
+    // public profile (username) and a private doc (email).
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isUser(uid);
+      allow delete: if false;
+
+      // A user's private people list — owner only.
+      match /people/{personId} {
+        allow read, write: if isUser(uid);
+      }
+    }
+
+    // Username reservations. Readable by any signed-in user (for the add-a-
+    // friend lookup and the signup uniqueness check). You may only create one
+    // that points to your own uid, and existing reservations can't be
+    // overwritten or deleted — that's what keeps usernames unique.
+    match /usernames/{name} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Boops. For now you can only touch your own.
+    match /boops/{boopId} {
+      allow read: if signedIn() && resource.data.booperUid == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.booperUid == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.booperUid == request.auth.uid;
+    }
+  }
+}

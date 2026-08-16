@@ -58,12 +58,29 @@ and sorted client-side (no composite index needed). Verification fields
 3. **Boops in Firestore** — migrate `src/state/BoopLog.tsx` to `boops`; Home
    stats + recent people read from real history.
 
-## Security rules (before real use)
+## Security rules
 
-Firestore starts in **test mode** (open) so we can build fast. Before the family
-actually uses it, lock it down: a user can read/write only their own `users/{uid}`
-doc and their own `boops`; `usernames` is create-if-absent. Tracked as a to-do —
-don't ship test-mode rules to real use.
+Firestore starts in **test mode** (open to anyone for ~30 days). The real rules
+live in [`firestore.rules`](../firestore.rules) at the repo root and enforce:
+
+- **`users/{uid}`** — any signed-in user can *read* a profile (needed to resolve
+  a username → display name when adding a friend); only the owner can write.
+- **`users/{uid}/people`** — owner only.
+- **`usernames/{name}`** — any signed-in user can read (lookup + uniqueness
+  check); you can only create one pointing to your own uid, and existing ones
+  can't be overwritten or deleted (that's what keeps usernames unique).
+- **`boops`** — you can only read/write boops where `booperUid` is you.
+
+> Reads are deliberately tight for M2. M3 (notify the booped person) and M6
+> (leaderboards) will widen specific reads — do that per feature, not by
+> re-opening everything.
+
+### Deploy the rules
+
+No CLI needed — paste them in the console:
+Firebase console → **Firestore Database → Rules** → replace the contents with
+[`firestore.rules`](../firestore.rules) → **Publish**. Re-do this whenever the
+file changes.
 
 ## First-time Firebase setup (Matt)
 

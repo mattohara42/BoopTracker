@@ -8,7 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 import { BOOP_TYPES, type BoopTypeId } from '@/config/constants';
 import type { Person } from '@/data/fakeFriends';
@@ -83,8 +87,13 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={close}>
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        {step !== 'finish' && (
+      {/* A React Native <Modal> renders outside the app's SafeAreaProvider, so
+          insets read as 0 in here and the header would ride under the notch.
+          Nest a provider (seeded with initialWindowMetrics to avoid a
+          first-frame jump) so SafeAreaView measures correctly. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+          {step !== 'finish' && (
           <View style={styles.header}>
             <TouchableOpacity
               onPress={() => (step === 'type' ? setStep('person') : close())}
@@ -117,7 +126,8 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
             <ActivityIndicator color={colors.primary} size="large" />
           </View>
         )}
-      </SafeAreaView>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   );
 }

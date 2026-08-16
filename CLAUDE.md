@@ -169,6 +169,17 @@ doesn't re-litigate them.
   currently rewrite `booperUid`/`subjectUid`; boop create accepts any
   `subjectUid`, a mild nudge-spam vector) as v1-acceptable, not blockers.
 
+- 2026-08-16 — Fixed safe-area + back-nav in the full-screen modals. A React
+  Native `<Modal>` renders in a separate native hierarchy *outside* the app's
+  `SafeAreaProvider`, so `SafeAreaView` inside it measured 0 insets — the header
+  rode under the notch/status bar, which also hid the "Boops to confirm" dismiss
+  control (looked like "no way back"). Fix: nest a `SafeAreaProvider` (seeded
+  with `initialWindowMetrics` to avoid a first-frame jump) inside each Modal —
+  `ConfirmBoopsModal` and `BoopFlow`. Also gave `ConfirmBoopsModal` a clear
+  top-left "‹ Back" affordance mirroring `BoopFlow`'s header (was a right-side
+  "Done" that the notch was covering). Playtest find from Matt; UI-only, tests
+  still 31 green.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

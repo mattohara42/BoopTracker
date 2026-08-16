@@ -49,6 +49,13 @@ export interface BoopType {
   blurb: string;
   /** Classic is always available; the rest start locked and unlock later. */
   unlockedByDefault: boolean;
+  /**
+   * For a locked type, the total-boops count that unlocks it — "the Ladder"
+   * unlock order Frankie chose in the M4 design gate (docs/M4_DESIGN_GATE.md):
+   * Boopstache @5, Bellyboop @10, Underboop @15. Omitted for Classic (always on).
+   * M4's achievement engine reads this to grant the unlock.
+   */
+  unlockAtBoops?: number;
 }
 
 /**
@@ -72,6 +79,7 @@ export const BOOP_TYPES: readonly BoopType[] = [
     emoji: '🥸',
     blurb: 'Sideways finger under the nose.',
     unlockedByDefault: false,
+    unlockAtBoops: 5,
   },
   {
     id: 'bellyboop',
@@ -79,6 +87,7 @@ export const BOOP_TYPES: readonly BoopType[] = [
     emoji: '🫃',
     blurb: 'Bellybutton boop.',
     unlockedByDefault: false,
+    unlockAtBoops: 10,
   },
   {
     id: 'underboop',
@@ -86,6 +95,7 @@ export const BOOP_TYPES: readonly BoopType[] = [
     emoji: '👇',
     blurb: 'Boop under a table.',
     unlockedByDefault: false,
+    unlockAtBoops: 15,
   },
 ] as const;
 
@@ -108,7 +118,7 @@ export const ACHIEVEMENT_THRESHOLDS = {
   /** "Early Bird" — booped strictly before this hour (24h clock). */
   EARLY_BIRD_BEFORE_HOUR: 8, // before 8am
   /** "Night Owl" — booped at or after this hour (24h clock). */
-  NIGHT_OWL_AFTER_HOUR: 22, // after 10pm
+  NIGHT_OWL_AFTER_HOUR: 21, // after 9pm (M4 design gate: Frankie moved it earlier from 10pm)
 } as const;
 
 // Post-week-one milestones. Not part of the week-one unlock set, but listed in

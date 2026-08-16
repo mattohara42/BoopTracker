@@ -87,8 +87,9 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
 
 ## Open questions that block future milestones
 
-- **Boop-type unlock order / prerequisites** beyond the v1 four (blocks M4
-  achievements + unlock logic).
+- **Boop-type unlock order** for the v1 four — **decided** (the Ladder: 5/10/15
+  total boops; see `docs/M4_DESIGN_GATE.md`), no longer blocks M4. Order for
+  types beyond the v1 four is still backlog.
 - Does a `pending` boop count immediately or only once confirmed? Current
   behavior: counts immediately, subtracted on denial (see `docs/M3_PLAN.md`).
 - Full lists in `docs/BACKLOG.md` → "Open Questions" and

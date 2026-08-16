@@ -78,4 +78,5 @@ something Frankie can actually try, even if it's rough.
 
 Design gate before M4: confirm the week-one achievement thresholds still feel right
 once M1-M3 are actually built and used. Numbers were guessed during brainstorming,
-not tested.
+not tested. Worksheet to fill in: [`M4_DESIGN_GATE.md`](M4_DESIGN_GATE.md) — the
+threshold retune plus the boop-type unlock order (which blocks M4).

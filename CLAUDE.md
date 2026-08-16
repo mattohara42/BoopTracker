@@ -180,11 +180,22 @@ doesn't re-litigate them.
   "Done" that the notch was covering). Playtest find from Matt; UI-only, tests
   still 31 green.
 
+- 2026-08-16 — M4 **design gate** run with Frankie (`docs/M4_DESIGN_GATE.md`).
+  Decisions: all week-one thresholds kept as guessed **except Night Owl**, moved
+  10pm→9pm (`NIGHT_OWL_AFTER_HOUR` 22→21). Boop-type unlock is **the Ladder** —
+  Boopstache @5 total boops, Bellyboop @10, Underboop @15 — encoded as a new
+  `unlockAtBoops` field on the locked `BOOP_TYPES` (a constants test locks the
+  5/10/15 order). Achievements stay **badge-only** and are **kept once earned**
+  (a denial that drops you below a threshold does not revoke the badge). Sibling
+  / Double Sibling need a **relation picker**, to be built as part of M4. This
+  resolves the "unlock order blocks M4" open question for the v1 four.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
 `docs/ACHIEVEMENTS.md` ("Still To Decide"). The ones that block building:
 
-- Boop-type unlock order / prerequisites beyond the v1 four (blocks M4).
+- Boop-type unlock order for the v1 four — **decided** (the Ladder, 2026-08-16
+  design gate). Order/prerequisites for types *beyond* the v1 four stay backlog.
 - Email provider for the M3b boop-notification (leaning Firebase Trigger Email).
 - Region detection for leaderboards (backlog, not v1).

@@ -5,7 +5,7 @@ look down, you boop their nose. This app tracks boops, with friends, leaderboard
 and achievements. NOT a social media app: no feed, no scroll, no algorithm. You open
 it to record a boop or check your score, then you leave.
 
-Designed by Frankie (age 10) and Matt.
+Designed by Frankie (age 10, he/him) and Matt.
 
 ## Core Loop
 

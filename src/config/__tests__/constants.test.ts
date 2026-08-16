@@ -51,6 +51,20 @@ describe('boop types', () => {
     const unlocked = BOOP_TYPES.filter((t) => t.unlockedByDefault);
     expect(unlocked.map((t) => t.id)).toEqual(['classic']);
   });
+
+  it('follows the Ladder unlock order (M4 design gate)', () => {
+    // docs/M4_DESIGN_GATE.md — Frankie's pick: unlock by total boops,
+    // Boopstache @5 → Bellyboop @10 → Underboop @15. Classic has no threshold.
+    const ladder = Object.fromEntries(
+      BOOP_TYPES.map((t) => [t.id, t.unlockAtBoops]),
+    );
+    expect(ladder).toEqual({
+      classic: undefined,
+      boopstache: 5,
+      bellyboop: 10,
+      underboop: 15,
+    });
+  });
 });
 
 describe('"big deal" achievements stay rare', () => {

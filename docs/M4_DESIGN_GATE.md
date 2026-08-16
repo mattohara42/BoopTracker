@@ -1,5 +1,10 @@
 # M4 Design Gate — retune before we build achievements
 
+> **✅ RESOLVED 2026-08-16 (Matt + Frankie).** Decisions are recorded inline
+> below and applied: `NIGHT_OWL_AFTER_HOUR` → 21 (9pm) and the boop-type unlock
+> ladder (`unlockAtBoops` 5/10/15) are now in `src/config/constants.ts`. Every
+> other threshold was approved as-is. This doc is kept as the record of *why*.
+
 A decision worksheet for Matt + Frankie to fill in **before M4 is built**.
 `docs/BUILD_PLAN.md` says the week-one achievement numbers were *guessed* during
 brainstorming and should be confirmed once M1–M3 have actually been played — we
@@ -37,13 +42,13 @@ The other 7 have a guessed threshold living in `constants.ts`:
 
 For each, either "keep" or write a new number:
 
-- Classic Booper (total boops) ➡️ **Decision:** ______
-- Boop Collector (total boops) ➡️ **Decision:** ______
-- Triple Threat (people/day) ➡️ **Decision:** ______
-- Three Day Streak (days) ➡️ **Decision:** ______
-- Friend Circle (friends) ➡️ **Decision:** ______  *(how many people are actually in your family app? ____)*
-- Early Bird (before hour) ➡️ **Decision:** ______
-- Night Owl (after hour) ➡️ **Decision:** ______
+- Classic Booper (total boops) ➡️ **Decision:** ✅ keep **5**
+- Boop Collector (total boops) ➡️ **Decision:** ✅ keep **10**
+- Triple Threat (people/day) ➡️ **Decision:** ✅ keep **3**
+- Three Day Streak (days) ➡️ **Decision:** ✅ keep **3**
+- Friend Circle (friends) ➡️ **Decision:** ✅ keep **5**
+- Early Bird (before hour) ➡️ **Decision:** ✅ keep **8** (before 8am)
+- Night Owl (after hour) ➡️ **Decision:** ✏️ **21** (after 9pm) — moved earlier from 10pm
 
 > Not tunable, but worth a look while we're here: the post-week-one milestones
 > **50** and **100** boops (`MILESTONE_BOOPS`). Fine to leave for now.
@@ -76,7 +81,9 @@ our 3 lockable types, here are three ways to go:
 **Option C — Frankie picks the order.** She decides which is coolest → unlocks
 first, second, third, and we attach them to 5 / 10 / 15 boops.
 
-➡️ **Decision (A / B / C + the specifics):** _______________________________
+➡️ **Decision (A / B / C + the specifics):** ✅ **Option A — the Ladder.**
+Boopstache @5 total boops, Bellyboop @10, Underboop @15. Encoded as
+`unlockAtBoops` on each locked type in `constants.ts`.
 
 *Note:* whatever the order, unlocking a boop-type family is a **"big deal"**
 achievement (gives the Free Boop / Shield choice) per SPEC — so the first unlock
@@ -91,22 +98,22 @@ These come from the "Still To Decide" list and affect how M4 is built:
 **3a. Points, badges, or both?** SPEC currently says **badge-only**, with the
 rare "big deal" ones also granting a Free Boop/Shield choice. Adding a points
 score is a bigger design (and edges toward a leaderboard-y feel).
-- ➡️ **Decision:** badge-only (recommended for v1) / add points too: ______
+- ➡️ **Decision:** ✅ **badge-only** for v1 (SPEC default stands; not revisited).
 
 **3b. Can an achievement be *lost*?** Boops can be denied after the fact (M3a).
 So if you hit "Classic Booper" at 5 boops and one gets denied down to 4, does the
 badge disappear?
 - *Rec:* **once earned, kept** — taking a badge away feels bad and denials are
   rare. Simplest and kindest.
-- ➡️ **Decision:** keep once earned (recommended) / can be lost: ______
+- ➡️ **Decision:** ✅ **keep once earned** — badges never disappear (Frankie's call).
 
 **3c. Sibling / Double Sibling need to know who's a sibling.** Two of the 14
 (Sibling Boop, Double Sibling) depend on a person's **relation**. The people
 record already has an optional `relation` field — but nothing sets it yet. For
 M4 to grant these, we'll need a quick way to mark a friend as "brother/sister"
 (and family) when adding them.
-- ➡️ **Decision:** add a relation picker in M4 (recommended) / defer these two
-  achievements to later: ______
+- ➡️ **Decision:** ✅ **add a relation picker in M4** (build it as part of M4 so
+  these two achievements can be granted).
 
 ---
 

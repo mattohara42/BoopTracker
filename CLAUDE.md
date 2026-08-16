@@ -153,6 +153,33 @@ doesn't re-litigate them.
   immediately**, subtracted on denial (fast loop; denial is rare). Email nudge
   (M3b) + photo→Storage (M3c) still pending Matt's Blaze/provider call.
 
+- 2026-08-16 — M3b **drafted** (not deployed). Cloud Function `emailBoopNudge`
+  in `functions/` (Firebase Functions v2 + Admin SDK, plain Node — can't import
+  the Expo `@/*` bundle, so boop-type labels are a small local mirror of
+  `constants.ts`). Architecture decision: the function does **not** send mail
+  itself — it writes a `mail/{boopId}` doc for the **Trigger Email** extension
+  (the recommended provider), so no SMTP creds live in the repo and the provider
+  is swappable. Server-authoritative on purpose: the booper's client never
+  learns the subject's email, and can't email an arbitrary address — the address
+  is looked up server-side from the trusted `subjectUid`. Idempotent via
+  `create()` keyed by boop id. `firebase.json` wires functions + points at
+  `firestore.rules`. Not deployed: needs Blaze + the extension installed
+  (`functions/README.md`). Also sanity-checked `firestore.rules` for the confirm
+  flow — safe to publish as-is; noted hardening options (booper update can
+  currently rewrite `booperUid`/`subjectUid`; boop create accepts any
+  `subjectUid`, a mild nudge-spam vector) as v1-acceptable, not blockers.
+
+- 2026-08-16 — Fixed safe-area + back-nav in the full-screen modals. A React
+  Native `<Modal>` renders in a separate native hierarchy *outside* the app's
+  `SafeAreaProvider`, so `SafeAreaView` inside it measured 0 insets — the header
+  rode under the notch/status bar, which also hid the "Boops to confirm" dismiss
+  control (looked like "no way back"). Fix: nest a `SafeAreaProvider` (seeded
+  with `initialWindowMetrics` to avoid a first-frame jump) inside each Modal —
+  `ConfirmBoopsModal` and `BoopFlow`. Also gave `ConfirmBoopsModal` a clear
+  top-left "‹ Back" affordance mirroring `BoopFlow`'s header (was a right-side
+  "Done" that the notch was covering). Playtest find from Matt; UI-only, tests
+  still 31 green.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

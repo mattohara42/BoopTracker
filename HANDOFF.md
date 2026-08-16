@@ -21,10 +21,14 @@ _Last updated: 2026-08-16._
    - Watch A's score react (a denied boop stops counting).
    - If you see **"Missing or insufficient permissions"**, tell Claude — a rule
      needs a tweak.
-3. **Decide two things for M3b** (the email nudge), whenever:
+3. **Decide two things for M3b** (the email nudge), whenever. The Cloud Function
+   is already written and typechecks (`functions/`) — these two calls are all
+   that stand between it and `firebase deploy`:
    - Upgrade Firebase to the **Blaze plan**? (Needed for Cloud Functions; free
      tier is generous.)
    - **Email provider** — recommendation is Firebase's *Trigger Email* extension.
+   Once both are done, follow `functions/README.md` to install the extension and
+   deploy.
 
 ## Where we are
 
@@ -39,7 +43,9 @@ are done; **M3 is in progress** (M3a done; M3b/M3c pending Matt's decisions).
   add-by-username, security rules written). Pending: Matt publishes the rules.
 - **M3 Verification** — 🔨 in progress
   - **M3a** in-app confirm loop — ✅ built (needs the two-account test)
-  - **M3b** email nudge — ⏳ needs Blaze + email provider
+  - **M3b** email nudge — 🔨 function **drafted** in `functions/` (typechecks),
+    **not deployed** — needs Blaze + the Trigger Email extension
+    (`functions/README.md`)
   - **M3c** photo-as-proof → Firebase Storage — ⏳
 - **M4–M8** — not started (achievements, powerups, leaderboards, push, juice,
   playtest).

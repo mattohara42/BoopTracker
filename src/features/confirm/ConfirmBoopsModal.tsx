@@ -1,5 +1,9 @@
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 import { BOOP_TYPES, type BoopTypeId } from '@/config/constants';
 import { usePendingBoops, type PendingBoop } from '@/state/PendingBoops';
@@ -27,29 +31,37 @@ export function ConfirmBoopsModal({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Boops to confirm</Text>
-          <TouchableOpacity onPress={onClose} hitSlop={12}>
-            <Text style={styles.done}>Done</Text>
-          </TouchableOpacity>
-        </View>
+      {/* A React Native <Modal> renders outside the app's SafeAreaProvider, so
+          insets read as 0 in here — the header would ride under the notch and
+          hide "Done". Nesting a provider (seeded with initialWindowMetrics to
+          avoid a first-frame jump) makes SafeAreaView measure correctly. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} hitSlop={12}>
+              <Text style={styles.back}>‹ Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.title}>Boops to confirm</Text>
+            {/* Spacer to keep the title centered (mirrors BoopFlow's header). */}
+            <View style={styles.headerSpacer} />
+          </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
-          {pending.length === 0 ? (
-            <Text style={styles.empty}>All caught up! 🎉</Text>
-          ) : (
-            pending.map((b) => (
-              <ConfirmCard
-                key={b.id}
-                boop={b}
-                onConfirm={(typeOk) => confirm(b.id, typeOk)}
-                onDeny={() => deny(b.id)}
-              />
-            ))
-          )}
-        </ScrollView>
-      </SafeAreaView>
+          <ScrollView contentContainerStyle={styles.content}>
+            {pending.length === 0 ? (
+              <Text style={styles.empty}>All caught up! 🎉</Text>
+            ) : (
+              pending.map((b) => (
+                <ConfirmCard
+                  key={b.id}
+                  boop={b}
+                  onConfirm={(typeOk) => confirm(b.id, typeOk)}
+                  onDeny={() => deny(b.id)}
+                />
+              ))
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   );
 }
@@ -96,7 +108,8 @@ const styles = StyleSheet.create({
     paddingVertical: space.md,
   },
   title: { fontSize: 20, fontWeight: '800', color: colors.text },
-  done: { fontSize: 16, color: colors.primary, fontWeight: '700' },
+  back: { fontSize: 16, color: colors.primary, fontWeight: '700', minWidth: 60 },
+  headerSpacer: { minWidth: 60 },
   content: { padding: space.lg, gap: space.md },
   empty: { textAlign: 'center', color: colors.muted, fontSize: 16, marginTop: 40 },
   card: {

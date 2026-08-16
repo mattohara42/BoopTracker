@@ -37,16 +37,23 @@ re-importing the same contact dedupes.
 > username (doc id `app:{friendUid}`); absent for contacts/guests. It's the hook
 > for account-to-account features (M3 boop notifications).
 
-### `boops/{boopId}`  *(done)*
-One recorded boop, replaces the local `BoopLog`. Queried by `booperUid == me`
-and sorted client-side (no composite index needed). Verification fields
-(confirmed/denied, witness) arrive in M3.
+### `boops/{boopId}`  *(done, incl. M3a verification)*
+One recorded boop, replaces the local `BoopLog`. Queried both by `booperUid ==
+me` (my score) and `subjectUid == me` (boops to confirm), status filtered
+client-side (no composite index needed).
 ```
-{ booperUid: string, personId: string, personName: string,
+{ booperUid: string, booperName: string,
+  personId: string, personName: string,
   boopType: 'classic' | 'boopstache' | 'bellyboop' | 'underboop',
-  photoUri?: string /* local path for now; Storage upload is M3 */,
+  subjectUid?: string,   // the booped person's uid, if they're an app user
+  status: 'pending' | 'confirmed' | 'denied' | 'self_reported',
+  typeConfirmed?: boolean, resolvedAt?: Timestamp,
+  photoUri?: string /* local path for now; Storage upload is M3c */,
   at: Timestamp }
 ```
+> A boop against an app friend starts `pending` (`subjectUid` set from the
+> person id `app:{uid}`); the subject resolves it to `confirmed`/`denied`.
+> Denied boops stop counting. Non-app boops are `self_reported`.
 
 ## Build order within M2
 

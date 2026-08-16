@@ -43,16 +43,19 @@ photo is attached in M3c).
 
 ## Pieces & sequence
 
-### M3a — confirm loop (buildable now)
-1. Record `subjectUid` + `status` on the boop (from the person's `friendUid`).
-2. **"Boops to confirm"** UI: the signed-in user's boops where `subjectUid == me`
-   and `status == pending`, each with **Yes / No** and, when a type was claimed,
-   "Was it a {emoji} {type}?" A utility list, not a feed — keep it that way.
-3. Confirm/deny writes `status` (+ `typeConfirmed`, `resolvedAt`) on the boop.
-4. Rules: let the subject **read** and **update just those fields** on boops
-   where `subjectUid == me` (widens the current booper-only read, per feature).
-5. Optional: a small "✓ confirmed / ✗ denied / … pending" hint on the booper's
-   side so you can see what stuck.
+### M3a — confirm loop  ✅ DONE
+1. ✅ Record `subjectUid` + `status` on the boop (derived from the person id
+   `app:{uid}`, so it works from the friends list *and* from "recent").
+2. ✅ **"Boops to confirm"** — a card on Home (only when you have pending boops)
+   opens `ConfirmBoopsModal` listing boops where `subjectUid == me` & pending,
+   each with "Yes — that happened", "It happened, but not a {type}", and "Nope".
+3. ✅ Confirm/deny writes `status` (+ `typeConfirmed`, `resolvedAt`). Denied
+   boops stop counting in `deriveStats`/`deriveRecentPeople`.
+4. ✅ Rules: subject can read + update only `status`/`typeConfirmed`/`resolvedAt`
+   on boops where `subjectUid == me`.
+5. Skipped for now: a per-boop confirmed/denied hint on the booper's side (no
+   boop list to show it on without a feed — same open question as editing old
+   boops).
 
 ### M3b — email nudge (needs decisions)
 6. Cloud Function on boop create with `subjectUid` → look up that user's email →

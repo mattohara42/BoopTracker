@@ -5,6 +5,7 @@ import {
   deriveStats,
   prependBoop,
   removeBoopById,
+  subjectUidFromPersonId,
   type Boop,
 } from '../boopLogCore';
 
@@ -16,6 +17,9 @@ function boop(partial: Partial<Boop> & Pick<Boop, 'personId'>): Boop {
     at: partial.at ?? 0,
     photoUri: partial.photoUri,
     personId: partial.personId,
+    status: partial.status,
+    subjectUid: partial.subjectUid,
+    typeConfirmed: partial.typeConfirmed,
   };
 }
 
@@ -108,5 +112,28 @@ describe('deriveStats', () => {
 
   it('is all zeros with no boops', () => {
     expect(deriveStats([])).toEqual({ totalBoops: 0, uniquePeopleBooped: 0 });
+  });
+
+  it('excludes denied boops (they stop counting)', () => {
+    const boops = [
+      boop({ personId: 'sam', status: 'confirmed' }),
+      boop({ personId: 'matt', status: 'denied' }),
+      boop({ personId: 'jo', status: 'pending' }),
+    ];
+    // matt's denied boop drops from both the total and the unique count.
+    expect(deriveStats(boops)).toEqual({ totalBoops: 2, uniquePeopleBooped: 2 });
+    expect(deriveRecentPeople(boops).map((p) => p.id)).toEqual(['sam', 'jo']);
+  });
+});
+
+describe('subjectUidFromPersonId', () => {
+  it('extracts the uid from an app-friend person id', () => {
+    expect(subjectUidFromPersonId('app:abc123')).toBe('abc123');
+  });
+
+  it('returns undefined for contacts / guests / seed ids', () => {
+    expect(subjectUidFromPersonId('contact:42')).toBeUndefined();
+    expect(subjectUidFromPersonId('guest:mom')).toBeUndefined();
+    expect(subjectUidFromPersonId('matt')).toBeUndefined();
   });
 });

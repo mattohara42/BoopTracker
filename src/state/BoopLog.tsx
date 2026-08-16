@@ -25,6 +25,7 @@ import { db } from '@/firebase/app';
 import {
   deriveRecentPeople,
   deriveStats,
+  subjectUidFromPersonId,
   type Boop,
   type RecentPerson,
   type RecordBoopInput,
@@ -56,7 +57,7 @@ interface BoopLogValue {
 const BoopLogContext = createContext<BoopLogValue | null>(null);
 
 export function BoopLogProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const uid = user?.uid ?? null;
   const [boops, setBoops] = useState<Boop[]>([]);
 
@@ -76,6 +77,9 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
           personName: data.personName,
           boopType: data.boopType,
           photoUri: data.photoUri,
+          subjectUid: data.subjectUid,
+          status: data.status,
+          typeConfirmed: data.typeConfirmed,
           // `at` is null for a beat on a pending write; treat that as "now".
           at: typeof at?.toMillis === 'function' ? at.toMillis() : Date.now(),
         } as Boop;
@@ -88,16 +92,23 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
   const recordBoop = useCallback(
     async (input: RecordBoopInput): Promise<Boop> => {
       if (!uid) throw new Error('Not signed in');
+      // App-user boops start `pending` (they'll confirm); everyone else is
+      // self-reported until a witness photo lands (M3c).
+      const subjectUid = subjectUidFromPersonId(input.personId);
+      const status = subjectUid ? 'pending' : 'self_reported';
       const ref = await addDoc(collection(db, 'boops'), {
         booperUid: uid,
+        booperName: profile?.username ?? '',
         personId: input.personId,
         personName: input.personName,
         boopType: input.boopType,
         at: serverTimestamp(),
+        status,
+        ...(subjectUid ? { subjectUid } : {}),
       });
-      return { id: ref.id, ...input, at: Date.now() };
+      return { id: ref.id, ...input, at: Date.now(), status, subjectUid };
     },
-    [uid],
+    [uid, profile],
   );
 
   const attachPhoto = useCallback((boopId: string, photoUri: string) => {

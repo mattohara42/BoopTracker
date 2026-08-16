@@ -8,6 +8,15 @@ import type { BoopTypeId } from '@/config/constants';
  * a matter of changing *where* the Boop[] lives, not how it's shaped.
  */
 
+/**
+ * A boop's verification state (M3).
+ * - `pending`      — booped an app user; awaiting their confirm/deny.
+ * - `confirmed`    — the booped person confirmed it.
+ * - `denied`       — the booped person said it didn't happen (stops counting).
+ * - `self_reported`— booped a non-app person; nothing to confirm (yet).
+ */
+export type BoopStatus = 'pending' | 'confirmed' | 'denied' | 'self_reported';
+
 export interface Boop {
   id: string;
   personId: string;
@@ -17,6 +26,25 @@ export interface Boop {
   photoUri?: string;
   /** When it was recorded (epoch ms). */
   at: number;
+  /** The booped person's uid, when they're an app user (M3). */
+  subjectUid?: string;
+  status?: BoopStatus;
+  /** Whether the booped person agreed it was the claimed type (M3). */
+  typeConfirmed?: boolean;
+}
+
+/**
+ * Our people-list ids for app-user friends look like `app:{uid}`. A boop's
+ * `subjectUid` is derived from the picked person's id, so it works whether the
+ * person was picked from the friends list or from "recent".
+ */
+export function subjectUidFromPersonId(personId: string): string | undefined {
+  return personId.startsWith('app:') ? personId.slice(4) : undefined;
+}
+
+/** A denied boop doesn't count — filter those out before deriving anything. */
+function counted(boops: readonly Boop[]): Boop[] {
+  return boops.filter((b) => b.status !== 'denied');
 }
 
 export interface RecordBoopInput {
@@ -74,7 +102,7 @@ export function removeBoopById(boops: readonly Boop[], boopId: string): Boop[] {
 export function deriveRecentPeople(boops: readonly Boop[]): RecentPerson[] {
   const seen = new Set<string>();
   const recent: RecentPerson[] = [];
-  for (const b of boops) {
+  for (const b of counted(boops)) {
     if (!seen.has(b.personId)) {
       seen.add(b.personId);
       recent.push({ id: b.personId, name: b.personName });
@@ -84,6 +112,7 @@ export function deriveRecentPeople(boops: readonly Boop[]): RecentPerson[] {
 }
 
 export function deriveStats(boops: readonly Boop[]): BoopStats {
-  const unique = new Set(boops.map((b) => b.personId));
-  return { totalBoops: boops.length, uniquePeopleBooped: unique.size };
+  const active = counted(boops);
+  const unique = new Set(active.map((b) => b.personId));
+  return { totalBoops: active.length, uniquePeopleBooped: unique.size };
 }

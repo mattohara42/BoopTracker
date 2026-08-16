@@ -9,6 +9,7 @@ import { isFirebaseConfigured } from '@/firebase/app';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { SetupNeededScreen } from '@/screens/SetupNeededScreen';
 import { BoopLogProvider } from '@/state/BoopLog';
+import { PendingBoopsProvider } from '@/state/PendingBoops';
 import { PeopleProvider } from '@/state/People';
 import { colors } from '@/theme/colors';
 
@@ -32,9 +33,11 @@ function Gate() {
   return (
     <PeopleProvider>
       <BoopLogProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
+        <PendingBoopsProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </PendingBoopsProvider>
       </BoopLogProvider>
     </PeopleProvider>
   );

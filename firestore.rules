@@ -46,11 +46,23 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Boops. For now you can only touch your own.
+    // Boops.
+    // - Read: the booper, or the person who was booped (the subject).
+    // - Create/delete: the booper only.
+    // - Update: the booper (edit/undo), OR the subject but only to resolve it
+    //   (status/typeConfirmed/resolvedAt) — they can't rewrite the boop itself.
     match /boops/{boopId} {
-      allow read: if signedIn() && resource.data.booperUid == request.auth.uid;
+      function isBooper() { return signedIn() && resource.data.booperUid == request.auth.uid; }
+      function isSubject() { return signedIn() && resource.data.subjectUid == request.auth.uid; }
+
+      allow read: if isBooper() || isSubject();
       allow create: if signedIn() && request.resource.data.booperUid == request.auth.uid;
-      allow update, delete: if signedIn() && resource.data.booperUid == request.auth.uid;
+      allow delete: if isBooper();
+      allow update: if isBooper() || (
+        isSubject() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'typeConfirmed', 'resolvedAt'])
+      );
     }
   }
 }

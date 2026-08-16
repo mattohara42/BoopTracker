@@ -136,8 +136,15 @@ a nudge), so M3 splits into:
   (recommend the Trigger Email extension). Matt's decision.
 - **M3c** — photo-as-proof: upload the witness photo to Firebase Storage.
 
-Recommended: build + playtest M3a next; do M3b/M3c once Matt picks a plan/email
-provider.
+**M3a is built** (in-app confirm loop): boops against app friends start
+`pending`; the booped person gets a "N boops to confirm" card on Home →
+`ConfirmBoopsModal` → confirm / "not that type" / deny. Denied boops stop
+counting. Rules updated (subject can read + resolve). `src/state/PendingBoops.tsx`
++ `src/features/confirm/`. **Needs on-device testing with two accounts** (and
+Matt's rules publish, since the subject-read/update rules are new).
+
+Next: M3b (email nudge — needs Blaze + email provider) and M3c (photo → Storage)
+once Matt picks a plan/provider.
 
 ## Open questions before/around building
 

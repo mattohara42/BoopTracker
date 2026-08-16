@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthContext';
 import { BoopFlow } from '@/features/boop/BoopFlow';
+import { ConfirmBoopsModal } from '@/features/confirm/ConfirmBoopsModal';
 import { useBoopLog } from '@/state/BoopLog';
+import { usePendingBoops } from '@/state/PendingBoops';
 import { colors, gradients, radius, shadow, space } from '@/theme/colors';
 
 /**
@@ -17,7 +19,9 @@ import { colors, gradients, radius, shadow, space } from '@/theme/colors';
 export function HomeScreen() {
   const { totalBoops, uniquePeopleBooped } = useBoopLog();
   const { profile, signOut } = useAuth();
+  const { pending } = usePendingBoops();
   const [flowOpen, setFlowOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const name = profile?.username ?? 'You';
   const initial = name.charAt(0).toUpperCase();
@@ -44,6 +48,19 @@ export function HomeScreen() {
         <Stat label="People booped" value={uniquePeopleBooped} />
       </View>
 
+      {pending.length > 0 && (
+        <TouchableOpacity
+          style={styles.pendingCard}
+          activeOpacity={0.85}
+          onPress={() => setConfirmOpen(true)}
+        >
+          <Text style={styles.pendingText}>
+            🔔 {pending.length} boop{pending.length > 1 ? 's' : ''} to confirm
+          </Text>
+          <Text style={styles.pendingChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.center}>
         <Pressable
           onPress={() => setFlowOpen(true)}
@@ -64,6 +81,7 @@ export function HomeScreen() {
       </View>
 
       <BoopFlow visible={flowOpen} onClose={() => setFlowOpen(false)} />
+      <ConfirmBoopsModal visible={confirmOpen} onClose={() => setConfirmOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -124,6 +142,21 @@ const styles = StyleSheet.create({
   },
   statValue: { fontSize: 32, fontWeight: '900', color: colors.accent },
   statLabel: { fontSize: 13, color: colors.muted, marginTop: 2, fontWeight: '600' },
+  pendingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: space.lg,
+    marginTop: space.md,
+    paddingVertical: space.md,
+    paddingHorizontal: space.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  pendingText: { fontSize: 16, fontWeight: '800', color: colors.text },
+  pendingChevron: { fontSize: 24, fontWeight: '800', color: colors.primary },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   boopWrap: { borderRadius: radius.pill, ...shadow.button },
   boopPressed: { transform: [{ scale: 0.96 }] },

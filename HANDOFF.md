@@ -126,6 +126,19 @@ steps live in `docs/DATA_MODEL.md`.
 > sync to the cloud, friends connect by username, and real security rules exist
 > (pending a console publish). That's the core of M2 done.
 
+## Next: M3 (verification) — scoped
+
+See `docs/M3_PLAN.md`. Key move: confirmation happens **in-app** (email is only
+a nudge), so M3 splits into:
+- **M3a** — the confirm loop (record `subjectUid`/`status`, a "boops to confirm"
+  list, confirm/deny, rules). **Buildable now, no new Firebase setup.**
+- **M3b** — the email nudge. Needs the **Blaze plan** + an **email provider**
+  (recommend the Trigger Email extension). Matt's decision.
+- **M3c** — photo-as-proof: upload the witness photo to Firebase Storage.
+
+Recommended: build + playtest M3a next; do M3b/M3c once Matt picks a plan/email
+provider.
+
 ## Open questions before/around building
 
 - **Boop-type unlock order / prerequisites** beyond the v1 four (blocks the

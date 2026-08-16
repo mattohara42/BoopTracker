@@ -26,16 +26,17 @@ something on someone's shirt, they look down, you boop their nose). Frankie
   family/type unlocks grant the Free Boop / Shield choice; everything else is
   badge-only.
 
-## Intended stack (per BUILD_PLAN — confirm before scaffolding)
+## Stack (confirmed + built)
 
-- Client: React Native / Expo (one codebase, iOS + Android)
-- Backend: Firebase — Firestore (data), Cloud Functions (achievement +
-  validation logic), push notifications
-- Auth: username + email at signup
-- Email provider: TBD
+- Client: React Native / **Expo SDK 54** (one codebase, iOS + Android), running
+  in Expo Go. TypeScript strict, `@/*` → `src/*`.
+- Backend: **Firebase** — Auth (email+password), Firestore (data). Cloud
+  Functions (email, M3b) and Storage (photos, M3c) not wired yet.
+- Auth: username + email + password ("own login each"; kids use Gmail `+aliases`).
+- Email provider: still TBD (M3b decision — leaning Firebase Trigger Email).
 
-> Not yet set up. M0 is the first code milestone. Confirm the stack is still
-> Expo + Firebase before running `expo init`.
+> Live status is in `HANDOFF.md`. When Expo cuts a new SDK, bump the project to
+> match before the next on-device playtest (Expo Go only ships the latest SDK).
 
 ## Working conventions
 
@@ -141,11 +142,22 @@ doesn't re-litigate them.
   finish "Done" button. Not the M7.5 juice pass (confetti is still a
   placeholder) — just a visual uplift.
 
+- 2026-08-16 — M3a built (in-app confirm loop). Boops against app friends get
+  `subjectUid` (derived from the person id `app:{uid}`, so it works from the
+  friends list *and* from "recent") + `status: 'pending'` + `booperName`; others
+  are `self_reported`. `src/state/PendingBoops.tsx` subscribes to boops where
+  `subjectUid == me`; a Home card opens `ConfirmBoopsModal` (confirm / "not that
+  type" / deny). Denied boops stop counting (`deriveStats`/`deriveRecentPeople`
+  filter them). Rules widened so the subject can read + resolve only
+  `status`/`typeConfirmed`/`resolvedAt`. Decision: a pending boop **counts
+  immediately**, subtracted on denial (fast loop; denial is rare). Email nudge
+  (M3b) + photo→Storage (M3c) still pending Matt's Blaze/provider call.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
 `docs/ACHIEVEMENTS.md` ("Still To Decide"). The ones that block building:
 
-- Boop-type unlock order / prerequisites beyond the v1 four.
+- Boop-type unlock order / prerequisites beyond the v1 four (blocks M4).
+- Email provider for the M3b boop-notification (leaning Firebase Trigger Email).
 - Region detection for leaderboards (backlog, not v1).
-- Confirm Expo + Firebase is the chosen stack before M0 scaffolding.

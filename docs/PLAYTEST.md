@@ -20,6 +20,10 @@ the phone in Frankie's hand.
    cd BoopTracker
    npm install
    ```
+4. **Firebase config** (the app needs it now): copy `.env.example` to `.env` and
+   paste your project's web config values. Full steps in `docs/DATA_MODEL.md`.
+   Without this, the app shows a "add your Firebase config" screen instead of
+   crashing — but it can't sign in until `.env` is set.
 
 ### Each time you want to play
 
@@ -50,20 +54,24 @@ the phone instantly.
 
 ## What to watch for
 
-The checkpoint questions from `BUILD_PLAN.md` — worth jotting notes on while
-Frankie plays:
+The M1 core loop is validated (three taps feels fast, type-picking is fun). What
+needs eyes now is the **account + verification** flow. This needs **two
+accounts** — sign out from Home (top-left) to switch, and use Gmail `+aliases`
+(e.g. `you+frankie@gmail.com`) for a second one.
 
-- **Is three taps fast?** From "I just booped someone" to "recorded" — does it
-  feel like fleeing the scene, or like filling out a form?
-- **Is picking the type fun or annoying?** That step is deliberately *not*
-  optimized away. Does it land as a fun beat, or as friction?
-- **Do the locked 🔒 slots make her want more,** or just clutter the screen?
-- **The finish moment** — does the buzz + 🎉 feel like a payoff? (It's a
-  placeholder for now; the real juice is M7.5.)
-- Anything confusing: wrong person picked, "Someone else" awkward, etc.
+- **Signup / signin** — does creating an account and getting into the app feel
+  smooth? Any confusing errors?
+- **Add a friend by username** (Friends tab) — add your other account; does it
+  confirm clearly?
+- **Boop a friend, then confirm it** — boop account B from account A; on B, the
+  Home **"🔔 boops to confirm"** card should appear → confirm / "not that type" /
+  deny → account A's score should react (a denied boop stops counting).
+- **Cross-device / persistence** — force-quit and reopen; your score and people
+  are still there (that's the cloud, not local storage).
+- Anything confusing or slow.
 
-Bring whatever's clunky back to the next session. That feedback is what retunes
-the flow and the numbers in `src/config/constants.ts` before M2.
+> If you ever see **"Missing or insufficient permissions"**, that's a security
+> rule needing a tweak — note it and bring it back.
 
 ## Handy commands
 
@@ -73,11 +81,10 @@ npm run typecheck  # TypeScript check
 npm test           # run the unit tests
 ```
 
-## Heads-up: saved on the phone, not synced
+## Heads-up: saved in the cloud, per account
 
-Boops and your people list now persist locally on the device (via
-AsyncStorage), so a score builds up across reloads and days — good for a
-week-long family playtest. It's **per-device** and not shared between phones
-yet; real accounts and cross-device sync arrive in M2 (Firebase). To wipe the
-slate for a fresh test, delete the app from the phone and re-open it from
-Expo Go.
+Boops and your people list live in Firebase under your **account** now, so they
+follow you across devices and reinstalls — sign in on any phone and your stuff
+is there. (Photos are the one exception: they're still stored as a local path,
+so a photo you attach won't load on a *different* device until M3c adds real
+photo upload.)

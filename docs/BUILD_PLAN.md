@@ -3,14 +3,19 @@
 Milestones are meant to be built and tested in order. Each one should produce
 something Frankie can actually try, even if it's rough.
 
-## M0: Repo Skeleton
+> **Status (2026-08-16):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
+> M3 🔨 in progress (M3a done; M3b/M3c pending) · M4–M8 not started.
+> Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
+> [`M3_PLAN.md`](M3_PLAN.md).
+
+## M0: Repo Skeleton  ✅
 - Expo project init, React Native
 - Basic navigation: Home screen, placeholder screens for Friends/Leaderboard
 - Config object for tunable constants (powerup caps, achievement thresholds, etc.),
   following the usual pattern: one place to tune numbers, not scattered through code
 - CLAUDE.md written for this repo (working conventions, assumptions log)
 
-## M1: The Boop Button (fake data)
+## M1: The Boop Button (fake data)  ✅
 - Home screen with the BOOP button
 - Three-tap flow: button -> pick person (hardcoded fake friend list) -> pick boop
   type (Classic, Boopstache, Bellyboop, Underboop, plus greyed-out locked slots)
@@ -21,14 +26,14 @@ something Frankie can actually try, even if it's rough.
 - Checkpoint: hand to Frankie to try. Is three taps actually fast? Does picking the
   type feel fun or annoying?
 
-## M2: Real Accounts and Data
+## M2: Real Accounts and Data  ✅ (security rules pending publish)
 - Firebase project setup, Firestore schema for users, boops, friendships
 - Signup: username + email
 - Friends list: add by username, "someone else" for non-app people
 - Boop recording now writes to Firestore instead of local state
 - Recent people list populated from real boop history
 
-## M3: Verification
+## M3: Verification  🔨 (M3a done — see M3_PLAN.md)
 - Email notification sent when an app user gets booped
 - Notification includes a confirm step, and for boops with a claimed type, asks
   "was it a Boopstache?" (yes/no)

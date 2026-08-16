@@ -1,161 +1,97 @@
 # HANDOFF — BoopTracker
 
-Current state and how to pick up in a fresh session. Pair with `CLAUDE.md`
-(conventions/constraints) and the `docs/` folder (the actual plan).
+Current state and how to pick up. Pair with `CLAUDE.md` (conventions +
+constraints + dated assumptions log) and `docs/` (the actual plan). This file is
+a **snapshot**, not a history — the blow-by-blow lives in the CLAUDE.md
+assumptions log and git.
 
-## Where we are (2026-08-11)
+_Last updated: 2026-08-16._
 
-- **Repo created:** `mattohara42/BoopTracker`, private.
-- **Planning docs landed** under `docs/`: `SPEC.md`, `BUILD_PLAN.md`,
-  `BACKLOG.md`, `ACHIEVEMENTS.md`. `README.md` orients and links them.
-- **M0 + M1 done:** Expo skeleton plus the working three-tap boop flow on fake
-  data (see below). M2 (real accounts + Firestore) is next.
+## 📋 Tomorrow's checklist (Matt)
 
-## What's done
+1. **Publish the Firestore security rules.** The project is still in wide-open
+   test mode. Copy [`firestore.rules`](firestore.rules) into the Firebase
+   console → **Firestore Database → Rules** → **Publish**. (Steps in
+   `docs/DATA_MODEL.md`.) Do this first — M3a added rules the confirm flow needs.
+2. **Test the two-account flow on a phone** (re-download / `git pull`, then
+   `npm install` → `npm start`):
+   - Make a 2nd account (e.g. `you+frankie@gmail.com`; Sign out is top-left).
+   - Account A: **Friends → Add a friend by username** → B's username → boop them.
+   - Account B: Home shows **"🔔 1 boop to confirm"** → open it → confirm / deny.
+   - Watch A's score react (a denied boop stops counting).
+   - If you see **"Missing or insufficient permissions"**, tell Claude — a rule
+     needs a tweak.
+3. **Decide two things for M3b** (the email nudge), whenever:
+   - Upgrade Firebase to the **Blaze plan**? (Needed for Cloud Functions; free
+     tier is generous.)
+   - **Email provider** — recommendation is Firebase's *Trigger Email* extension.
 
-- [x] Repo exists and is initialized.
-- [x] Four planning docs committed to `main`.
-- [x] README points at the docs and states the stack.
-- [x] `CLAUDE.md` written (conventions + assumptions log).
-- [x] This handoff doc.
-- [x] **M0 — repo skeleton** (this branch):
-  - Expo SDK 54 + React Native 0.81 + React 19 + TypeScript (`strict`),
-    `@/*` → `src/*`. (Started on SDK 52; bumped to 54 on 2026-08-13 so the
-    project opens in Expo Go, which only ships the latest SDK.)
-  - Bottom-tab navigation (React Navigation v7): Home / Friends / Leaderboard.
-  - `HomeScreen` shows the BOOP button + placeholder stats (button is inert
-    until M1). Friends / Leaderboard are labelled placeholders.
-  - `src/config/constants.ts` — the single tuning file (powerup caps, boop
-    types, week-one achievement thresholds, big-deal set, leaderboard stats),
-    values sourced from `docs/SPEC.md`.
-  - `npm run typecheck` passes; `npx expo config` loads. (expo-doctor's
-    network-only checks fail in the sandbox — no outbound to api.expo.dev.)
-- [x] **M1 — the boop button (fake data)** (committed to `main`):
-  - Three-tap flow as a modal over Home: **BOOP → pick who → pick type**, then
-    a finish screen. Lives in `src/features/boop/` (`BoopFlow` + `steps/`).
-  - Pick-who: recent people on top, hardcoded `FAKE_FRIENDS`, and "Someone
-    else…" (typed name) for people not in the app.
-  - Pick-type: all four v1 types tappable + greyed locked teaser slots. NOTE:
-    achievement-gated locking (respecting `unlockedByDefault`) is deferred to
-    M4 — see the comment in `steps/PickType.tsx`.
-  - Finish: haptic buzz (`expo-haptics`) + confetti *placeholder* + optional
-    camera-roll photo (`expo-image-picker`). The photo lives on the finish
-    screen, not as its own step, to keep the three-tap core loop intact.
-  - Boops are stored in `src/state/BoopLog.tsx` (in-memory React context); Home
-    stats read from it live. No persistence — resets on reload, by design.
-  - Verified with a full Metro bundle (`expo export`, 796 modules) + typecheck.
-  - Hardening pass: boop-log logic extracted to pure `src/state/boopLogCore.ts`
-    and unit-tested (jest-expo). `src/config/__tests__/constants.test.ts` guards
-    the SPEC hard constraints (powerup caps = 3, one default-unlocked type,
-    big-deal set stays rare). `npm test` — 17 tests. `docs/PLAYTEST.md` added.
+## Where we are
 
-## Decisions made so far
+The app is real: **Expo + Firebase**, running in Expo Go. Accounts, cloud data,
+friends-by-username, and in-app boop **confirmation** all work. Milestones M0–M2
+are done; **M3 is in progress** (M3a done; M3b/M3c pending Matt's decisions).
 
-- Docs go in `docs/`; committed straight to `main` at the planning stage.
-  Code changes now commit **straight to `main`** too (solo project, no PR flow).
-- Stack **confirmed**: Expo/React Native + Firebase. M0/M1 build the Expo
-  client on fake data; Firebase isn't wired until M2.
-- Optional photo lives on the finish screen, not as its own step, to protect
-  the three-tap core loop (CLAUDE.md hard constraint).
+### Milestone status (see `docs/BUILD_PLAN.md`)
+- **M0 Repo skeleton** — ✅ done
+- **M1 The boop button (fake data)** — ✅ done, playtested & loved
+- **M2 Real accounts + data** — ✅ core done (auth, cloud people + boops,
+  add-by-username, security rules written). Pending: Matt publishes the rules.
+- **M3 Verification** — 🔨 in progress
+  - **M3a** in-app confirm loop — ✅ built (needs the two-account test)
+  - **M3b** email nudge — ⏳ needs Blaze + email provider
+  - **M3c** photo-as-proof → Firebase Storage — ⏳
+- **M4–M8** — not started (achievements, powerups, leaderboards, push, juice,
+  playtest).
 
-## Checkpoint DONE: M1 playtested (2026-08-13, Matt + Frankie)
+## How to run
 
-Verdict: **they love it.** Three taps feels fast, picking the boop type is fun,
-the locked slots and the finish moment (buzz + confetti) all land. Core loop is
-validated — no retune of the three-tap flow needed.
+```bash
+npm install
+cp .env.example .env     # then paste your Firebase web config (see .env.example)
+npm start                # scan the QR with Expo Go
+npm test                 # 31 unit tests
+npm run typecheck
+```
 
-One real friction: adding a **brand-new** person mid-boop (the "Someone else…"
-typed entry) takes too long — typing a name mid-flee kills the speed. Fix
-direction: make sure people are already loaded so the mid-boop step is almost
-always a tap, not typing. Two ideas from the session (details in
-`docs/BACKLOG.md` → "Adding people"): **import phone contacts** (strong M2
-candidate) and **add people up front by voice** (deferred/stretch).
+Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
+`docs/DATA_MODEL.md`.
 
-**Fix built (on the fake-data build, ahead of M2):** contacts import via
-`expo-contacts`. "📇 Pick from Contacts" in the boop flow and "Add from
-Contacts" on the (now real) Friends tab both use the *native* single-contact
-picker — no full-address-book access, no heavy permission gate. People live in
-`src/state/People.tsx` (seeded from `FAKE_FRIENDS`, grown by imports, with
-`removePerson` + an ✕ on the Friends tab); pure mapping/dedupe logic is in
-`src/state/contactsCore.ts` and unit-tested. Voice-add still deferred.
+## Architecture at a glance
 
-**Local persistence added:** boops + people now survive a reload
-(`@react-native-async-storage/async-storage`) via a generic `usePersistentState`
-hook, so a week-long family playtest builds up instead of resetting to zero.
-Per-device only; M2 makes Firebase the source of truth.
+- **Client:** Expo SDK 54 / RN 0.81 / React 19 / TS strict. `@/*` → `src/*`.
+  Bottom tabs (Home / Friends / Leaderboard); the record flow is a modal.
+- **State providers** (mount when signed in): `People` (`users/{uid}/people`),
+  `BoopLog` (`boops` where `booperUid == me`), `PendingBoops` (`boops` where
+  `subjectUid == me`). Pure logic sits in `*Core.ts` files and is unit-tested.
+- **Backend:** Firebase Auth (email+password) + Firestore. Config via
+  `EXPO_PUBLIC_FIREBASE_*` env. Rules in `firestore.rules`.
+- **One place to tune numbers:** `src/config/constants.ts`.
 
-**Undo added:** the finish screen has an "Undo — that wasn't a boop" action
-(`removeBoop`) so an accidental boop doesn't stick now that data persists.
-Editing/deleting *older* boops is deferred (no boop list to delete from without
-breaking the no-feed rule) — see `docs/BACKLOG.md`.
+## Known limitations / tracked to-dos
 
-## In progress: M2 (real accounts and data)
+- Firestore rules exist but **aren't published yet** (test mode live).
+- `photoUri` is a local device path — photos don't load cross-device until M3c
+  (Storage upload).
+- Home stats recompute from all your boops; fine at family scale, would move to
+  counters at large scale (see the scaling notes — same applies to M6
+  leaderboards, which need aggregation, not reading everyone's boops).
+- Editing/deleting an *older* boop has no home yet (no-feed constraint) — see
+  `docs/BACKLOG.md`.
 
-Decision: **own login each** — username + email + password (Firebase Auth).
-Using the **Firebase JS SDK** so it keeps running in Expo Go. Schema + setup
-steps live in `docs/DATA_MODEL.md`.
+## Open questions that block future milestones
 
-- [x] **Auth foundation** (built, needs live testing once the project exists):
-  - `src/firebase/app.ts` — init app/auth/firestore from `EXPO_PUBLIC_FIREBASE_*`
-    env (`.env.example` committed, `.env` gitignored). RN auth persistence via
-    AsyncStorage; Firestore auto long-polling.
-  - `src/auth/` — `AuthContext` (signUp reserves a unique username in a
-    transaction, signIn, signOut) + `AuthScreen` (signup/login form).
-  - `App.tsx` gates: no config → `SetupNeededScreen`; signed out → `AuthScreen`;
-    signed in → the app. Home shows the username + a Sign out.
-  - Verified: typecheck, 28 tests, full Metro bundle (Firebase resolves under
-    Metro, RN persistence path included).
-- [x] **People in Firestore** — `src/state/People.tsx` now reads/writes
-  `users/{uid}/people` live (onSnapshot); contacts import + remove still work.
-  Fake-friend seeding dropped (real accounts start empty).
-- [x] **Boops in Firestore** — `src/state/BoopLog.tsx` now reads/writes the
-  `boops` collection (filtered to `booperUid == me`, sorted client-side so no
-  index needed). `recordBoop` is async; the boop flow awaits it with a saving
-  spinner + error alert. Undo/attach-photo/stats/recents all still work.
-- [x] **Add friend by username** — Friends tab has an "Add a friend by
-  username" field; `addByUsername` looks up `usernames/{lower}` → uid, stores a
-  person doc `app:{uid}` with `friendUid`. Blocks self-add + missing handles.
-- [x] **Firestore security rules** written (`firestore.rules` at repo root) —
-  owner-only people/boops, profile reads for friend lookup, unique usernames.
-  **Matt must paste them into the console to replace test mode** (steps in
-  `docs/DATA_MODEL.md`).
-- [ ] **Photo upload to Storage** (M3) — `photoUri` is still a local path, so
-  photos don't load cross-device yet.
-
-> Firebase project exists; signup/login verified on device. People + boops now
-> sync to the cloud, friends connect by username, and real security rules exist
-> (pending a console publish). That's the core of M2 done.
-
-## Next: M3 (verification) — scoped
-
-See `docs/M3_PLAN.md`. Key move: confirmation happens **in-app** (email is only
-a nudge), so M3 splits into:
-- **M3a** — the confirm loop (record `subjectUid`/`status`, a "boops to confirm"
-  list, confirm/deny, rules). **Buildable now, no new Firebase setup.**
-- **M3b** — the email nudge. Needs the **Blaze plan** + an **email provider**
-  (recommend the Trigger Email extension). Matt's decision.
-- **M3c** — photo-as-proof: upload the witness photo to Firebase Storage.
-
-**M3a is built** (in-app confirm loop): boops against app friends start
-`pending`; the booped person gets a "N boops to confirm" card on Home →
-`ConfirmBoopsModal` → confirm / "not that type" / deny. Denied boops stop
-counting. Rules updated (subject can read + resolve). `src/state/PendingBoops.tsx`
-+ `src/features/confirm/`. **Needs on-device testing with two accounts** (and
-Matt's rules publish, since the subject-read/update rules are new).
-
-Next: M3b (email nudge — needs Blaze + email provider) and M3c (photo → Storage)
-once Matt picks a plan/provider.
-
-## Open questions before/around building
-
-- **Boop-type unlock order / prerequisites** beyond the v1 four (blocks the
-  achievements + unlock logic in M4).
-- Full list in `docs/BACKLOG.md` → "Open Questions" and the end of
+- **Boop-type unlock order / prerequisites** beyond the v1 four (blocks M4
+  achievements + unlock logic).
+- Does a `pending` boop count immediately or only once confirmed? Current
+  behavior: counts immediately, subtracted on denial (see `docs/M3_PLAN.md`).
+- Full lists in `docs/BACKLOG.md` → "Open Questions" and
   `docs/ACHIEVEMENTS.md` → "Still To Decide".
 
 ## How to pick up in a new session
 
-1. Start the session pointed at the `mattohara42/BoopTracker` repo so it's the
-   primary working directory.
-2. Read `CLAUDE.md`, then this file, then `docs/SPEC.md` + `docs/BUILD_PLAN.md`.
-3. `npm install`, `npm start` to run the M0 skeleton, then begin M1.
+1. Point the session at the `mattohara42/BoopTracker` repo (primary dir).
+2. Read `CLAUDE.md`, then this file, then `docs/BUILD_PLAN.md` +
+   (for the current milestone) `docs/M3_PLAN.md` + `docs/DATA_MODEL.md`.
+3. `npm install`; ensure `.env` exists; `npm start`. Then continue M3
+   (M3b/M3c) once Matt's decisions are in, or whatever he points you at.

@@ -11,21 +11,28 @@ record a boop or check your score, then you leave.
 
 Designed by Frankie (age 10) and Matt.
 
-## Running the app (M0 skeleton)
+## Status
 
-The Expo/React Native skeleton is in place (milestone **M0**). To run it:
+Working app running in **Expo Go**. Milestones **M0–M2 are done** and **M3
+(verification) is in progress** — see [`HANDOFF.md`](HANDOFF.md) for the live
+state and the next steps. What works today: accounts (username + email +
+password), your people and boops synced to Firebase, adding friends by username,
+the three-tap record flow, and **in-app boop confirmation** (the person you
+booped confirms it; a denied boop stops counting).
+
+## Running the app
 
 ```bash
 npm install
-npm start        # then press i / a / w, or scan the QR with Expo Go
+cp .env.example .env     # then paste your Firebase web config — see .env.example
+npm start                # scan the QR with Expo Go
 ```
 
 `npm run typecheck` runs the TypeScript check and `npm test` runs the unit
-tests. So far there are three tabs — Home (the BOOP button), Friends, and
-Leaderboard — with the Friends/Leaderboard screens as placeholders until later
-milestones. Every tunable number lives in
-[`src/config/constants.ts`](src/config/constants.ts). To try the app on a phone,
-see [`docs/PLAYTEST.md`](docs/PLAYTEST.md).
+tests. Every tunable number lives in
+[`src/config/constants.ts`](src/config/constants.ts). Phone setup + what to look
+for: [`docs/PLAYTEST.md`](docs/PLAYTEST.md). Firebase setup + data model:
+[`docs/DATA_MODEL.md`](docs/DATA_MODEL.md).
 
 ## Planning docs
 
@@ -39,9 +46,11 @@ Start here:
   isn't in v1, plus open questions and cleanup notes.
 - [`docs/ACHIEVEMENTS.md`](docs/ACHIEVEMENTS.md) — the full brainstormed
   achievements master list (~200 ideas).
+- [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — Firestore schema + Firebase setup.
+- [`docs/M3_PLAN.md`](docs/M3_PLAN.md) — the current milestone (verification).
 
 ## Stack
 
-- Client: React Native / Expo (one codebase for iOS + Android) — **scaffolded (M0)**
-- Backend: Firebase (Firestore, Cloud Functions, push notifications) — wired in M2
-- Auth: username + email
+- Client: React Native / Expo (SDK 54) — one codebase for iOS + Android
+- Backend: Firebase — Firestore (data), Cloud Functions (M3b, for email), Storage (M3c)
+- Auth: Firebase Auth — username + email + password (own login each)

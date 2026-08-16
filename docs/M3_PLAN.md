@@ -57,7 +57,14 @@ photo is attached in M3c).
    boop list to show it on without a feed — same open question as editing old
    boops).
 
-### M3b — email nudge (function drafted; deploy needs decisions)
+### M3b — email nudge  ⏸️ DEFERRED (not in v1)
+> **Decision 2026-08-16 (Matt):** skip the email for v1. The in-app confirm loop
+> (M3a) already verifies boops with no Cloud Functions and no paid plan, and it
+> fits the no-notifications design. The function below stays **dormant** in
+> `functions/` (re-deployable), not deleted. If a "you got booped" nudge is
+> wanted later, **push (M7)** is preferred over email. The rest of this section
+> is kept as the record of the drafted approach.
+
 6. ✅ **Drafted (not deployed):** `functions/` holds `emailBoopNudge`, an
    `onDocumentCreated('boops/{boopId}')` v2 function. On a `pending` boop with a
    `subjectUid` it looks up that user's email (Admin SDK) and writes a
@@ -74,6 +81,10 @@ photo is attached in M3c).
    that `photoUri` is a local path that won't load cross-device.
 
 ## Decisions needed from Matt (for M3b/M3c, not M3a)
+
+> **Update 2026-08-16:** M3b (email) is **deferred for v1** — verification is
+> in-app only. The decisions below are therefore moot unless/until M3c
+> (photo-as-proof) is pursued; Blaze is only needed for that.
 
 1. **Upgrade Firebase to the Blaze plan.** Cloud Functions (and Storage beyond
    the small free bucket) require it. Blaze is pay-as-you-go with a generous

@@ -33,7 +33,9 @@ something on someone's shirt, they look down, you boop their nose). Frankie
 - Backend: **Firebase** — Auth (email+password), Firestore (data). Cloud
   Functions (email, M3b) and Storage (photos, M3c) not wired yet.
 - Auth: username + email + password ("own login each"; kids use Gmail `+aliases`).
-- Email provider: still TBD (M3b decision — leaning Firebase Trigger Email).
+- Email: **not used in v1** — verification is in-app (M3a). The email nudge (M3b)
+  is deferred; the drafted `functions/` code stays dormant. A push nudge (M7) is
+  the likelier future path.
 
 > Live status is in `HANDOFF.md`. When Expo cuts a new SDK, bump the project to
 > match before the next on-device playtest (Expo Go only ships the latest SDK).
@@ -202,6 +204,16 @@ doesn't re-litigate them.
   finish-screen badge/confetti, the "big deal" choice screen, the relation
   picker, and the achievements-list screen.
 
+- 2026-08-16 — **Email nudge (M3b) deferred; v1 verification is in-app only.**
+  Matt's call: skip the email. M3a's in-app "boops to confirm" loop already fully
+  verifies boops with no Cloud Functions and no paid plan, and it fits the
+  no-notifications, open→act→leave design. Consequences: **stay on the free Spark
+  plan** (no Blaze needed for verification), no Trigger Email extension, no deploy.
+  The drafted `functions/emailBoopNudge` + `firebase.json` are **kept dormant**
+  (documented, re-deployable) rather than deleted. If a "you got booped" nudge is
+  ever wanted, **push (M7)** is the preferred path over email. (Blaze is still
+  only needed if M3c photo-as-proof is later pursued.)
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
@@ -209,5 +221,6 @@ Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
 
 - Boop-type unlock order for the v1 four — **decided** (the Ladder, 2026-08-16
   design gate). Order/prerequisites for types *beyond* the v1 four stay backlog.
-- Email provider for the M3b boop-notification (leaning Firebase Trigger Email).
+- Email provider for the boop-notification — **moot for v1** (email nudge
+  deferred; verification is in-app). Revisit only if a push nudge lands (M7).
 - Region detection for leaderboards (backlog, not v1).

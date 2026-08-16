@@ -52,5 +52,6 @@ Start here:
 ## Stack
 
 - Client: React Native / Expo (SDK 54) — one codebase for iOS + Android
-- Backend: Firebase — Firestore (data), Cloud Functions (M3b, for email), Storage (M3c)
+- Backend: Firebase — Firestore (data). Cloud Functions drafted but dormant
+  (M3b email nudge, deferred); Storage (M3c photos) optional/not wired
 - Auth: Firebase Auth — username + email + password (own login each)

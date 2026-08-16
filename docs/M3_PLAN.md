@@ -57,9 +57,14 @@ photo is attached in M3c).
    boop list to show it on without a feed — same open question as editing old
    boops).
 
-### M3b — email nudge (needs decisions)
-6. Cloud Function on boop create with `subjectUid` → look up that user's email →
-   send "{booper} booped you — open BoopTracker to confirm."
+### M3b — email nudge (function drafted; deploy needs decisions)
+6. ✅ **Drafted (not deployed):** `functions/` holds `emailBoopNudge`, an
+   `onDocumentCreated('boops/{boopId}')` v2 function. On a `pending` boop with a
+   `subjectUid` it looks up that user's email (Admin SDK) and writes a
+   `mail/{boopId}` doc for Firebase's **Trigger Email** extension to send —
+   "{booper} booped you, open BoopTracker to confirm." Idempotent (`create()`
+   keyed by boop id). Typechecks; **not deployed** — deploy needs the Blaze plan
+   + the Trigger Email extension installed (`functions/README.md`).
 7. Later, a denied boop is where the **Free Boop** powerup comes in (M5) to
    overrule a bad denial.
 

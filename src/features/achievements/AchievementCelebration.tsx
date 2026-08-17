@@ -5,6 +5,7 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { isBigDeal } from '@/features/achievements/achievementsCore';
 import { useAchievements } from '@/state/Achievements';
+import { usePowerups, type PowerupKind } from '@/state/Powerups';
 import { colors, gradients, radius, space } from '@/theme/colors';
 
 /**
@@ -16,12 +17,14 @@ import { colors, gradients, radius, space } from '@/theme/colors';
  * It shows one badge at a time; "Nice!" advances to the next queued one. Real
  * confetti + sound is the M7.5 juice pass — this is the honest stand-in.
  *
- * "Big deal" badges (Boop Received, Boop Collector) are meant to grant a Free
- * Boop / Shield *choice* (SPEC). The powerup store is M5, so we don't fake the
- * grant here — we recognise it and tease it. Wire the actual pick in M5.
+ * "Big deal" badges (Boop Received, Boop Collector) grant a Free Boop / Shield
+ * *choice* (SPEC). For those we show two pick buttons instead of a dismiss —
+ * choosing grants the powerup (M5) and advances. The pick is required (no
+ * dismiss-without-choosing) so the reward can't be lost by tapping away.
  */
 export function AchievementCelebration() {
   const { celebration, all, dismissCelebration } = useAchievements();
+  const { grant } = usePowerups();
   const currentId = celebration[0];
   const achievement = all.find((a) => a.id === currentId);
 
@@ -36,8 +39,20 @@ export function AchievementCelebration() {
   const bigDeal = isBigDeal(achievement.id);
   const remaining = celebration.length - 1;
 
+  function choosePowerup(kind: PowerupKind) {
+    grant(kind);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    dismissCelebration();
+  }
+
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={dismissCelebration}>
+    <Modal
+      visible
+      transparent
+      animationType="fade"
+      // Big-deal rewards must be chosen, so a hardware back doesn't forfeit them.
+      onRequestClose={bigDeal ? () => {} : dismissCelebration}
+    >
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <Text style={styles.confetti}>🎉</Text>
@@ -47,23 +62,42 @@ export function AchievementCelebration() {
           <Text style={styles.desc}>{achievement.description}</Text>
 
           {bigDeal ? (
-            <View style={styles.bigDeal}>
-              <Text style={styles.bigDealText}>
-                🎁 You earned a powerup pick — Free Boop or Shield.{'\n'}Coming soon!
-              </Text>
-            </View>
-          ) : null}
+            <>
+              <Text style={styles.bigDealPrompt}>🎁 Pick your reward:</Text>
+              <View style={styles.choiceRow}>
+                <TouchableOpacity
+                  style={[styles.choice, styles.choiceFree]}
+                  activeOpacity={0.85}
+                  onPress={() => choosePowerup('freeBoop')}
+                >
+                  <Text style={styles.choiceEmoji}>⚡</Text>
+                  <Text style={styles.choiceLabel}>Free Boop</Text>
+                  <Text style={styles.choiceHint}>Overrule a denial</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.choice, styles.choiceShield]}
+                  activeOpacity={0.85}
+                  onPress={() => choosePowerup('shield')}
+                >
+                  <Text style={styles.choiceEmoji}>🛡️</Text>
+                  <Text style={styles.choiceLabel}>Shield</Text>
+                  <Text style={styles.choiceHint}>Block a boop</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={dismissCelebration}>
+              <LinearGradient
+                colors={gradients.boop}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>{remaining > 0 ? 'Next!' : 'Nice!'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity style={styles.button} activeOpacity={0.9} onPress={dismissCelebration}>
-            <LinearGradient
-              colors={gradients.boop}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>{remaining > 0 ? 'Next!' : 'Nice!'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
           {remaining > 0 ? (
             <Text style={styles.more}>
               +{remaining} more badge{remaining > 1 ? 's' : ''}
@@ -109,20 +143,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  bigDeal: {
-    marginTop: space.md,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    paddingVertical: space.sm,
-    paddingHorizontal: space.md,
-  },
-  bigDealText: {
-    fontSize: 14,
-    fontWeight: '700',
+  bigDealPrompt: {
+    fontSize: 15,
+    fontWeight: '800',
     color: colors.accent,
-    textAlign: 'center',
-    lineHeight: 20,
+    marginTop: space.lg,
   },
+  choiceRow: { flexDirection: 'row', gap: space.sm, alignSelf: 'stretch', marginTop: space.sm },
+  choice: {
+    flex: 1,
+    borderRadius: radius.md,
+    paddingVertical: space.md,
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  choiceFree: { backgroundColor: colors.surfaceAlt, borderColor: colors.accent },
+  choiceShield: { backgroundColor: colors.surfaceAlt, borderColor: colors.primary },
+  choiceEmoji: { fontSize: 30 },
+  choiceLabel: { fontSize: 16, fontWeight: '800', color: colors.text, marginTop: 4 },
+  choiceHint: { fontSize: 12, color: colors.muted, marginTop: 2, fontWeight: '600' },
   button: { alignSelf: 'stretch', borderRadius: radius.md, overflow: 'hidden', marginTop: space.lg },
   buttonGradient: { paddingVertical: 16, alignItems: 'center' },
   buttonText: { color: colors.primaryText, fontSize: 17, fontWeight: '800' },

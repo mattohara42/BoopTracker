@@ -5,7 +5,8 @@ something Frankie can actually try, even if it's rough.
 
 > **Status (2026-08-17):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
 > M3 (M3a shipped — in-app confirm; M3b email **deferred**; M3c photos optional) ·
-> M4 ✅ (big-deal powerup grant deferred to M5) · M5–M8 not started.
+> M4 ✅ · M5 ✅ (boop-type-family big-deal choice deferred — one design call) ·
+> M6–M8 not started.
 > Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
 > [`M3_PLAN.md`](M3_PLAN.md).
 
@@ -62,15 +63,25 @@ something Frankie can actually try, even if it's rough.
   needs the powerup store, so it moves to **M5** (build in order). The type-family
   big-deal moment has its seam ready (`boopTypesUnlockedBetween`, tested).
 
-## M5: Powerups
-- Free Boop and Shield state per user, Firestore-backed
-- Cap enforcement (3 each, no stockpiling)
-- Monthly refill logic (1st of the month, Cloud Function on a schedule)
-- Free Boop flow: overrule a denied confirmation
-- Shield flow: next incoming boop against you doesn't count, consume the shield
-- **Wire the deferred M4 "big deal" choice into this store:** when a big-deal
-  badge fires (Boop Received, Boop Collector) or a boop-type family unlocks
-  (`boopTypesUnlockedBetween`), let the player pick a Free Boop or a Shield.
+## M5: Powerups  ✅ (one design call deferred — see last bullet)
+- ✅ Free Boop and Shield state per user, Firestore-backed — pure
+  `powerupsCore.ts` + `Powerups.tsx` (private doc `users/{uid}/private/powerups`).
+- ✅ Cap enforcement (3 each, no stockpiling) — clamped in the core; spend/grant
+  go through Firestore transactions so they can't go negative or past the cap.
+- ✅ Monthly refill — **client-side + lazy** (month-keyed), NOT a scheduled Cloud
+  Function: staying on Spark, we top up to full on the first app-open of a new
+  month. (Blaze + a scheduled function refilling everyone at 00:00 on the 1st is
+  the upgrade if we ever go paid.)
+- ✅ Free Boop flow: overrule a denied confirmation — Home "⚡ denied — overrule?"
+  card → `OverruleBoopsModal`; spends a Free Boop, flips the boop back to counting.
+- ✅ Shield flow: block an incoming boop — new `shielded` status; "🛡️ Shield it"
+  in the confirm list spends a Shield and the boop stops counting (final, not
+  overrulable).
+- ✅ Big-deal **badge** → Free Boop / Shield choice, wired into the M4 unlock
+  celebration (Boop Received, Boop Collector).
+- ⏳ Big-deal **boop-type-family unlock** → choice: left unwired pending a design
+  call — it collides with Boop Collector at 10 boops (would grant two picks at
+  once). `boopTypesUnlockedBetween` (tested) is the ready seam.
 
 ## M6: Leaderboards
 - Family group and friend group leaderboards

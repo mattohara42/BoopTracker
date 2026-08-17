@@ -12,7 +12,10 @@ _Last updated: 2026-08-17._
 1. **Publish the Firestore security rules.** The project is still in wide-open
    test mode. Copy [`firestore.rules`](firestore.rules) into the Firebase
    console → **Firestore Database → Rules** → **Publish**. (Steps in
-   `docs/DATA_MODEL.md`.) Do this first — M3a added rules the confirm flow needs.
+   `docs/DATA_MODEL.md`.) Do this first — M3a added rules the confirm flow needs,
+   and **M5 added one more** (the private `users/{uid}/private/{doc}` powerup
+   wallet). Until test mode expires everything still works, but republish so the
+   powerup wallet stays owner-only when it does.
 2. **Test the two-account flow on a phone** (re-download / `git pull`, then
    `npm install` → `npm start`):
    - Make a 2nd account (e.g. `you+frankie@gmail.com`; Sign out is top-left).
@@ -33,18 +36,29 @@ _Last updated: 2026-08-17._
    - Tag someone **Brother/Sister** on the Friends tab, boop them → **Sibling
      Boop** badge pops (the celebration overlay).
    - Check the new **Awards** tab (🏅) — the trophy case of all 14 badges.
-   - Note: the "⭐ big deal" badges say a Free Boop / Shield pick is *coming soon*
-     — that grant is **M5** on purpose. Tell me if the Ladder pace feels off.
+   - The "⭐ big deal" badges (Boop Received, Boop Collector) now hand you a real
+     **Free Boop / Shield pick** in the celebration (see M5 below).
+5. **Try M5 (powerups) with Frankie.** Home shows your ⚡ Free Boops + 🛡️ Shields.
+   - Earn **Boop Collector** (10 boops) → pick a Free Boop or a Shield.
+   - **Shield:** when someone boops you, open "boops to confirm" → **🛡️ Shield it**
+     (only shows if you hold a shield) → that boop won't count against you.
+   - **Free Boop (overrule):** get a boop of yours **denied**, then — if you hold
+     a Free Boop — Home shows **"⚡ N denied — overrule?"** → spend one to make it
+     count again. (A Free Boop can only ever overrule an already-denied boop.)
+   - **One open question for you:** unlocking a boop-type family (at 5/10/15) is
+     *also* a "big deal" per the SPEC — but at 10 that collides with Boop
+     Collector, so you'd get **two** picks at once. I left that unwired; tell me
+     if it should stack or if the badge pick alone is enough.
 
 ## Where we are
 
 The app is real: **Expo + Firebase**, running in Expo Go. Accounts, cloud data,
-friends-by-username, in-app boop **confirmation**, and now **achievements** all
-work. Milestones M0–M2 are done; **M3a shipped** (in-app confirm — the v1
-verification), **M3b (email) deferred**, **M3c (photos) optional/pending**;
-**M4 shipped** (the badge engine is wired to live data, boop types unlock on the
-Ladder, there's an Awards tab + an unlock celebration). The one M4 piece pushed
-to M5: the "big deal" **Free Boop / Shield choice** (it needs the powerup store).
+friends-by-username, in-app boop **confirmation**, **achievements**, and now
+**powerups** all work. Milestones M0–M2 are done; **M3a shipped** (in-app confirm
+— the v1 verification), **M3b (email) deferred**, **M3c (photos) optional**;
+**M4 shipped** (badge engine + Awards tab + Ladder + celebration); **M5 shipped**
+(Free Boops + Shields: caps, lazy monthly refill, big-deal badge → choice, the
+overrule flow, and the shield flow). Still on the **free Spark plan** throughout.
 
 ### Milestone status (see `docs/BUILD_PLAN.md`)
 - **M0 Repo skeleton** — ✅ done
@@ -63,8 +77,14 @@ to M5: the "big deal" **Free Boop / Shield choice** (it needs the powerup store)
   overlay. Badges persist as a grow-only union (kept once earned). The "big deal"
   Free Boop / Shield **choice** is recognised + teased but the grant is **M5**
   (needs the powerup store).
-- **M5–M8** — not started (powerups, leaderboards, push, juice, playtest). M5
-  picks up the deferred big-deal powerup choice.
+- **M5 Powerups** — ✅ done (bar one design call). Free Boops + Shields with hard
+  3/3 caps and a **client-side lazy monthly refill** (no Cloud Function → still
+  Spark). Big-deal **badges** now grant a real Free Boop / Shield pick in the
+  unlock celebration. **Overrule** flow (spend a Free Boop to un-deny a boop) and
+  **shield** flow (block an incoming boop → new `shielded` status) both built.
+  Deferred: whether a **boop-type-family unlock** should *also* grant a pick (it
+  would stack with Boop Collector at 10 boops) — needs Matt's call.
+- **M6–M8** — not started (leaderboards, push, juice, playtest).
 
 ## How to run
 

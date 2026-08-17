@@ -252,6 +252,50 @@ doesn't re-litigate them.
   Each type/badge got an `emoji` (one place: the type + achievement lists) for
   the kid-facing cards. Tests 72 green (added `boopTypesCore` + the join); typecheck clean.
 
+- 2026-08-17 — **M5 (Powerups) built.** Free Boops + Shields, all on the free
+  Spark plan. Slices:
+  - **The store.** Pure `src/state/powerupsCore.ts` (caps 3/3 from `POWERUPS`,
+    `grant`/`spend` clamped, month-keyed refill) + `src/state/Powerups.tsx`, a
+    provider backed by a **private** doc `users/{uid}/private/powerups` (kept out
+    of the signed-in-readable profile doc; new `firestore.rules` match). Home
+    shows ⚡/🛡️ count pills.
+  - **Monthly refill is client-side + lazy, NOT a scheduled Cloud Function.**
+    BUILD_PLAN sketched a scheduled function, but that needs Blaze and we chose to
+    stay on Spark (M3b/M4). Instead we store the `refillMonth` ("YYYY-MM") and top
+    both powerups to full the first time the app loads in a new month
+    (`applyMonthlyRefill`). Matches "refill to full on the 1st" closely enough for
+    a family app; each player refills on their next open. If we ever go Blaze, a
+    scheduled function refilling everyone at 00:00 on the 1st is the upgrade.
+  - **Big-deal badge → real choice.** `AchievementCelebration` now offers a Free
+    Boop / Shield **pick** for the two big-deal badges (Boop Received, Boop
+    Collector), granting via `Powerups.grant`. The pick is **required** (hardware
+    back is a no-op on a big-deal) so the reward can't be lost by tapping away.
+  - **Shield flow (defense).** New boop status **`shielded`** — it happened but
+    doesn't count, and (unlike `denied`) can't be overruled. Added a "🛡️ Shield
+    it" action in `ConfirmBoopsModal` (shown only when you hold a shield); it
+    `spend('shield')`s then writes `status:'shielded'`. No rule change — the
+    subject-update rule already allows the `status`/`resolvedAt` keys. `shielded`
+    is excluded from counting in `boopLogCore`, `achievementsCore`, and
+    `timesBooped`.
+  - **Free Boop flow (offense).** `BoopLog` exposes `deniedBoops` +
+    `overruleBoop` (denied→`confirmed` + `overruled:true`); a Home "⚡ N denied —
+    overrule?" card opens `OverruleBoopsModal`, which `spend('freeBoop')`s then
+    overrules. The card is gated on **having both a denial and a Free Boop**, so a
+    rare denial never nags forever. Booper already owns the boop (no rule change);
+    the subject can't re-deny (their confirm list is `pending`-only), so no
+    ping-pong. Per SPEC a Free Boop can only ever land on an already-recorded,
+    already-denied boop — never fabricate one.
+  - Decisions: **spend is a Firestore transaction** (read-modify-write, can't go
+    negative / past cap); flows **write the boop only if the spend succeeds**, so
+    you never shield/overrule "for free". Powerups persist in Firestore (unlike
+    M4 achievements, which are local) since they gate real actions.
+  - **Deferred (one design call for Matt):** a **boop-type family unlock** is also
+    a big-deal per SPEC, but it fires at 5/10/15 total boops — and 10 collides
+    with the Boop Collector big-deal, so unlocking Bellyboop *and* hitting Boop
+    Collector at 10 would hand out **two** powerup choices at once. Left unwired
+    pending Matt's call on whether that should stack; `boopTypesUnlockedBetween`
+    (tested) is the ready seam. Tests 87 green; typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

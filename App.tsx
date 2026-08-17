@@ -13,6 +13,7 @@ import { AchievementsProvider } from '@/state/Achievements';
 import { BoopLogProvider } from '@/state/BoopLog';
 import { PendingBoopsProvider } from '@/state/PendingBoops';
 import { PeopleProvider } from '@/state/People';
+import { PowerupsProvider } from '@/state/Powerups';
 import { colors } from '@/theme/colors';
 
 /**
@@ -33,19 +34,21 @@ function Gate() {
   if (!user) return <AuthScreen />;
 
   return (
-    <PeopleProvider>
-      <BoopLogProvider>
-        <PendingBoopsProvider>
-          <AchievementsProvider>
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
-            {/* Global overlay so the unlock moment fires from anywhere. */}
-            <AchievementCelebration />
-          </AchievementsProvider>
-        </PendingBoopsProvider>
-      </BoopLogProvider>
-    </PeopleProvider>
+    <PowerupsProvider>
+      <PeopleProvider>
+        <BoopLogProvider>
+          <PendingBoopsProvider>
+            <AchievementsProvider>
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
+              {/* Global overlay so the unlock moment fires from anywhere. */}
+              <AchievementCelebration />
+            </AchievementsProvider>
+          </PendingBoopsProvider>
+        </BoopLogProvider>
+      </PeopleProvider>
+    </PowerupsProvider>
   );
 }
 

@@ -34,6 +34,13 @@ service cloud.firestore {
       match /people/{personId} {
         allow read, write: if isUser(uid);
       }
+
+      // A user's private state (M5 powerups: Free Boops + Shields) — owner only.
+      // Kept out of the profile doc so powerup counts aren't exposed to the
+      // signed-in profile read above.
+      match /private/{doc} {
+        allow read, write: if isUser(uid);
+      }
     }
 
     // Username reservations. Readable by any signed-in user (for the add-a-

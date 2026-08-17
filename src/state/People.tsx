@@ -33,8 +33,11 @@ export type AddByUsernameResult =
 
 interface PeopleValue {
   people: Person[];
+  /** False until the first Firestore snapshot lands (used to gate derivations). */
+  loaded: boolean;
   addPeople: (incoming: Person[]) => void;
   removePerson: (id: string) => void;
+  setRelation: (id: string, relation: string) => void;
   addByUsername: (username: string) => Promise<AddByUsernameResult>;
 }
 
@@ -50,8 +53,10 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const [people, setPeople] = useState<Person[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
     if (!uid) {
       setPeople([]);
       return;
@@ -61,6 +66,7 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
       const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Person, 'id'>) }));
       list.sort((a, b) => a.name.localeCompare(b.name));
       setPeople(list);
+      setLoaded(true);
     });
   }, [uid]);
 
@@ -118,9 +124,24 @@ export function PeopleProvider({ children }: { children: ReactNode }) {
     [uid],
   );
 
+  /**
+   * Tag who a person is (Brother / Sister / …). merge:true so it updates just
+   * the relation without disturbing name / friendUid. Powers the M4 relation
+   * picker, which in turn unblocks the Sibling / Double Sibling badges.
+   */
+  const setRelation = useCallback(
+    (id: string, relation: string) => {
+      if (!uid) return;
+      void setDoc(doc(db, 'users', uid, 'people', id), { relation }, { merge: true }).catch(
+        () => {},
+      );
+    },
+    [uid],
+  );
+
   const value = useMemo<PeopleValue>(
-    () => ({ people, addPeople, removePerson, addByUsername }),
-    [people, addPeople, removePerson, addByUsername],
+    () => ({ people, loaded, addPeople, removePerson, setRelation, addByUsername }),
+    [people, loaded, addPeople, removePerson, setRelation, addByUsername],
   );
 
   return <PeopleContext.Provider value={value}>{children}</PeopleContext.Provider>;

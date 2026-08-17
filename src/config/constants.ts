@@ -65,6 +65,25 @@ export interface BoopType {
  */
 export const LOCKED_TYPE_TEASER_SLOTS = 4;
 
+// ---------------------------------------------------------------------------
+// Person relations  (M4 relation picker)
+// ---------------------------------------------------------------------------
+// The tappable options for tagging who a friend is. Kept here (one place) so
+// the picker and the sibling achievements stay in sync. NOTE: the Sibling /
+// Double Sibling badges match on 'brother' / 'sister' / 'sibling' (see
+// achievementsCore SIBLING_RELATIONS) — keep those spellings in this list, or
+// those badges can never be earned.
+export const PERSON_RELATIONS: readonly string[] = [
+  'Mom',
+  'Dad',
+  'Brother',
+  'Sister',
+  'Grandma',
+  'Grandpa',
+  'Cousin',
+  'Friend',
+] as const;
+
 export const BOOP_TYPES: readonly BoopType[] = [
   {
     id: 'classic',

@@ -5,7 +5,7 @@ constraints + dated assumptions log) and `docs/` (the actual plan). This file is
 a **snapshot**, not a history — the blow-by-blow lives in the CLAUDE.md
 assumptions log and git.
 
-_Last updated: 2026-08-16._
+_Last updated: 2026-08-17._
 
 ## 📋 Tomorrow's checklist (Matt)
 
@@ -26,13 +26,25 @@ _Last updated: 2026-08-16._
    and no email provider are needed. The drafted `functions/` code stays
    **dormant** (documented, re-deployable) in case a nudge is wanted later —
    likely as push (M7) rather than email.
+4. **Try M4 (achievements) with Frankie.** No new Firestore rules, so nothing to
+   publish for this — just `git pull` + `npm start`. Things to poke at:
+   - Boop a few times and watch **Boopstache unlock at 5 boops** in the type
+     picker (locked cards show "Unlock at N"). Bellyboop @10, Underboop @15.
+   - Tag someone **Brother/Sister** on the Friends tab, boop them → **Sibling
+     Boop** badge pops (the celebration overlay).
+   - Check the new **Awards** tab (🏅) — the trophy case of all 14 badges.
+   - Note: the "⭐ big deal" badges say a Free Boop / Shield pick is *coming soon*
+     — that grant is **M5** on purpose. Tell me if the Ladder pace feels off.
 
 ## Where we are
 
 The app is real: **Expo + Firebase**, running in Expo Go. Accounts, cloud data,
-friends-by-username, and in-app boop **confirmation** all work. Milestones M0–M2
-are done; **M3a shipped** (in-app confirm — the v1 verification), **M3b (email)
-deferred**, **M3c (photos) optional/pending**.
+friends-by-username, in-app boop **confirmation**, and now **achievements** all
+work. Milestones M0–M2 are done; **M3a shipped** (in-app confirm — the v1
+verification), **M3b (email) deferred**, **M3c (photos) optional/pending**;
+**M4 shipped** (the badge engine is wired to live data, boop types unlock on the
+Ladder, there's an Awards tab + an unlock celebration). The one M4 piece pushed
+to M5: the "big deal" **Free Boop / Shield choice** (it needs the powerup store).
 
 ### Milestone status (see `docs/BUILD_PLAN.md`)
 - **M0 Repo skeleton** — ✅ done
@@ -45,11 +57,14 @@ deferred**, **M3c (photos) optional/pending**.
     left dormant in `functions/`; verification is in-app only. A push nudge (M7)
     is the likelier future path.
   - **M3c** photo-as-proof → Firebase Storage — ⏳ optional (needs Blaze/Storage)
-- **M4 Achievements** — 🔨 started. Design gate resolved (thresholds retuned,
-  the-Ladder unlock, badges kept forever). Pure **evaluation core** built +
-  tested (`src/features/achievements/achievementsCore.ts`); UI + live-data wiring
-  + relation picker still to come (see `docs/BUILD_PLAN.md` M4).
-- **M5–M8** — not started (powerups, leaderboards, push, juice, playtest).
+- **M4 Achievements** — ✅ done (bar the deferred powerup grant). Evaluation core
+  + live wiring (`src/state/Achievements.tsx`), boop-type Ladder in the picker,
+  relation picker on Friends, **Awards** tab, and an unlock **celebration**
+  overlay. Badges persist as a grow-only union (kept once earned). The "big deal"
+  Free Boop / Shield **choice** is recognised + teased but the grant is **M5**
+  (needs the powerup store).
+- **M5–M8** — not started (powerups, leaderboards, push, juice, playtest). M5
+  picks up the deferred big-deal powerup choice.
 
 ## How to run
 

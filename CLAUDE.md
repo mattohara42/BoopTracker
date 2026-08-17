@@ -214,6 +214,44 @@ doesn't re-litigate them.
   ever wanted, **push (M7)** is the preferred path over email. (Blaze is still
   only needed if M3c photo-as-proof is later pursued.)
 
+- 2026-08-17 — **M4 wired up on-device** (the UI half after the evaluation core).
+  Four slices, all client-side (no new Firestore rules, still Spark plan):
+  - **Boop-type Ladder is live.** `src/features/boop/boopTypesCore.ts` (pure,
+    tested) reads `BOOP_TYPES[].unlockAtBoops`; `PickType` now greys Boopstache /
+    Bellyboop / Underboop until 5 / 10 / 15 total boops and shows "Unlock at N"
+    (the old M1 TODO — all four were selectable before).
+  - **Relation picker.** A friend can be tagged Brother/Sister/… on the Friends
+    tab (bottom-sheet of `PERSON_RELATIONS` chips → `People.setRelation`, merge
+    write). This is what makes Sibling / Double Sibling earnable; the boop→person
+    `relation` join happens at eval time, so tagging someone counts past boops.
+  - **Live achievements + Awards tab.** `src/state/Achievements.tsx` joins given
+    boops → people (`buildAchievementInput`) and runs the evaluator over live
+    data; `timesBooped` (non-denied received) comes from `PendingBoops`,
+    `friendsCount` from People. New **Awards** tab (`🏅`) is the trophy case.
+  - **Unlock celebration.** `AchievementCelebration` is a global overlay (mounted
+    at the App root, inside the providers) so the confetti fires wherever a badge
+    is earned — finish screen, confirming a received boop, or adding a 5th friend.
+  Decisions made here:
+  - **Badges kept once earned** is implemented by persisting a grow-only *union*
+    of earned ids (local AsyncStorage, per-uid, `booptracker:achievements:{uid}`)
+    — a later denial can't revoke a badge. Moving this to Firestore (badges follow
+    across devices) is a future improvement, not a v1 blocker.
+  - **Seed silently, celebrate only new.** On first load per account we adopt
+    whatever's already earned with no confetti (gated on all three providers'
+    `loaded` flags + persistence `hydrated`), so shipping M4 to an account that
+    already has boops doesn't fire ten celebrations at once.
+  - **"Friends" = your whole people list** (not just app-accounts) for Friend
+    Circle, so a small family can actually reach 5. One-liner in `Achievements`;
+    easy to flip to app-friends-only if Matt prefers.
+  - **"Big deal" powerup grant deferred to M5.** Boop Received / Boop Collector
+    (and the boop-type-family unlock) are *recognised and teased* in the
+    celebration, but the actual Free Boop / Shield **choice needs the powerup
+    store, which is M5** — building a choice screen that grants nothing would be
+    dishonest, and BUILD_PLAN says build in order. `boopTypesUnlockedBetween`
+    (tested) is left as the seam M5 wires to fire the type-family big-deal moment.
+  Each type/badge got an `emoji` (one place: the type + achievement lists) for
+  the kid-facing cards. Tests 72 green (added `boopTypesCore` + the join); typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

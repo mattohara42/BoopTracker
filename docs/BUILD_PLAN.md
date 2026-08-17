@@ -3,9 +3,9 @@
 Milestones are meant to be built and tested in order. Each one should produce
 something Frankie can actually try, even if it's rough.
 
-> **Status (2026-08-16):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
+> **Status (2026-08-17):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
 > M3 (M3a shipped — in-app confirm; M3b email **deferred**; M3c photos optional) ·
-> M4 🔨 started · M5–M8 not started.
+> M4 ✅ (big-deal powerup grant deferred to M5) · M5–M8 not started.
 > Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
 > [`M3_PLAN.md`](M3_PLAN.md).
 
@@ -43,17 +43,24 @@ something Frankie can actually try, even if it's rough.
 - ⏳ Photo-as-proof path for non-app people: attach photo, mark as witnessed (M3c,
   optional — needs Storage/Blaze)
 
-## M4: Achievements (Week One Set)  🔨 (started)
+## M4: Achievements (Week One Set)  ✅ (big-deal powerup grant deferred to M5)
 - ✅ **Evaluation core** — `src/features/achievements/achievementsCore.ts`, a
   pure, unit-tested evaluator of all 14 week-one achievements (thresholds from
   `constants.ts`, unlock ladder + retune from the design gate). No React/Firebase;
   the app layer feeds it boops + context and diffs against what's already earned.
-- ⏳ Wire it to live data (join boops → people for `relation`; feed `timesBooped`
-  from PendingBoops/received, `friendsCount` from People).
-- ⏳ Badge unlock UI: confetti + badge on the finish screen
-- ⏳ "Big deal" achievements trigger the Free Boop / Shield choice screen
-- ⏳ Relation picker (mark a friend as brother/sister) — unblocks Sibling badges
-- ⏳ Achievement list screen (even if bare-bones) so you can see what you've unlocked
+- ✅ Wired to live data — `src/state/Achievements.tsx` joins boops → people for
+  `relation` (`buildAchievementInput`); `timesBooped` from PendingBoops (non-denied
+  received), `friendsCount` from People. Earned set persisted as a grow-only union
+  (badges kept once earned); seeds silently on first load, celebrates only new ones.
+- ✅ Badge unlock UI — `AchievementCelebration`, a global overlay (confetti +
+  haptic) that fires wherever a badge is earned, not just the finish screen.
+- ✅ Boop-type Ladder enforced in the picker — `boopTypesCore.ts` + `PickType`
+  grey Boopstache/Bellyboop/Underboop until 5/10/15 total boops.
+- ✅ Relation picker (tag a friend Brother/Sister/…) — unblocks Sibling badges.
+- ✅ Achievement list screen — the **Awards** tab (trophy case of all 14).
+- ⏳ "Big deal" Free Boop / Shield **choice** — recognised + teased, but the grant
+  needs the powerup store, so it moves to **M5** (build in order). The type-family
+  big-deal moment has its seam ready (`boopTypesUnlockedBetween`, tested).
 
 ## M5: Powerups
 - Free Boop and Shield state per user, Firestore-backed
@@ -61,6 +68,9 @@ something Frankie can actually try, even if it's rough.
 - Monthly refill logic (1st of the month, Cloud Function on a schedule)
 - Free Boop flow: overrule a denied confirmation
 - Shield flow: next incoming boop against you doesn't count, consume the shield
+- **Wire the deferred M4 "big deal" choice into this store:** when a big-deal
+  badge fires (Boop Received, Boop Collector) or a boop-type family unlocks
+  (`boopTypesUnlockedBetween`), let the player pick a Free Boop or a Shield.
 
 ## M6: Leaderboards
 - Family group and friend group leaderboards

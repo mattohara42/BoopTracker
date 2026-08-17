@@ -38,6 +38,18 @@ export function unlockedBoopTypeIds(totalBoops: number): BoopTypeId[] {
 }
 
 /**
+ * The *lockable* boop-type families the player has unlocked at this total — the
+ * ones that grant a "big deal" powerup choice (SPEC), i.e. Classic (always on)
+ * excluded. In `BOOP_TYPES` order. The Achievements provider diffs this against
+ * a persisted grant set to fire each family's choice exactly once.
+ */
+export function unlockedBoopTypeFamilies(totalBoops: number): BoopTypeId[] {
+  return BOOP_TYPES.filter(
+    (t) => !t.unlockedByDefault && isBoopTypeUnlocked(t, totalBoops),
+  ).map((t) => t.id);
+}
+
+/**
  * Every v1 type tagged with its unlock state at the given total, in display
  * order — what the picker renders (unlocked cards + greyed "unlock at N" cards).
  */

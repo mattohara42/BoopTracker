@@ -3,6 +3,7 @@ import {
   boopTypesUnlockedBetween,
   isBoopTypeUnlocked,
   nextBoopTypeUnlock,
+  unlockedBoopTypeFamilies,
   unlockedBoopTypeIds,
 } from '../boopTypesCore';
 import { BOOP_TYPES } from '@/config/constants';
@@ -57,6 +58,18 @@ describe('boopTypeUnlockStates', () => {
     expect(boopTypeUnlockStates(99).map((s) => s.type.id)).toEqual(
       BOOP_TYPES.map((t) => t.id),
     );
+  });
+});
+
+describe('unlockedBoopTypeFamilies (big-deal grant candidates)', () => {
+  it('excludes Classic (always-on, not a grantable unlock)', () => {
+    expect(unlockedBoopTypeFamilies(0)).toEqual([]);
+  });
+
+  it('grows as the ladder is climbed', () => {
+    expect(unlockedBoopTypeFamilies(5)).toEqual(['boopstache']);
+    expect(unlockedBoopTypeFamilies(10)).toEqual(['boopstache', 'bellyboop']);
+    expect(unlockedBoopTypeFamilies(15)).toEqual(['boopstache', 'bellyboop', 'underboop']);
   });
 });
 

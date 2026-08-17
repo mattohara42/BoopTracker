@@ -296,6 +296,22 @@ doesn't re-litigate them.
     pending Matt's call on whether that should stack; `boopTypesUnlockedBetween`
     (tested) is the ready seam. Tests 87 green; typecheck clean.
 
+- 2026-08-17 — **Boop-type-family unlock now grants a stacked powerup choice**
+  (Matt: **stack them**). The M5 celebration queue was generalised from "badge
+  ids" to a discriminated `CelebrationItem` (`{kind:'badge'}` | `{kind:'boopType'}`).
+  When total boops cross 5/10/15, the newly-unlocked family enqueues a big-deal
+  Free Boop / Shield **choice**, in addition to any badge earned at the same
+  moment — so at **10 boops you make two picks** (Boop Collector, then Bellyboop
+  unlocked). Implementation mirrors the badge union: a grow-only persisted set
+  `booptracker:boopTypeFamilies:{uid}` (per-uid, local) diffed against
+  `unlockedBoopTypeFamilies(totalBoops)` (new pure helper, tested), **seeded
+  silently** on first load so an account that already has ≥5 boops gets **no
+  retroactive powerups**. In-order display: badge choice first, then the type
+  unlock. (I didn't end up needing `boopTypesUnlockedBetween` — the set-diff is
+  the same machinery as badges and handles denials dropping the total below a
+  threshold without double-granting; the helper stays as a tested alt-seam.)
+  Tests 89 green; typecheck clean. Landed as a fresh change after #6 merged.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

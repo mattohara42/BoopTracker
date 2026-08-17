@@ -21,6 +21,55 @@ first. Pull items into a future milestone as they come up.
 - How do we know someone's region for region leaderboards? Automatic from phone
   location, or manual selection?
 
+## Should We Ship? / Monetization (2026-08-17)
+
+Captured from a "what are our chances of making money, and is the $99 (Apple) +
+$25 (Google) worth it?" discussion. Recording the reasoning so a future session
+doesn't re-litigate it from scratch.
+
+**The spend is not a validation cost — separate the two.** The store fees are a
+*distribution* cost, not what you pay to find out if the app is worth it. You can
+learn almost everything for **$0**: family playtests run in **Expo Go** now, and
+a **free EAS "preview" APK** puts it on other families' Android phones with no
+account at all. Only iOS-over-TestFlight needs the $99, and that's a "reach
+relatives who won't scan a QR" cost, not a bet on revenue. So: **spend $0 first,
+decide, then maybe spend.** Treat the $125 as *$0-until-there's-a-reason*.
+
+**Honest market read: revenue expectation ≈ $0** — not a knock on the build, a
+property of the concept:
+- Niche novelty / family-utility app; tiny addressable market.
+- **By design** there's no feed, no engagement loop, no virality (SPEC's hard
+  "not social media" constraint). The things that make apps money are exactly
+  what we (rightly) refused to build.
+- App-store discovery is brutal for unknown apps; no obvious "I'd pay for this."
+- It's **kids-adjacent**, which rules out the easy money (ads → COPPA / ethics)
+  and adds scrutiny to anything we'd charge a 10-year-old's app for.
+- None of the models fit: paid-upfront kills downloads for an unknown app;
+  IAP/cosmetics need volume we won't have and cut against the no-dark-patterns
+  ethos; ads are a legal/ethical no-go; subscription has no recurring value.
+
+**Name the goal first — it changes everything.** If the goal is *money*, this
+specific app is likely not the vehicle, and we should say so plainly. If the goal
+is a dad-and-Frankie project / teaching him to build / a fun thing the family
+actually uses, **it's already succeeding**, and the store fees only ever buy
+*reach*, never profit.
+
+**Free-first assessment funnel (a "kill or continue" gate, before any money):**
+1. **Retention test (the real signal):** get it to 3–5 *other* families via free
+   APK / TestFlight. Do they reopen it ~2 weeks later **without a reminder**?
+   Novelty apps almost always flatline here; if this one doesn't, that's the one
+   genuinely interesting signal.
+2. **30-min competitor scan (free):** search the stores for "boop" /
+   family-score / prank-tally apps — do any exist, have reviews/downloads, or
+   charge? Tells us demand + price tolerance cheaply.
+3. **The $2 question:** ask a few parents point-blank "would you pay $1.99?" The
+   honest answers are the point.
+4. Only if step 1 shows a spark do we reach "is $99 worth a wider beta?" A
+   *public paid launch* is a much bigger, much later question than that.
+
+Distribution mechanics (Xcode / EAS / TestFlight / Play) live in
+`APP_STORE_SETUP.md`; this note is the *should-we* that gates using it.
+
 ## Adding people (from the M1 playtest, 2026-08-13)
 
 Playtest verdict: three taps feels fast, type-picking is fun, locked slots +

@@ -57,8 +57,8 @@ interface BoopLogValue {
   recordBoop: (input: RecordBoopInput) => Promise<Boop>;
   attachPhoto: (boopId: string, photoUri: string) => void;
   removeBoop: (boopId: string) => void;
-  /** Spend nothing here — just flip a denied boop back to counting (M5 overrule). */
-  overruleBoop: (boopId: string) => void;
+  /** Flip a denied boop back to counting (M5 overrule). Rejects on write failure. */
+  overruleBoop: (boopId: string) => Promise<void>;
 }
 
 const BoopLogContext = createContext<BoopLogValue | null>(null);
@@ -134,12 +134,12 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
   // booper owns the boop, so the rules already permit this update. The subject
   // won't see it again (their confirm list is `status == 'pending'` only), so it
   // can't ping-pong. Spending the Free Boop is done by the caller.
-  const overruleBoop = useCallback((boopId: string) => {
-    void updateDoc(doc(db, 'boops', boopId), {
+  const overruleBoop = useCallback(async (boopId: string) => {
+    await updateDoc(doc(db, 'boops', boopId), {
       status: 'confirmed',
       overruled: true,
       resolvedAt: serverTimestamp(),
-    }).catch(() => {});
+    });
   }, []);
 
   const value = useMemo<BoopLogValue>(() => {

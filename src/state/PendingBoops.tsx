@@ -47,10 +47,11 @@ interface PendingBoopsValue {
   timesBooped: number;
   /** False until the first Firestore snapshot lands (gates achievement seeding). */
   loaded: boolean;
-  confirm: (boopId: string, typeConfirmed: boolean) => void;
-  deny: (boopId: string) => void;
+  /** Resolve a received boop. Rejects on a write failure so the UI can surface it. */
+  confirm: (boopId: string, typeConfirmed: boolean) => Promise<void>;
+  deny: (boopId: string) => Promise<void>;
   /** Block an incoming boop with a Shield (M5): it happened but won't count. */
-  shield: (boopId: string) => void;
+  shield: (boopId: string) => Promise<void>;
 }
 
 const PendingBoopsContext = createContext<PendingBoopsValue | null>(null);
@@ -96,28 +97,30 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
     });
   }, [uid]);
 
-  const confirm = useCallback((boopId: string, typeConfirmed: boolean) => {
-    void updateDoc(doc(db, 'boops', boopId), {
+  // These reject on failure (no swallow) so the modal can Alert the user — a
+  // silent no-op on "Missing or insufficient permissions" is hard to debug.
+  const confirm = useCallback(async (boopId: string, typeConfirmed: boolean) => {
+    await updateDoc(doc(db, 'boops', boopId), {
       status: 'confirmed',
       typeConfirmed,
       resolvedAt: serverTimestamp(),
-    }).catch(() => {});
+    });
   }, []);
 
-  const deny = useCallback((boopId: string) => {
-    void updateDoc(doc(db, 'boops', boopId), {
+  const deny = useCallback(async (boopId: string) => {
+    await updateDoc(doc(db, 'boops', boopId), {
       status: 'denied',
       resolvedAt: serverTimestamp(),
-    }).catch(() => {});
+    });
   }, []);
 
   // Only 'status' + 'resolvedAt' change here, so the subject-update rule (which
   // allows status/typeConfirmed/resolvedAt) permits it — no rule change needed.
-  const shield = useCallback((boopId: string) => {
-    void updateDoc(doc(db, 'boops', boopId), {
+  const shield = useCallback(async (boopId: string) => {
+    await updateDoc(doc(db, 'boops', boopId), {
       status: 'shielded',
       resolvedAt: serverTimestamp(),
-    }).catch(() => {});
+    });
   }, []);
 
   const value = useMemo<PendingBoopsValue>(

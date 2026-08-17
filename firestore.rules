@@ -11,6 +11,11 @@ rules_version = '2';
 // subject; M6 (leaderboards) widened reads to a per-user PUBLIC AGGREGATE doc
 // (users/{uid}/public/{doc}) — not the raw boops. Widen deliberately, per
 // feature, rather than opening it up.
+//
+// HARDENING PLAN (before any public listing) → docs/SECURITY_AND_HARDENING.md:
+// H1 friendship-gate boop create + key-restrict the booper update; H2 make the
+// leaderboard stats server-computed; H3 split the public profile from `email`.
+// These are family-app-acceptable as-is; the doc has the before/after rules.
 
 service cloud.firestore {
   match /databases/{database}/documents {

@@ -1,5 +1,6 @@
 import {
   WEEK_ONE_ACHIEVEMENTS,
+  buildAchievementInput,
   evaluateAchievements,
   isBigDeal,
   newlyEarned,
@@ -213,6 +214,56 @@ describe('ordering and diffing', () => {
     const fresh = newlyEarned(['first_boop'], input);
     expect(fresh).toContain('classic_booper');
     expect(fresh).not.toContain('first_boop');
+  });
+});
+
+describe('buildAchievementInput (live-data join)', () => {
+  it('joins each boop to its person relation', () => {
+    const input = buildAchievementInput({
+      givenBoops: [
+        { personId: 'bro', boopType: 'classic', at: 100 },
+        { personId: 'pal', boopType: 'classic', at: 101 },
+      ],
+      people: [
+        { id: 'bro', relation: 'Brother' },
+        { id: 'pal', relation: 'Friend' },
+      ],
+      timesBooped: 2,
+      friendsCount: 3,
+    });
+    expect(input.boops.map((b) => b.relation)).toEqual(['Brother', 'Friend']);
+    expect(input.timesBooped).toBe(2);
+    expect(input.friendsCount).toBe(3);
+  });
+
+  it('leaves relation undefined for a person not in the list', () => {
+    const input = buildAchievementInput({
+      givenBoops: [{ personId: 'ghost', boopType: 'classic', at: 100 }],
+      people: [],
+      timesBooped: 0,
+      friendsCount: 0,
+    });
+    expect(input.boops[0].relation).toBeUndefined();
+  });
+
+  it('feeds the evaluator so a joined sibling earns Sibling Boop', () => {
+    const input = buildAchievementInput({
+      givenBoops: [{ personId: 'sis', boopType: 'classic', at: 100 }],
+      people: [{ id: 'sis', relation: 'Sister' }],
+      timesBooped: 0,
+      friendsCount: 0,
+    });
+    expect(evaluateAchievements({ ...input, dayIndex, hourOf })).toContain('sibling_boop');
+  });
+
+  it('carries status through so denied boops still drop out', () => {
+    const input = buildAchievementInput({
+      givenBoops: [{ personId: 'p', boopType: 'classic', at: 100, status: 'denied' }],
+      people: [],
+      timesBooped: 0,
+      friendsCount: 0,
+    });
+    expect(evaluateAchievements({ ...input, dayIndex, hourOf })).not.toContain('first_boop');
   });
 });
 

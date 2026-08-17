@@ -49,6 +49,8 @@ interface BoopLogValue {
   totalBoops: number;
   uniquePeopleBooped: number;
   recentPeople: RecentPerson[];
+  /** False until the first Firestore snapshot lands (gates achievement seeding). */
+  loaded: boolean;
   recordBoop: (input: RecordBoopInput) => Promise<Boop>;
   attachPhoto: (boopId: string, photoUri: string) => void;
   removeBoop: (boopId: string) => void;
@@ -60,8 +62,10 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth();
   const uid = user?.uid ?? null;
   const [boops, setBoops] = useState<Boop[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
     if (!uid) {
       setBoops([]);
       return;
@@ -86,6 +90,7 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
       });
       list.sort((a, b) => b.at - a.at); // newest first
       setBoops(list);
+      setLoaded(true);
     });
   }, [uid]);
 
@@ -126,11 +131,12 @@ export function BoopLogProvider({ children }: { children: ReactNode }) {
       totalBoops: stats.totalBoops,
       uniquePeopleBooped: stats.uniquePeopleBooped,
       recentPeople: deriveRecentPeople(boops),
+      loaded,
       recordBoop,
       attachPhoto,
       removeBoop,
     };
-  }, [boops, recordBoop, attachPhoto, removeBoop]);
+  }, [boops, loaded, recordBoop, attachPhoto, removeBoop]);
 
   return <BoopLogContext.Provider value={value}>{children}</BoopLogContext.Provider>;
 }

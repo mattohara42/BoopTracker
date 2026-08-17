@@ -39,6 +39,14 @@ export interface PendingBoop {
 
 interface PendingBoopsValue {
   pending: PendingBoop[];
+  /**
+   * How many boops the player has RECEIVED that still count (not denied) —
+   * pending + confirmed. Feeds the "Boop Received" achievement. A pending boop
+   * counts immediately (M3a), so it's included here too.
+   */
+  timesBooped: number;
+  /** False until the first Firestore snapshot lands (gates achievement seeding). */
+  loaded: boolean;
   confirm: (boopId: string, typeConfirmed: boolean) => void;
   deny: (boopId: string) => void;
 }
@@ -49,8 +57,12 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const [pending, setPending] = useState<PendingBoop[]>([]);
+  const [timesBooped, setTimesBooped] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
+    setTimesBooped(0);
     if (!uid) {
       setPending([]);
       return;
@@ -71,6 +83,9 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
         });
       list.sort((a, b) => b.at - a.at);
       setPending(list);
+      // Received boops that still count (pending + confirmed, i.e. not denied).
+      setTimesBooped(snap.docs.filter((d) => d.data().status !== 'denied').length);
+      setLoaded(true);
     });
   }, [uid]);
 
@@ -90,8 +105,8 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<PendingBoopsValue>(
-    () => ({ pending, confirm, deny }),
-    [pending, confirm, deny],
+    () => ({ pending, timesBooped, loaded, confirm, deny }),
+    [pending, timesBooped, loaded, confirm, deny],
   );
 
   return <PendingBoopsContext.Provider value={value}>{children}</PendingBoopsContext.Provider>;

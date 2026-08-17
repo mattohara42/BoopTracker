@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +11,8 @@ import {
   View,
 } from 'react-native';
 
+import { PERSON_RELATIONS } from '@/config/constants';
+import type { Person } from '@/data/fakeFriends';
 import { pickContactAsPerson } from '@/features/contacts/pickContact';
 import { usePeople } from '@/state/People';
 import { colors } from '@/theme/colors';
@@ -24,11 +28,13 @@ import { colors } from '@/theme/colors';
  * for now the list is in-memory and resets on reload.
  */
 export function FriendsScreen() {
-  const { people, addPeople, removePerson, addByUsername } = usePeople();
+  const { people, addPeople, removePerson, setRelation, addByUsername } = usePeople();
   const [busy, setBusy] = useState(false);
   const [username, setUsername] = useState('');
   const [addingFriend, setAddingFriend] = useState(false);
   const [friendMsg, setFriendMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  // The person whose relation is being edited (null = picker closed).
+  const [editing, setEditing] = useState<Person | null>(null);
 
   async function addFromContacts() {
     if (busy) return;
@@ -96,7 +102,18 @@ export function FriendsScreen() {
           <View key={p.id} style={styles.row}>
             <View style={styles.rowText}>
               <Text style={styles.rowName}>{p.name}</Text>
-              {p.relation ? <Text style={styles.rowSubtitle}>{p.relation}</Text> : null}
+              <TouchableOpacity
+                onPress={() => setEditing(p)}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  p.relation ? `Change ${p.name}'s relation` : `Add a relation for ${p.name}`
+                }
+              >
+                <Text style={[styles.relationPill, !p.relation && styles.relationPillEmpty]}>
+                  {p.relation ? p.relation : '＋ Add relation'}
+                </Text>
+              </TouchableOpacity>
             </View>
             <TouchableOpacity
               onPress={() => removePerson(p.id)}
@@ -124,6 +141,40 @@ export function FriendsScreen() {
       >
         <Text style={styles.addButtonText}>📇  Add from Contacts</Text>
       </TouchableOpacity>
+
+      <Modal
+        visible={editing !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditing(null)}
+      >
+        <Pressable style={styles.sheetBackdrop} onPress={() => setEditing(null)}>
+          {/* Stop taps inside the card from dismissing the sheet. */}
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <Text style={styles.sheetTitle}>Who is {editing?.name}?</Text>
+            <View style={styles.chips}>
+              {PERSON_RELATIONS.map((r) => {
+                const active = editing?.relation === r;
+                return (
+                  <TouchableOpacity
+                    key={r}
+                    style={[styles.chip, active && styles.chipActive]}
+                    onPress={() => {
+                      if (editing) setRelation(editing.id, r);
+                      setEditing(null);
+                    }}
+                  >
+                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{r}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <TouchableOpacity onPress={() => setEditing(null)} hitSlop={8}>
+              <Text style={styles.sheetCancel}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -169,9 +220,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  rowText: { flex: 1 },
+  rowText: { flex: 1, alignItems: 'flex-start' },
   rowName: { fontSize: 18, fontWeight: '600', color: colors.text },
-  rowSubtitle: { fontSize: 14, color: colors.muted, marginTop: 2 },
+  relationPill: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.primary,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 999,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    marginTop: 6,
+    overflow: 'hidden',
+  },
+  relationPillEmpty: { color: colors.muted, fontWeight: '600' },
   remove: { fontSize: 18, color: colors.muted, paddingHorizontal: 6 },
   empty: { fontSize: 15, color: colors.muted, textAlign: 'center', marginTop: 24 },
   addButton: {
@@ -183,4 +245,31 @@ const styles = StyleSheet.create({
   },
   addButtonDisabled: { opacity: 0.5 },
   addButtonText: { color: colors.primaryText, fontSize: 17, fontWeight: '800' },
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(42, 35, 32, 0.4)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    gap: 18,
+  },
+  sheetTitle: { fontSize: 20, fontWeight: '800', color: colors.text },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  chip: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+  },
+  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontSize: 15, fontWeight: '700', color: colors.text },
+  chipTextActive: { color: colors.primaryText },
+  sheetCancel: { fontSize: 15, fontWeight: '700', color: colors.muted, textAlign: 'center' },
 });

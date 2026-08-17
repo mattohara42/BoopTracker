@@ -1,6 +1,7 @@
 import {
   attachPhotoTo,
   createBoop,
+  deriveDeniedBoops,
   deriveRecentPeople,
   deriveStats,
   prependBoop,
@@ -123,6 +124,31 @@ describe('deriveStats', () => {
     // matt's denied boop drops from both the total and the unique count.
     expect(deriveStats(boops)).toEqual({ totalBoops: 2, uniquePeopleBooped: 2 });
     expect(deriveRecentPeople(boops).map((p) => p.id)).toEqual(['sam', 'jo']);
+  });
+
+  it('excludes shielded boops too (M5 — blocked, so they do not count)', () => {
+    const boops = [
+      boop({ personId: 'sam', status: 'confirmed' }),
+      boop({ personId: 'matt', status: 'shielded' }),
+    ];
+    expect(deriveStats(boops)).toEqual({ totalBoops: 1, uniquePeopleBooped: 1 });
+    expect(deriveRecentPeople(boops).map((p) => p.id)).toEqual(['sam']);
+  });
+});
+
+describe('deriveDeniedBoops (M5 overrule candidates)', () => {
+  it('returns only denied boops, not shielded or counting ones', () => {
+    const boops = [
+      boop({ personId: 'a', id: 'a1', status: 'confirmed' }),
+      boop({ personId: 'b', id: 'b1', status: 'denied' }),
+      boop({ personId: 'c', id: 'c1', status: 'shielded' }),
+      boop({ personId: 'd', id: 'd1', status: 'pending' }),
+    ];
+    expect(deriveDeniedBoops(boops).map((x) => x.id)).toEqual(['b1']);
+  });
+
+  it('is empty when nothing was denied', () => {
+    expect(deriveDeniedBoops([boop({ personId: 'a', status: 'confirmed' })])).toEqual([]);
   });
 });
 

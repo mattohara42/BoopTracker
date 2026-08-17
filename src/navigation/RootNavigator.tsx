@@ -1,19 +1,21 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, Text } from 'react-native';
 
+import { AwardsScreen } from '@/screens/AwardsScreen';
 import { FriendsScreen } from '@/screens/FriendsScreen';
 import { HomeScreen } from '@/screens/HomeScreen';
 import { LeaderboardScreen } from '@/screens/LeaderboardScreen';
 import { colors } from '@/theme/colors';
 
 /**
- * Bottom-tab navigation for v1: Home (the BOOP button), Friends, Leaderboard.
- * Tabs fit the "open → do one thing → leave" model. No stack of feeds.
- * The three-tap record flow opens on top of Home, not as a tab.
+ * Bottom-tab navigation for v1: Home (the BOOP button), Friends, Awards,
+ * Leaderboard. Tabs fit the "open → do one thing → leave" model. No stack of
+ * feeds. The three-tap record flow opens on top of Home, not as a tab.
  */
 export type RootTabParamList = {
   Home: undefined;
   Friends: undefined;
+  Awards: undefined;
   Leaderboard: undefined;
 };
 
@@ -22,6 +24,7 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const ICONS: Record<keyof RootTabParamList, string> = {
   Home: '👆',
   Friends: '👥',
+  Awards: '🏅',
   Leaderboard: '🏆',
 };
 
@@ -51,6 +54,7 @@ export function RootNavigator() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Friends" component={FriendsScreen} />
+      <Tab.Screen name="Awards" component={AwardsScreen} />
       <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
     </Tab.Navigator>
   );

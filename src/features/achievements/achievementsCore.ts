@@ -41,6 +41,8 @@ export interface WeekOneAchievement {
   id: WeekOneAchievementId;
   label: string;
   description: string;
+  /** Playful badge icon for the Awards screen + unlock moment. */
+  emoji: string;
   /**
    * "Big deal" achievements also grant the Free Boop / Shield choice (SPEC).
    * Kept deliberately rare — only two of the week-one set qualify.
@@ -53,20 +55,20 @@ export interface WeekOneAchievement {
  * in this order, and the (later) achievements-list screen renders from here.
  */
 export const WEEK_ONE_ACHIEVEMENTS: readonly WeekOneAchievement[] = [
-  { id: 'first_boop', label: 'First Boop', description: 'Record your first boop ever.', bigDeal: false },
-  { id: 'boop_received', label: 'Boop Received', description: 'Get booped for the first time.', bigDeal: true },
-  { id: 'classic_booper', label: 'Classic Booper', description: `Reach ${ACHIEVEMENT_THRESHOLDS.CLASSIC_BOOPER_BOOPS} boops total.`, bigDeal: false },
-  { id: 'sibling_boop', label: 'Sibling Boop', description: 'Boop your brother or sister.', bigDeal: false },
-  { id: 'double_sibling', label: 'Double Sibling', description: 'Boop two of your siblings.', bigDeal: false },
-  { id: 'triple_threat', label: 'Triple Threat', description: `Boop ${ACHIEVEMENT_THRESHOLDS.TRIPLE_THREAT_PEOPLE_PER_DAY} different people in one day.`, bigDeal: false },
-  { id: 'boopstache', label: 'Boopstache', description: 'Land your first Boopstache.', bigDeal: false },
-  { id: 'bellyboop', label: 'Bellyboop', description: 'Land your first Bellyboop.', bigDeal: false },
-  { id: 'underboop', label: 'Underboop', description: 'Land your first Underboop.', bigDeal: false },
-  { id: 'boop_collector', label: 'Boop Collector', description: `Reach ${ACHIEVEMENT_THRESHOLDS.BOOP_COLLECTOR_BOOPS} boops total.`, bigDeal: true },
-  { id: 'three_day_streak', label: 'Three Day Streak', description: `Boop on ${ACHIEVEMENT_THRESHOLDS.STREAK_DAYS} different days in a row.`, bigDeal: false },
-  { id: 'friend_circle', label: 'Friend Circle', description: `Add your first ${ACHIEVEMENT_THRESHOLDS.FRIEND_CIRCLE_FRIENDS} friends.`, bigDeal: false },
-  { id: 'early_bird', label: 'Early Bird', description: `Boop someone before ${ACHIEVEMENT_THRESHOLDS.EARLY_BIRD_BEFORE_HOUR}am.`, bigDeal: false },
-  { id: 'night_owl', label: 'Night Owl', description: 'Boop someone late at night.', bigDeal: false },
+  { id: 'first_boop', label: 'First Boop', description: 'Record your first boop ever.', emoji: '👆', bigDeal: false },
+  { id: 'boop_received', label: 'Boop Received', description: 'Get booped for the first time.', emoji: '🔔', bigDeal: true },
+  { id: 'classic_booper', label: 'Classic Booper', description: `Reach ${ACHIEVEMENT_THRESHOLDS.CLASSIC_BOOPER_BOOPS} boops total.`, emoji: '🖐️', bigDeal: false },
+  { id: 'sibling_boop', label: 'Sibling Boop', description: 'Boop your brother or sister.', emoji: '👦', bigDeal: false },
+  { id: 'double_sibling', label: 'Double Sibling', description: 'Boop two of your siblings.', emoji: '👯', bigDeal: false },
+  { id: 'triple_threat', label: 'Triple Threat', description: `Boop ${ACHIEVEMENT_THRESHOLDS.TRIPLE_THREAT_PEOPLE_PER_DAY} different people in one day.`, emoji: '🎯', bigDeal: false },
+  { id: 'boopstache', label: 'Boopstache', description: 'Land your first Boopstache.', emoji: '🥸', bigDeal: false },
+  { id: 'bellyboop', label: 'Bellyboop', description: 'Land your first Bellyboop.', emoji: '🫃', bigDeal: false },
+  { id: 'underboop', label: 'Underboop', description: 'Land your first Underboop.', emoji: '👇', bigDeal: false },
+  { id: 'boop_collector', label: 'Boop Collector', description: `Reach ${ACHIEVEMENT_THRESHOLDS.BOOP_COLLECTOR_BOOPS} boops total.`, emoji: '🏆', bigDeal: true },
+  { id: 'three_day_streak', label: 'Three Day Streak', description: `Boop on ${ACHIEVEMENT_THRESHOLDS.STREAK_DAYS} different days in a row.`, emoji: '🔥', bigDeal: false },
+  { id: 'friend_circle', label: 'Friend Circle', description: `Add your first ${ACHIEVEMENT_THRESHOLDS.FRIEND_CIRCLE_FRIENDS} friends.`, emoji: '👥', bigDeal: false },
+  { id: 'early_bird', label: 'Early Bird', description: `Boop someone before ${ACHIEVEMENT_THRESHOLDS.EARLY_BIRD_BEFORE_HOUR}am.`, emoji: '🌅', bigDeal: false },
+  { id: 'night_owl', label: 'Night Owl', description: 'Boop someone late at night.', emoji: '🦉', bigDeal: false },
 ] as const;
 
 /** Relation strings that count as a sibling for the sibling achievements. */
@@ -124,9 +126,9 @@ export function localHourOf(atMs: number): number {
 // Evaluation
 // ---------------------------------------------------------------------------
 
-/** A denied boop doesn't count — mirrors boopLogCore's `counted`. */
+/** Denied and shielded boops don't count — mirrors boopLogCore's `counted`. */
 function counted(boops: readonly AchievementBoop[]): AchievementBoop[] {
-  return boops.filter((b) => b.status !== 'denied');
+  return boops.filter((b) => b.status !== 'denied' && b.status !== 'shielded');
 }
 
 /** Longest run of consecutive day-indices in a set (e.g. {1,2,3,5} → 3). */
@@ -211,4 +213,52 @@ export function newlyEarned(
 /** Whether an achievement grants the Free Boop / Shield choice (SPEC). */
 export function isBigDeal(id: WeekOneAchievementId): boolean {
   return WEEK_ONE_ACHIEVEMENTS.find((a) => a.id === id)?.bigDeal ?? false;
+}
+
+// ---------------------------------------------------------------------------
+// Live-data join (the app layer hands us its own shapes)
+// ---------------------------------------------------------------------------
+
+/** The parts of a given boop the evaluator reads. Matches `state/Boop`. */
+export interface GivenBoopLike {
+  personId: string;
+  boopType: BoopTypeId;
+  at: number;
+  status?: BoopStatus;
+  typeConfirmed?: boolean;
+}
+
+/** The parts of a person the join reads. Matches `data/Person`. */
+export interface PersonLike {
+  id: string;
+  relation?: string;
+}
+
+/**
+ * Turn the app's live data into an `AchievementInput`, joining each boop's
+ * person to its `relation` (what the Sibling badges need). Pure so the join is
+ * unit-testable; the provider passes `Boop[]` + `Person[]` straight through.
+ * `dayIndex` / `hourOf` are left unset so the evaluator uses its local-time
+ * defaults on-device.
+ */
+export function buildAchievementInput(args: {
+  givenBoops: readonly GivenBoopLike[];
+  people: readonly PersonLike[];
+  timesBooped: number;
+  friendsCount: number;
+}): AchievementInput {
+  const relationById = new Map(args.people.map((p) => [p.id, p.relation]));
+  const boops: AchievementBoop[] = args.givenBoops.map((b) => ({
+    personId: b.personId,
+    boopType: b.boopType,
+    at: b.at,
+    status: b.status,
+    typeConfirmed: b.typeConfirmed,
+    relation: relationById.get(b.personId),
+  }));
+  return {
+    boops,
+    timesBooped: args.timesBooped,
+    friendsCount: args.friendsCount,
+  };
 }

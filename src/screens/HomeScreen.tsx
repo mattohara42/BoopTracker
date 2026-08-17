@@ -6,8 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import { BoopFlow } from '@/features/boop/BoopFlow';
 import { ConfirmBoopsModal } from '@/features/confirm/ConfirmBoopsModal';
+import { OverruleBoopsModal } from '@/features/overrule/OverruleBoopsModal';
 import { useBoopLog } from '@/state/BoopLog';
 import { usePendingBoops } from '@/state/PendingBoops';
+import { usePowerups } from '@/state/Powerups';
 import { colors, gradients, radius, shadow, space } from '@/theme/colors';
 
 /**
@@ -17,11 +19,17 @@ import { colors, gradients, radius, shadow, space } from '@/theme/colors';
  * The button opens the three-tap record flow. No feed, ever (CLAUDE.md).
  */
 export function HomeScreen() {
-  const { totalBoops, uniquePeopleBooped } = useBoopLog();
+  const { totalBoops, uniquePeopleBooped, deniedBoops } = useBoopLog();
   const { profile, signOut } = useAuth();
   const { pending } = usePendingBoops();
+  const { powerups } = usePowerups();
   const [flowOpen, setFlowOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [overruleOpen, setOverruleOpen] = useState(false);
+
+  // Offer the overrule only when it's actionable: a denial to overrule AND a
+  // Free Boop to spend on it. Keeps this off a rare event from nagging forever.
+  const canOverrule = deniedBoops.length > 0 && powerups.freeBoops > 0;
 
   const name = profile?.username ?? 'You';
   const initial = name.charAt(0).toUpperCase();
@@ -48,6 +56,19 @@ export function HomeScreen() {
         <Stat label="People booped" value={uniquePeopleBooped} />
       </View>
 
+      <View style={styles.powerupRow}>
+        <View style={styles.powerupPill}>
+          <Text style={styles.powerupEmoji}>⚡</Text>
+          <Text style={styles.powerupCount}>{powerups.freeBoops}</Text>
+          <Text style={styles.powerupLabel}>Free Boops</Text>
+        </View>
+        <View style={styles.powerupPill}>
+          <Text style={styles.powerupEmoji}>🛡️</Text>
+          <Text style={styles.powerupCount}>{powerups.shields}</Text>
+          <Text style={styles.powerupLabel}>Shields</Text>
+        </View>
+      </View>
+
       {pending.length > 0 && (
         <TouchableOpacity
           style={styles.pendingCard}
@@ -56,6 +77,19 @@ export function HomeScreen() {
         >
           <Text style={styles.pendingText}>
             🔔 {pending.length} boop{pending.length > 1 ? 's' : ''} to confirm
+          </Text>
+          <Text style={styles.pendingChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+
+      {canOverrule && (
+        <TouchableOpacity
+          style={styles.overruleCard}
+          activeOpacity={0.85}
+          onPress={() => setOverruleOpen(true)}
+        >
+          <Text style={styles.pendingText}>
+            ⚡ {deniedBoops.length} denied — overrule?
           </Text>
           <Text style={styles.pendingChevron}>›</Text>
         </TouchableOpacity>
@@ -82,6 +116,7 @@ export function HomeScreen() {
 
       <BoopFlow visible={flowOpen} onClose={() => setFlowOpen(false)} />
       <ConfirmBoopsModal visible={confirmOpen} onClose={() => setConfirmOpen(false)} />
+      <OverruleBoopsModal visible={overruleOpen} onClose={() => setOverruleOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -142,6 +177,25 @@ const styles = StyleSheet.create({
   },
   statValue: { fontSize: 32, fontWeight: '900', color: colors.accent },
   statLabel: { fontSize: 13, color: colors.muted, marginTop: 2, fontWeight: '600' },
+  powerupRow: {
+    flexDirection: 'row',
+    gap: space.sm,
+    paddingHorizontal: space.lg,
+    marginTop: space.sm,
+  },
+  powerupPill: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.xs,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    paddingVertical: space.sm,
+  },
+  powerupEmoji: { fontSize: 16 },
+  powerupCount: { fontSize: 16, fontWeight: '900', color: colors.text },
+  powerupLabel: { fontSize: 13, color: colors.muted, fontWeight: '700' },
   pendingCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -157,6 +211,19 @@ const styles = StyleSheet.create({
   },
   pendingText: { fontSize: 16, fontWeight: '800', color: colors.text },
   pendingChevron: { fontSize: 24, fontWeight: '800', color: colors.primary },
+  overruleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: space.lg,
+    marginTop: space.sm,
+    paddingVertical: space.md,
+    paddingHorizontal: space.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   boopWrap: { borderRadius: radius.pill, ...shadow.button },
   boopPressed: { transform: [{ scale: 0.96 }] },

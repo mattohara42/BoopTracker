@@ -214,6 +214,88 @@ doesn't re-litigate them.
   ever wanted, **push (M7)** is the preferred path over email. (Blaze is still
   only needed if M3c photo-as-proof is later pursued.)
 
+- 2026-08-17 — **M4 wired up on-device** (the UI half after the evaluation core).
+  Four slices, all client-side (no new Firestore rules, still Spark plan):
+  - **Boop-type Ladder is live.** `src/features/boop/boopTypesCore.ts` (pure,
+    tested) reads `BOOP_TYPES[].unlockAtBoops`; `PickType` now greys Boopstache /
+    Bellyboop / Underboop until 5 / 10 / 15 total boops and shows "Unlock at N"
+    (the old M1 TODO — all four were selectable before).
+  - **Relation picker.** A friend can be tagged Brother/Sister/… on the Friends
+    tab (bottom-sheet of `PERSON_RELATIONS` chips → `People.setRelation`, merge
+    write). This is what makes Sibling / Double Sibling earnable; the boop→person
+    `relation` join happens at eval time, so tagging someone counts past boops.
+  - **Live achievements + Awards tab.** `src/state/Achievements.tsx` joins given
+    boops → people (`buildAchievementInput`) and runs the evaluator over live
+    data; `timesBooped` (non-denied received) comes from `PendingBoops`,
+    `friendsCount` from People. New **Awards** tab (`🏅`) is the trophy case.
+  - **Unlock celebration.** `AchievementCelebration` is a global overlay (mounted
+    at the App root, inside the providers) so the confetti fires wherever a badge
+    is earned — finish screen, confirming a received boop, or adding a 5th friend.
+  Decisions made here:
+  - **Badges kept once earned** is implemented by persisting a grow-only *union*
+    of earned ids (local AsyncStorage, per-uid, `booptracker:achievements:{uid}`)
+    — a later denial can't revoke a badge. Moving this to Firestore (badges follow
+    across devices) is a future improvement, not a v1 blocker.
+  - **Seed silently, celebrate only new.** On first load per account we adopt
+    whatever's already earned with no confetti (gated on all three providers'
+    `loaded` flags + persistence `hydrated`), so shipping M4 to an account that
+    already has boops doesn't fire ten celebrations at once.
+  - **"Friends" = your whole people list** (not just app-accounts) for Friend
+    Circle, so a small family can actually reach 5. One-liner in `Achievements`;
+    easy to flip to app-friends-only if Matt prefers.
+  - **"Big deal" powerup grant deferred to M5.** Boop Received / Boop Collector
+    (and the boop-type-family unlock) are *recognised and teased* in the
+    celebration, but the actual Free Boop / Shield **choice needs the powerup
+    store, which is M5** — building a choice screen that grants nothing would be
+    dishonest, and BUILD_PLAN says build in order. `boopTypesUnlockedBetween`
+    (tested) is left as the seam M5 wires to fire the type-family big-deal moment.
+  Each type/badge got an `emoji` (one place: the type + achievement lists) for
+  the kid-facing cards. Tests 72 green (added `boopTypesCore` + the join); typecheck clean.
+
+- 2026-08-17 — **M5 (Powerups) built.** Free Boops + Shields, all on the free
+  Spark plan. Slices:
+  - **The store.** Pure `src/state/powerupsCore.ts` (caps 3/3 from `POWERUPS`,
+    `grant`/`spend` clamped, month-keyed refill) + `src/state/Powerups.tsx`, a
+    provider backed by a **private** doc `users/{uid}/private/powerups` (kept out
+    of the signed-in-readable profile doc; new `firestore.rules` match). Home
+    shows ⚡/🛡️ count pills.
+  - **Monthly refill is client-side + lazy, NOT a scheduled Cloud Function.**
+    BUILD_PLAN sketched a scheduled function, but that needs Blaze and we chose to
+    stay on Spark (M3b/M4). Instead we store the `refillMonth` ("YYYY-MM") and top
+    both powerups to full the first time the app loads in a new month
+    (`applyMonthlyRefill`). Matches "refill to full on the 1st" closely enough for
+    a family app; each player refills on their next open. If we ever go Blaze, a
+    scheduled function refilling everyone at 00:00 on the 1st is the upgrade.
+  - **Big-deal badge → real choice.** `AchievementCelebration` now offers a Free
+    Boop / Shield **pick** for the two big-deal badges (Boop Received, Boop
+    Collector), granting via `Powerups.grant`. The pick is **required** (hardware
+    back is a no-op on a big-deal) so the reward can't be lost by tapping away.
+  - **Shield flow (defense).** New boop status **`shielded`** — it happened but
+    doesn't count, and (unlike `denied`) can't be overruled. Added a "🛡️ Shield
+    it" action in `ConfirmBoopsModal` (shown only when you hold a shield); it
+    `spend('shield')`s then writes `status:'shielded'`. No rule change — the
+    subject-update rule already allows the `status`/`resolvedAt` keys. `shielded`
+    is excluded from counting in `boopLogCore`, `achievementsCore`, and
+    `timesBooped`.
+  - **Free Boop flow (offense).** `BoopLog` exposes `deniedBoops` +
+    `overruleBoop` (denied→`confirmed` + `overruled:true`); a Home "⚡ N denied —
+    overrule?" card opens `OverruleBoopsModal`, which `spend('freeBoop')`s then
+    overrules. The card is gated on **having both a denial and a Free Boop**, so a
+    rare denial never nags forever. Booper already owns the boop (no rule change);
+    the subject can't re-deny (their confirm list is `pending`-only), so no
+    ping-pong. Per SPEC a Free Boop can only ever land on an already-recorded,
+    already-denied boop — never fabricate one.
+  - Decisions: **spend is a Firestore transaction** (read-modify-write, can't go
+    negative / past cap); flows **write the boop only if the spend succeeds**, so
+    you never shield/overrule "for free". Powerups persist in Firestore (unlike
+    M4 achievements, which are local) since they gate real actions.
+  - **Deferred (one design call for Matt):** a **boop-type family unlock** is also
+    a big-deal per SPEC, but it fires at 5/10/15 total boops — and 10 collides
+    with the Boop Collector big-deal, so unlocking Bellyboop *and* hitting Boop
+    Collector at 10 would hand out **two** powerup choices at once. Left unwired
+    pending Matt's call on whether that should stack; `boopTypesUnlockedBetween`
+    (tested) is the ready seam. Tests 87 green; typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

@@ -37,7 +37,7 @@ function typeLabel(id: BoopTypeId): string {
  * photo). Everything resets when the modal closes.
  */
 export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { recordBoop, attachPhoto, removeBoop } = useBoopLog();
+  const { recordBoop, attachPhoto, removeBoop, totalBoops } = useBoopLog();
   const [step, setStep] = useState<Step>('person');
   const [person, setPerson] = useState<Person | null>(null);
   const [recorded, setRecorded] = useState<Boop | null>(null);
@@ -109,7 +109,7 @@ export function BoopFlow({ visible, onClose }: { visible: boolean; onClose: () =
 
         <View style={styles.body}>
           {step === 'person' && <PickPerson onPick={handlePickPerson} />}
-          {step === 'type' && <PickType onPick={handlePickType} />}
+          {step === 'type' && <PickType totalBoops={totalBoops} onPick={handlePickType} />}
           {step === 'finish' && recorded && (
             <Finish
               personName={recorded.personName}

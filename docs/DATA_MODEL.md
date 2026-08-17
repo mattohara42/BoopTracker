@@ -37,7 +37,7 @@ re-importing the same contact dedupes.
 > username (doc id `app:{friendUid}`); absent for contacts/guests. It's the hook
 > for account-to-account features (M3 boop notifications).
 
-### `boops/{boopId}`  *(done, incl. M3a verification)*
+### `boops/{boopId}`  *(done, incl. M3a verification + M5 powerups)*
 One recorded boop, replaces the local `BoopLog`. Queried both by `booperUid ==
 me` (my score) and `subjectUid == me` (boops to confirm), status filtered
 client-side (no composite index needed).
@@ -46,14 +46,28 @@ client-side (no composite index needed).
   personId: string, personName: string,
   boopType: 'classic' | 'boopstache' | 'bellyboop' | 'underboop',
   subjectUid?: string,   // the booped person's uid, if they're an app user
-  status: 'pending' | 'confirmed' | 'denied' | 'self_reported',
+  status: 'pending' | 'confirmed' | 'denied' | 'shielded' | 'self_reported',
   typeConfirmed?: boolean, resolvedAt?: Timestamp,
+  overruled?: boolean,   // M5: booper spent a Free Boop to overrule a denial
   photoUri?: string /* local path for now; Storage upload is M3c */,
   at: Timestamp }
 ```
 > A boop against an app friend starts `pending` (`subjectUid` set from the
 > person id `app:{uid}`); the subject resolves it to `confirmed`/`denied`.
-> Denied boops stop counting. Non-app boops are `self_reported`.
+> Denied and `shielded` boops stop counting. Non-app boops are `self_reported`.
+> **M5:** a Shield sets `status: 'shielded'` (final, can't be overruled); a Free
+> Boop sets a denied boop back to `confirmed` with `overruled: true`.
+
+### `users/{uid}/private/powerups`  *(done — M5)*
+The player's powerup wallet, kept private (owner read/write only — deliberately
+*not* on the signed-in-readable profile doc).
+```
+{ freeBoops: number /* 0..3 */, shields: number /* 0..3 */,
+  refillMonth: string /* "YYYY-MM" — last month refilled */ }
+```
+> Caps are hard (3 each). Refill is client-side + lazy: on load, if `refillMonth`
+> is older than the current month, both top back up to full and `refillMonth`
+> advances (no Cloud Function → stays on the Spark plan).
 
 ## Build order within M2
 
@@ -73,6 +87,7 @@ live in [`firestore.rules`](../firestore.rules) at the repo root and enforce:
 - **`users/{uid}`** — any signed-in user can *read* a profile (needed to resolve
   a username → display name when adding a friend); only the owner can write.
 - **`users/{uid}/people`** — owner only.
+- **`users/{uid}/private/{doc}`** — owner only (M5 powerup wallet lives here).
 - **`usernames/{name}`** — any signed-in user can read (lookup + uniqueness
   check); you can only create one pointing to your own uid, and existing ones
   can't be overwritten or deleted (that's what keeps usernames unique).

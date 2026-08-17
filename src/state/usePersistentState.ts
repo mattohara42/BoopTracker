@@ -8,6 +8,14 @@ import { load, save } from './persistence';
  * The `hydrated` guard matters: we must not save the initial value over stored
  * data before the load finishes, or the first render would wipe what's on disk.
  * So writes are held until hydration completes.
+ *
+ * LATENT LIMITATION (see docs/SECURITY_AND_HARDENING.md): if `key` *changes*
+ * while this hook stays mounted, `hydrated` is not reset, so there's a window
+ * where the previous key's value can be written under the new key before its
+ * load resolves. This is currently unreachable — the only key here is per-uid
+ * (`…:{uid}`) and signing out unmounts the whole provider tree, so a fresh
+ * account always remounts this hook (state=initial, hydrated=false). Reset
+ * `hydrated`/state on key change before relying on a mounted key swap.
  */
 export function usePersistentState<T>(
   key: string,

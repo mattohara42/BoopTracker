@@ -375,6 +375,26 @@ doesn't re-litigate them.
     `bundledNativeModules.json`, since the Expo version API isn't reachable from
     the sandbox). Tests 114 green; app + functions typecheck clean.
 
+- 2026-08-17 — **Foundational review done; small fixes + security plan landed.**
+  After M6/M7/M7.5 merged (#10), reviewed the whole foundation before the M8 /
+  real-app milestone. Verdict: base is solid (the `*Core` + tested-pure pattern
+  holds; powerup spend integrity and the record-path error handling are correct).
+  Knocked out one small, immediately-valuable fix: the resolve paths
+  (`confirm`/`deny`/`shield`/`overrule`) no longer swallow write errors — they
+  reject and the modals show an Alert, so a failed tap (e.g. "Missing or
+  insufficient permissions") isn't a silent no-op in the M8 playtest. Left
+  `usePersistentState`'s latent key-change bleed **documented but unchanged**
+  (unreachable today — providers remount per-uid on sign-out; not worth
+  destabilizing a load-bearing hook pre-playtest). Everything security-related is
+  written up in **`docs/SECURITY_AND_HARDENING.md`**: the family-only-vs-public
+  gate, and concrete before/after rules for the three "before public listing"
+  items — H1 boop-create trusts arbitrary `subjectUid` (friendship-gate the
+  create + key-restrict the booper update), H2 leaderboard stats are
+  client-written/unvalidated (server-compute on Blaze for public), H3 profile
+  read exposes `email`/COPPA (split public profile vs. private `email`). Matt
+  drives the console/Blaze steps; Claude does the rules+code+tests. Tests still
+  114 green; typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

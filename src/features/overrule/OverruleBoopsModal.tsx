@@ -1,4 +1,4 @@
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   SafeAreaProvider,
   SafeAreaView,
@@ -33,9 +33,14 @@ export function OverruleBoopsModal({
   const { deniedBoops, overruleBoop } = useBoopLog();
   const { powerups, spend } = usePowerups();
 
-  // Spend a Free Boop, then overrule — only if the spend succeeds.
+  // Spend a Free Boop, then overrule — only if the spend succeeds. Surface a
+  // write failure rather than letting the tap silently do nothing.
   async function overrule(boopId: string) {
-    if (await spend('freeBoop')) overruleBoop(boopId);
+    try {
+      if (await spend('freeBoop')) await overruleBoop(boopId);
+    } catch {
+      Alert.alert("Couldn't overrule that", 'Check your connection and try again.');
+    }
   }
 
   return (

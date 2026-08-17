@@ -150,6 +150,12 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
 
 ## Known limitations / tracked to-dos
 
+- **Security + hardening plan → [`docs/SECURITY_AND_HARDENING.md`](docs/SECURITY_AND_HARDENING.md).**
+  Foundational review (2026-08-17) captured there: the family-only-vs-public gate
+  and the three items to fix before any public listing (boop-create trusts an
+  arbitrary target; leaderboard stats are client-written; profile read exposes
+  `email`/COPPA). Fine for a family app as-is. Resolve-path taps now surface write
+  errors (were silent).
 - Firestore rules exist but **aren't published yet** (test mode live).
 - `photoUri` is a local device path — photos don't load cross-device until M3c
   (Storage upload).

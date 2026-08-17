@@ -1,4 +1,4 @@
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   SafeAreaProvider,
   SafeAreaView,
@@ -31,10 +31,22 @@ export function ConfirmBoopsModal({
   const { pending, confirm, deny, shield } = usePendingBoops();
   const { powerups, spend } = usePowerups();
 
+  // Run a resolve action and surface a write failure — otherwise a tap that hits
+  // e.g. "Missing or insufficient permissions" just silently does nothing.
+  async function resolve(action: () => Promise<void>) {
+    try {
+      await action();
+    } catch {
+      Alert.alert("Couldn't save that", 'Check your connection and try again.');
+    }
+  }
+
   // Spend a Shield, then block the boop — only if the spend actually succeeds,
   // so a boop is never shielded "for free" when you're out of shields.
   async function shieldBoop(boopId: string) {
-    if (await spend('shield')) shield(boopId);
+    await resolve(async () => {
+      if (await spend('shield')) await shield(boopId);
+    });
   }
 
   return (
@@ -63,8 +75,8 @@ export function ConfirmBoopsModal({
                   key={b.id}
                   boop={b}
                   shieldsAvailable={powerups.shields}
-                  onConfirm={(typeOk) => confirm(b.id, typeOk)}
-                  onDeny={() => deny(b.id)}
+                  onConfirm={(typeOk) => resolve(() => confirm(b.id, typeOk))}
+                  onDeny={() => resolve(() => deny(b.id))}
                   onShield={() => shieldBoop(b.id)}
                 />
               ))

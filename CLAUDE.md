@@ -328,6 +328,31 @@ doesn't re-litigate them.
   so the recommendation is to not approach the public stores until v1 is played
   and that stance is decided.
 
+- 2026-08-17 — **M6 (Leaderboards) built.** Family + Friend leaderboards, four
+  all-time stats (most people booped / most boops / most & least boops received),
+  still on the **Spark plan**. Key decisions:
+  - **No "groups" collection.** Groups are derived from the existing people list:
+    **Friends** = every app-account friend (`friendUid` set); **Family** = app
+    friends tagged a family relation (`PERSON_RELATIONS` minus "Friend"). You're
+    always in both. Only app accounts can appear — a non-app contact has no stats
+    to rank. Reuses M4's relation picker; no new data-entry UI.
+  - **Cross-user data via a per-user *public aggregate* doc, not raw boops.** Each
+    player publishes `users/{uid}/public/stats` = `{ username, totalBoops,
+    uniquePeopleBooped, boopsReceived, updatedAt }` via a mounted `StatsPublisher`
+    (mirrors live `BoopLog` + `PendingBoops`, gated on both `loaded` so it never
+    writes 0s over real data). The screen reads one small doc per group member +
+    folds in my own live numbers. This is the deliberate M6 read widening — three
+    aggregate numbers, **not** everyone's boop details/photos — chosen over
+    reading all boops (doesn't scale, over-exposes) and over a scheduled Cloud
+    Function (needs Blaze). New rule: `users/{uid}/public/{doc}` read = any
+    signed-in user, write = owner. **Needs publishing** with the rest (Matt).
+  - **Ranking is pure + tested** (`src/features/leaderboard/leaderboardCore.ts`):
+    competition ranking (ties share a rank), only "least received" ascending,
+    alphabetical tiebreak for stable display. 13 new tests (102 total).
+  - **"Win a leaderboard for a full month" big-deal achievement stays deferred** —
+    it's time-windowed, and v1 leaderboards are deliberately all-time only
+    (week/month views are BACKLOG). Not wired; revisit if windowed views land.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

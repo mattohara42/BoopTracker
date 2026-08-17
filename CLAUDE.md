@@ -353,6 +353,28 @@ doesn't re-litigate them.
     it's time-windowed, and v1 leaderboards are deliberately all-time only
     (week/month views are BACKLOG). Not wired; revisit if windowed views land.
 
+- 2026-08-17 — **M7.5 (Juice pass) built; M7 (Push) scaffolded but dormant.**
+  - **M7.5:** real confetti replaces the static 🎉 in both the finish screen and
+    the achievement celebration. `src/features/juice/Confetti.tsx` uses React
+    Native's `Animated` (no new dependency → safe in Expo Go); the piece layout is
+    pure + tested in `confettiCore.ts`. Added a spring "pop" scale on the finish
+    headline and the celebration badge for the payoff beat. **Sound stays
+    optional/deferred** (SPEC says "ask Frankie"; no verified kid audio assets, so
+    not added). Locked-type teaser polish left light-touch.
+  - **M7 push handled like M3b — built, dormant, documented, NOT deployed.**
+    Rationale: remote push can't run on this stack — **Expo Go dropped remote push
+    in SDK 53+** (no token obtainable without a dev build) and the sender needs
+    **Blaze**. Shipping an active push path here would nag for a permission it
+    can't use. So: pure tested `src/notifications/pushCore.ts` (content); a guarded
+    `registerForPush.ts` client seam that is **deliberately not auto-called**; and
+    a `sendBoopPush` Cloud Function (Expo Push API, idempotent via `pushLog/{boopId}`)
+    that compiles but isn't deployed. New data doc `users/{uid}/private/pushToken`
+    (owner-only, no new rule — reuses the `private/{doc}` match). Full activation
+    checklist (Blaze + dev build + wire client + deploy) in `docs/M7_PLAN.md`.
+    Added `expo-notifications` (~0.32.17, the SDK-54 pin from
+    `bundledNativeModules.json`, since the Expo version API isn't reachable from
+    the sandbox). Tests 114 green; app + functions typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

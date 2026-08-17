@@ -67,3 +67,28 @@ firebase deploy --only functions
 - **Nudge spam:** any signed-in user can resolve a username → uid and create a
   boop, which emails that person. Fine for a family app; if it ever matters,
   gate boop creation on an existing friend relationship in `firestore.rules`.
+
+---
+
+## M7 — the push nudge (`sendBoopPush`, also dormant)
+
+`sendBoopPush` fires on the same event as the email and does the same job — ping
+the booped person to open the app and confirm — but delivers a **push** instead
+of an email. It reads the subject's Expo push token from
+`users/{uid}/private/pushToken` (written by the app's `registerForPushAsync`) and
+POSTs to the **Expo Push API** (`https://exp.host/--/api/v2/push/send`). No
+extension needed; idempotent via a `pushLog/{boopId}` marker.
+
+**It is not deployed, and it can't be exercised on the current stack.** Two
+things are required first (details in `docs/M7_PLAN.md`):
+
+1. **Blaze plan** — outbound network from a function needs it (same upgrade the
+   email nudge needs).
+2. **A dev build on the devices** — Expo Go dropped remote push in SDK 53+, so a
+   device running in Expo Go can never obtain the push token this function needs.
+   Build with EAS (`docs/APP_STORE_SETUP.md`) and call `registerForPushAsync`
+   from the app so a token lands in Firestore; only then does this function have
+   anything to send to.
+
+Deploy is the same `firebase deploy --only functions` — it ships both functions.
+If you want only one, deploy by name (`--only functions:sendBoopPush`).

@@ -69,6 +69,15 @@ The player's powerup wallet, kept private (owner read/write only — deliberatel
 > is older than the current month, both top back up to full and `refillMonth`
 > advances (no Cloud Function → stays on the Spark plan).
 
+### `users/{uid}/private/pushToken`  *(seam — M7, dormant)*
+The device's Expo push token, so the (dormant) `sendBoopPush` function can push a
+boop nudge. Written by `registerForPushAsync`; read server-side via the Admin SDK.
+```
+{ expoPushToken: string, platform: 'ios' | 'android', updatedAt: Timestamp }
+```
+> Owner-only, under the existing `private/{doc}` rule (no new rule). Not written
+> yet: push needs a dev build + Blaze to activate — see `docs/M7_PLAN.md`.
+
 ### `users/{uid}/public/stats`  *(done — M6)*
 The player's public leaderboard aggregates. Kept as a tiny separate doc so a
 leaderboard can read one small doc per group member instead of everyone's raw

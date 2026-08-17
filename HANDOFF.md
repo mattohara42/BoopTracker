@@ -43,15 +43,15 @@ publishing the rules, and picking the next build.
    friends you've tagged with a family relation; Friends = all app friends. A
    contact with no account won't appear — nothing to rank.)*
 4. **Pick the next build** (tell me which):
-   - **M7 Push notifications** — "a friend booped you" / "you unlocked a badge."
-     Heads-up: real push may want a dev build or Blaze (EAS + FCM/APNs); worth a
-     quick scoping pass. See `docs/BUILD_PLAN.md` M7.
-   - **M7.5 Juice pass** — real confetti, sound, polish the finish/unlock moments
-     (out of strict order, but low-risk and kid-facing).
+   - **M8 Playtest** — the last v1 milestone: play M1–M7.5 with the family for a
+     week and fix what's annoying. Everything to play it is now built.
+   - **Activate M7 push** — the foundation is in place but dormant; turning it on
+     means a **dev build + Blaze** (checklist in `docs/M7_PLAN.md`). Bundles with
+     getting off Expo Go.
    - **Get it onto more phones (beyond Expo Go)** — a wider family test via
      TestFlight (iOS) or a sideloaded APK (Android). Practical steps in
-     [`docs/APP_STORE_SETUP.md`](docs/APP_STORE_SETUP.md). Not required for the
-     playtests above; do it when a relative won't scan a QR.
+     [`docs/APP_STORE_SETUP.md`](docs/APP_STORE_SETUP.md). This is also the
+     prerequisite for real push.
 
 ## Where we are
 
@@ -62,8 +62,10 @@ friends-by-username, in-app boop **confirmation**, **achievements**, and now
 **M4 shipped** (badge engine + Awards tab + Ladder + celebration); **M5 shipped**
 (Free Boops + Shields: caps, lazy monthly refill, big-deal badge → choice, the
 overrule flow, and the shield flow); **M6 built** (Family/Friends leaderboards,
-four all-time stats, ranked from per-user public aggregate docs — on a branch /
-draft PR, not merged yet). Still on the **free Spark plan** throughout.
+four all-time stats, ranked from per-user public aggregate docs); **M7.5 built**
+(real confetti + payoff pops); **M7 push scaffolded but dormant** (needs a dev
+build + Blaze) — all on a branch / draft PR, not merged yet. Still on the **free
+Spark plan** throughout.
 
 ### Milestone status (see `docs/BUILD_PLAN.md`)
 - **M0 Repo skeleton** — ✅ done
@@ -96,7 +98,17 @@ draft PR, not merged yet). Still on the **free Spark plan** throughout.
   each account. Needs the new `public/{doc}` rule published. The "win a
   leaderboard for a month" big-deal achievement stays deferred (time-windowed;
   v1 leaderboards are all-time only).
-- **M7–M8** — not started (push, juice, playtest).
+- **M7 Push** — ⏸️ **foundation built, dormant** (branch / draft PR). Real remote
+  push can't run on this stack (Expo Go dropped it in SDK 53+; the sender needs
+  Blaze), so — like M3b — the seams are built and documented but inert: pure
+  tested `pushCore`, a guarded (not auto-called) `registerForPush` client seam,
+  and a `sendBoopPush` Cloud Function (compiles, not deployed). Activation
+  checklist in `docs/M7_PLAN.md`.
+- **M7.5 Juice pass** — ✅ built (branch / draft PR). Real confetti
+  (`src/features/juice/Confetti.tsx`, RN `Animated`, no new dep) + a spring pop on
+  the finish headline and the celebration badge, replacing the static 🎉. Sound
+  stays optional/deferred (ask Frankie).
+- **M8** — not started (week-long family playtest).
 
 ## How to run
 
@@ -104,7 +116,7 @@ draft PR, not merged yet). Still on the **free Spark plan** throughout.
 npm install
 cp .env.example .env     # then paste your Firebase web config (see .env.example)
 npm start                # scan the QR with Expo Go
-npm test                 # 102 unit tests
+npm test                 # 114 unit tests
 npm run typecheck
 ```
 
@@ -125,7 +137,12 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
   `AchievementCelebration`) mirrors my aggregate numbers to
   `users/{uid}/public/stats` for M6. Pure logic sits in `*Core.ts` files and is
   unit-tested (`boopLogCore`, `boopTypesCore`, `achievementsCore`, `powerupsCore`,
-  `contactsCore`, `leaderboardCore`).
+  `contactsCore`, `leaderboardCore`, `confettiCore`, `pushCore`).
+- **Juice (M7.5):** `src/features/juice/Confetti.tsx` (RN `Animated`, no dep) +
+  spring pops on the finish screen and the achievement celebration.
+- **Push (M7, dormant):** `src/notifications/` (pure `pushCore`, guarded
+  `registerForPush`) + `functions/sendBoopPush` — all inert until a dev build +
+  Blaze (see `docs/M7_PLAN.md`).
 - **Backend:** Firebase Auth (email+password) + Firestore. Config via
   `EXPO_PUBLIC_FIREBASE_*` env. Rules in `firestore.rules`. Still on the **Spark**
   (free) plan — no Cloud Functions; powerup refill is client-side + lazy.
@@ -168,8 +185,8 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
    next build add `docs/APP_STORE_SETUP.md` (getting off Expo Go); `docs/DATA_MODEL.md`
    has the current schema incl. the M6 `public/{doc}` stats.
 3. `npm install`; ensure `.env` exists; `npm start` (+ `npm test` / `npm run
-   typecheck` — 102 tests, typecheck clean at last commit).
-4. **M1–M5 are done and merged; M6 (Leaderboards) is built on a branch / draft
-   PR.** Next up is whatever Matt points at in the checklist above — most likely
-   **M7 (Push)**, the **M7.5 juice pass**, or a **TestFlight/APK build** for a
-   wider family test.
+   typecheck` — 114 tests, typecheck clean at last commit).
+4. **M1–M5 are done and merged; M6 + M7.5 are built and M7's push foundation is
+   scaffolded (dormant), all on a branch / draft PR.** Next up is whatever Matt
+   points at in the checklist above — most likely **M8 (the family playtest)** or
+   a **dev build** (which also unlocks activating M7 push).

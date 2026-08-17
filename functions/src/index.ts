@@ -1,10 +1,18 @@
 /**
- * BoopTracker Cloud Functions — M3b: the email nudge.
+ * BoopTracker Cloud Functions — the two dormant server nudges.
  *
- * When a boop lands against an app user (`status == 'pending'`, `subjectUid`
- * set), email that person so they open the app and confirm it. Confirmation
- * itself is *in-app* (M3a) — this email is only the ping. See docs/M3_PLAN.md
- * ("confirmation is in-app, email is just the ping").
+ * - `emailBoopNudge` (M3b) — email the booped person (via the Trigger Email
+ *   extension).
+ * - `sendBoopPush` (M7) — push-notify the booped person (via the Expo Push API).
+ *
+ * Both fire on the same event (a new `pending` boop against an app user) and
+ * serve the same purpose: nudge them to open the app and confirm. Neither is
+ * deployed — see docs/M3_PLAN.md, docs/M7_PLAN.md and functions/README.md.
+ *
+ * M3b (email): when a boop lands against an app user (`status == 'pending'`,
+ * `subjectUid` set), email that person so they open the app and confirm it.
+ * Confirmation itself is *in-app* (M3a) — this email is only the ping. See
+ * docs/M3_PLAN.md ("confirmation is in-app, email is just the ping").
  *
  * Delivery is done by Firebase's **Trigger Email** extension, not by this
  * function directly. This function's whole job is to compose one document in
@@ -117,6 +125,87 @@ export const emailBoopNudge = onDocumentCreated(
       }
       throw err;
     }
+  },
+);
+
+/**
+ * On every new boop, push-notify the booped app user (M7).
+ *
+ * Same trigger and gate as the email nudge, but delivery is a POST to the Expo
+ * Push API using the token the subject's device stored at
+ * `users/{uid}/private/pushToken` (written by `registerForPushAsync`). Like the
+ * email, the send is server-authoritative: the booper's client never learns the
+ * subject's token, and the token is looked up here from the trusted `subjectUid`.
+ *
+ * Idempotent: a `pushLog/{boopId}` marker is `create()`d before sending, so a
+ * retry or a re-run can't push twice for the same boop.
+ *
+ * NOT DEPLOYED. Needs the Blaze plan (outbound network from a function) and a
+ * dev build on the devices (Expo Go can't obtain a push token) — see
+ * docs/M7_PLAN.md and functions/README.md.
+ */
+export const sendBoopPush = onDocumentCreated(
+  "boops/{boopId}",
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const boop = snap.data();
+    const boopId = event.params.boopId;
+
+    if (boop.status !== "pending" || !boop.subjectUid) {
+      return;
+    }
+    const subjectUid = boop.subjectUid as string;
+
+    // The subject's Expo push token, stored on their private doc.
+    const tokenSnap = await db.doc(`users/${subjectUid}/private/pushToken`).get();
+    const token = tokenSnap.get("expoPushToken") as string | undefined;
+    if (!token) {
+      logger.info(
+        `No push token for subject ${subjectUid} (boop ${boopId}); skipping.`,
+      );
+      return;
+    }
+
+    // Idempotency marker — create() fails if we've already pushed this boop.
+    try {
+      await db.doc(`pushLog/${boopId}`).create({sentAt: new Date()});
+    } catch (err) {
+      if ((err as {code?: number}).code === 6) {
+        logger.info(`Push for boop ${boopId} already sent; skipping.`);
+        return;
+      }
+      throw err;
+    }
+
+    const booper = (boop.booperName as string) || "Someone";
+    const typeLabel = BOOP_TYPE_LABELS[boop.boopType as string] ?? "boop";
+
+    const message = {
+      to: token,
+      title: `👉 ${booper} booped you!`,
+      body:
+        `They say it was a ${typeLabel}. Open BoopTracker to confirm ` +
+        "— or say it wasn't.",
+      sound: "default",
+    };
+
+    const res = await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+    if (!res.ok) {
+      logger.warn(
+        `Expo push failed for boop ${boopId}: ${res.status} ${res.statusText}`,
+      );
+      return;
+    }
+    logger.info(`Pushed boop nudge to ${subjectUid} (boop ${boopId}).`);
   },
 );
 

@@ -1,6 +1,6 @@
 {
   "name": "booptracker-functions",
-  "description": "BoopTracker Cloud Functions (M3b boop-nudge email)",
+  "description": "BoopTracker Cloud Functions (M3b email + M7 push boop-nudges; both dormant)",
   "private": true,
   "engines": {
     "node": "20"

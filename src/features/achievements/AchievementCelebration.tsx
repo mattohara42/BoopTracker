@@ -3,40 +3,79 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { BOOP_TYPES } from '@/config/constants';
 import { isBigDeal } from '@/features/achievements/achievementsCore';
-import { useAchievements } from '@/state/Achievements';
+import { useAchievements, type CelebrationItem } from '@/state/Achievements';
 import { usePowerups, type PowerupKind } from '@/state/Powerups';
 import { colors, gradients, radius, space } from '@/theme/colors';
 
+/** What to show for a queued celebration item — a badge or a boop-type unlock. */
+interface Presented {
+  kicker: string;
+  emoji: string;
+  label: string;
+  description: string;
+  /** Big-deal items grant a Free Boop / Shield choice instead of a dismiss. */
+  bigDeal: boolean;
+}
+
+function present(item: CelebrationItem, all: ReturnType<typeof useAchievements>['all']): Presented | null {
+  if (item.kind === 'badge') {
+    const a = all.find((x) => x.id === item.id);
+    if (!a) return null;
+    return {
+      kicker: 'Achievement unlocked!',
+      emoji: a.emoji,
+      label: a.label,
+      description: a.description,
+      bigDeal: isBigDeal(a.id),
+    };
+  }
+  // A boop-type family unlocked — always a "big deal" (grants a choice, per SPEC).
+  const t = BOOP_TYPES.find((x) => x.id === item.id);
+  if (!t) return null;
+  return {
+    kicker: 'New boop type!',
+    emoji: t.emoji,
+    label: `${t.label} unlocked!`,
+    description: `You can now send a ${t.label}.`,
+    bigDeal: true,
+  };
+}
+
 /**
- * AchievementCelebration — the badge-unlock moment (M4). A global overlay that
- * pops whenever the achievements provider queues a freshly-earned badge, so it
- * works no matter *how* the badge was earned: recording a boop (finish screen),
+ * AchievementCelebration — the unlock moment (M4 + M5). A global overlay that
+ * pops whenever the achievements provider queues something freshly unlocked, so
+ * it works no matter *how* it happened: recording a boop (finish screen),
  * confirming a boop you received ("Boop Received"), or adding a fifth friend.
  *
- * It shows one badge at a time; "Nice!" advances to the next queued one. Real
+ * It shows one item at a time; the button advances to the next queued one. Real
  * confetti + sound is the M7.5 juice pass — this is the honest stand-in.
  *
- * "Big deal" badges (Boop Received, Boop Collector) grant a Free Boop / Shield
- * *choice* (SPEC). For those we show two pick buttons instead of a dismiss —
- * choosing grants the powerup (M5) and advances. The pick is required (no
- * dismiss-without-choosing) so the reward can't be lost by tapping away.
+ * "Big deal" unlocks grant a Free Boop / Shield *choice* (SPEC): the two big-deal
+ * badges (Boop Received, Boop Collector) and every boop-type-family unlock. For
+ * those we show two pick buttons instead of a dismiss — choosing grants the
+ * powerup (M5) and advances. The pick is required (no dismiss-without-choosing)
+ * so the reward can't be lost by tapping away. Choices stack: at 10 boops you
+ * pick once for Boop Collector, then again for the Bellyboop unlock.
  */
 export function AchievementCelebration() {
   const { celebration, all, dismissCelebration } = useAchievements();
   const { grant } = usePowerups();
-  const currentId = celebration[0];
-  const achievement = all.find((a) => a.id === currentId);
+  const item = celebration[0];
+  const view = item ? present(item, all) : null;
+  // A stable key for the haptic effect so it fires once per queued item.
+  const itemKey = item ? `${item.kind}:${item.id}` : null;
 
   useEffect(() => {
-    if (currentId) {
+    if (itemKey) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     }
-  }, [currentId]);
+  }, [itemKey]);
 
-  if (!achievement) return null;
+  if (!view) return null;
 
-  const bigDeal = isBigDeal(achievement.id);
+  const { bigDeal } = view;
   const remaining = celebration.length - 1;
 
   function choosePowerup(kind: PowerupKind) {
@@ -56,10 +95,10 @@ export function AchievementCelebration() {
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <Text style={styles.confetti}>🎉</Text>
-          <Text style={styles.kicker}>Achievement unlocked!</Text>
-          <Text style={styles.badgeEmoji}>{achievement.emoji}</Text>
-          <Text style={styles.label}>{achievement.label}</Text>
-          <Text style={styles.desc}>{achievement.description}</Text>
+          <Text style={styles.kicker}>{view.kicker}</Text>
+          <Text style={styles.badgeEmoji}>{view.emoji}</Text>
+          <Text style={styles.label}>{view.label}</Text>
+          <Text style={styles.desc}>{view.description}</Text>
 
           {bigDeal ? (
             <>
@@ -100,7 +139,7 @@ export function AchievementCelebration() {
 
           {remaining > 0 ? (
             <Text style={styles.more}>
-              +{remaining} more badge{remaining > 1 ? 's' : ''}
+              +{remaining} more to go
             </Text>
           ) : null}
         </View>

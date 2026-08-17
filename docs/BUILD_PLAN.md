@@ -5,8 +5,7 @@ something Frankie can actually try, even if it's rough.
 
 > **Status (2026-08-17):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
 > M3 (M3a shipped — in-app confirm; M3b email **deferred**; M3c photos optional) ·
-> M4 ✅ · M5 ✅ (boop-type-family big-deal choice deferred — one design call) ·
-> M6–M8 not started.
+> M4 ✅ · M5 ✅ (incl. stacked boop-type-family powerup choice) · M6–M8 not started.
 > Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
 > [`M3_PLAN.md`](M3_PLAN.md).
 
@@ -79,9 +78,11 @@ something Frankie can actually try, even if it's rough.
   overrulable).
 - ✅ Big-deal **badge** → Free Boop / Shield choice, wired into the M4 unlock
   celebration (Boop Received, Boop Collector).
-- ⏳ Big-deal **boop-type-family unlock** → choice: left unwired pending a design
-  call — it collides with Boop Collector at 10 boops (would grant two picks at
-  once). `boopTypesUnlockedBetween` (tested) is the ready seam.
+- ✅ Big-deal **boop-type-family unlock** → choice, wired to **stack** (Matt's
+  call): crossing 5/10/15 boops enqueues a Free Boop / Shield pick on top of any
+  badge at the same moment, so 10 boops = two picks (Boop Collector + Bellyboop).
+  The celebration queue carries a `CelebrationItem` union; seeded silently so
+  existing accounts don't get retroactive powerups.
 
 ## M6: Leaderboards
 - Family group and friend group leaderboards

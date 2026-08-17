@@ -45,10 +45,11 @@ _Last updated: 2026-08-17._
    - **Free Boop (overrule):** get a boop of yours **denied**, then — if you hold
      a Free Boop — Home shows **"⚡ N denied — overrule?"** → spend one to make it
      count again. (A Free Boop can only ever overrule an already-denied boop.)
-   - **One open question for you:** unlocking a boop-type family (at 5/10/15) is
-     *also* a "big deal" per the SPEC — but at 10 that collides with Boop
-     Collector, so you'd get **two** picks at once. I left that unwired; tell me
-     if it should stack or if the badge pick alone is enough.
+   - **Stacked type-family picks (now wired):** unlocking a boop-type family at
+     5/10/15 boops also hands you a Free Boop / Shield pick. These **stack** — at
+     10 boops you'll pick twice: once for Boop Collector, once for the Bellyboop
+     unlock. (Existing accounts already past a threshold get no retroactive picks
+     — only crossings from here on grant.)
 
 ## Where we are
 
@@ -71,19 +72,18 @@ overrule flow, and the shield flow). Still on the **free Spark plan** throughout
     left dormant in `functions/`; verification is in-app only. A push nudge (M7)
     is the likelier future path.
   - **M3c** photo-as-proof → Firebase Storage — ⏳ optional (needs Blaze/Storage)
-- **M4 Achievements** — ✅ done (bar the deferred powerup grant). Evaluation core
-  + live wiring (`src/state/Achievements.tsx`), boop-type Ladder in the picker,
-  relation picker on Friends, **Awards** tab, and an unlock **celebration**
-  overlay. Badges persist as a grow-only union (kept once earned). The "big deal"
-  Free Boop / Shield **choice** is recognised + teased but the grant is **M5**
-  (needs the powerup store).
-- **M5 Powerups** — ✅ done (bar one design call). Free Boops + Shields with hard
-  3/3 caps and a **client-side lazy monthly refill** (no Cloud Function → still
-  Spark). Big-deal **badges** now grant a real Free Boop / Shield pick in the
-  unlock celebration. **Overrule** flow (spend a Free Boop to un-deny a boop) and
-  **shield** flow (block an incoming boop → new `shielded` status) both built.
-  Deferred: whether a **boop-type-family unlock** should *also* grant a pick (it
-  would stack with Boop Collector at 10 boops) — needs Matt's call.
+- **M4 Achievements** — ✅ done. Evaluation core + live wiring
+  (`src/state/Achievements.tsx`), boop-type Ladder in the picker, relation picker
+  on Friends, **Awards** tab, and an unlock **celebration** overlay. Badges
+  persist as a grow-only union (kept once earned). The "big deal" Free Boop /
+  Shield **choice** is granted in M5.
+- **M5 Powerups** — ✅ done. Free Boops + Shields with hard 3/3 caps and a
+  **client-side lazy monthly refill** (no Cloud Function → still Spark). Big-deal
+  **badges** grant a real Free Boop / Shield pick in the unlock celebration.
+  **Overrule** flow (spend a Free Boop to un-deny a boop) and **shield** flow
+  (block an incoming boop → new `shielded` status) both built. A **boop-type-family
+  unlock** grants a **stacked** pick too (Matt's call): crossing 5/10/15 boops
+  hands out a choice on top of any badge earned at that moment.
 - **M6–M8** — not started (leaderboards, push, juice, playtest).
 
 ## How to run

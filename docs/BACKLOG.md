@@ -67,6 +67,42 @@ actually uses, **it's already succeeding**, and the store fees only ever buy
 4. Only if step 1 shows a spark do we reach "is $99 worth a wider beta?" A
    *public paid launch* is a much bigger, much later question than that.
 
+**What would actually make monetization work?** Revenue = **reach × retention ×
+willingness-to-pay**, and all three are ~0 today — a pricing tweak can't fix a
+product of zeros. The three levers, in priority order:
+
+1. **A growth loop (the biggest lever) — one we half-have already.** A boop is
+   inherently *two-person*, and confirming one *requires the other person in the
+   app*. That's a built-in invite mechanic. Today adding people is by-username /
+   contacts — there's no pull for a non-user. If getting booped sent a
+   share/SMS invite ("Frankie booped you 👀 — see who's winning / boop back →"),
+   **every boop becomes a potential install.** It's 1:1, not a feed, so it mostly
+   respects the "not social media" constraint — but it edges toward notifications
+   (M7) and the engagement mechanics the SPEC avoids. That tension is real. Note:
+   **without a loop, there is no reach, and no reach = no revenue at any price.**
+2. **Retention hooks (mostly already built):** monthly powerup refill, streaks,
+   the "someone booped you" confirm loop, leaderboard standings, seasonal
+   achievements. Enough to fight the D7 novelty-app cliff *without* dark patterns.
+3. **Willingness to pay = cosmetics / collection, parent-gated.** Nobody pays
+   up-front for a tally app; people do buy *content*. We already have the
+   inventory — the ~90 boop-type ideas below (Ninja Boop, Superboop, seasonal
+   packs). "Unlock the Prankster Pack" is the most values-aligned model (additive
+   fun, not a paywall on the core loop). Hard requirements: **parent-gated
+   purchases** (COPPA / store kids rules) and enough funnel that a low-single-%
+   conversion still matters — which loops back to lever 1 (reach).
+
+**The catch (the real answer):** even with all three firing, family-novelty apps
+rarely become a *business* — realistic ceiling is "covers its costs, maybe buys
+pizza." Pushing past that would likely mean compromising the very constraints
+that make BoopTracker charming (more notifications, more engagement-baiting, a
+feed-like pull). **You can have the app's soul or aggressive monetization; they
+fight each other.** The tasteful middle — invite-on-boop loop + streaks + one
+cosmetic pack, parent-gated — is the sweet spot, and it's a *maybe-small-money*
+bet, not a plan. Honest sequence if money is the goal: **prove the invite loop
+drives installs and that people retain (both free to test) BEFORE building any
+paid surface.** If those two don't work, no pricing model will — that's the cheap
+kill signal.
+
 Distribution mechanics (Xcode / EAS / TestFlight / Play) live in
 `APP_STORE_SETUP.md`; this note is the *should-we* that gates using it.
 

@@ -9,13 +9,16 @@ import type { BoopTypeId } from '@/config/constants';
  */
 
 /**
- * A boop's verification state (M3).
+ * A boop's verification state (M3 + M5).
  * - `pending`      — booped an app user; awaiting their confirm/deny.
  * - `confirmed`    — the booped person confirmed it.
  * - `denied`       — the booped person said it didn't happen (stops counting).
+ * - `shielded`     — the booped person spent a Shield to block it (M5); it
+ *                    happened but doesn't count, and unlike a denial it can't be
+ *                    overruled with a Free Boop.
  * - `self_reported`— booped a non-app person; nothing to confirm (yet).
  */
-export type BoopStatus = 'pending' | 'confirmed' | 'denied' | 'self_reported';
+export type BoopStatus = 'pending' | 'confirmed' | 'denied' | 'shielded' | 'self_reported';
 
 export interface Boop {
   id: string;
@@ -31,6 +34,8 @@ export interface Boop {
   status?: BoopStatus;
   /** Whether the booped person agreed it was the claimed type (M3). */
   typeConfirmed?: boolean;
+  /** Set when the booper spent a Free Boop to overrule a denial (M5). */
+  overruled?: boolean;
 }
 
 /**
@@ -42,9 +47,9 @@ export function subjectUidFromPersonId(personId: string): string | undefined {
   return personId.startsWith('app:') ? personId.slice(4) : undefined;
 }
 
-/** A denied boop doesn't count — filter those out before deriving anything. */
+/** Denied and shielded boops don't count — filter them before deriving. */
 function counted(boops: readonly Boop[]): Boop[] {
-  return boops.filter((b) => b.status !== 'denied');
+  return boops.filter((b) => b.status !== 'denied' && b.status !== 'shielded');
 }
 
 export interface RecordBoopInput {
@@ -115,4 +120,13 @@ export function deriveStats(boops: readonly Boop[]): BoopStats {
   const active = counted(boops);
   const unique = new Set(active.map((b) => b.personId));
   return { totalBoops: active.length, uniquePeopleBooped: unique.size };
+}
+
+/**
+ * Boops the booper recorded that the subject denied — the ones a Free Boop can
+ * overrule (M5). Shielded boops are deliberately excluded: a shield is final and
+ * can't be overruled (SPEC: a Free Boop overrules a *denied* confirmation).
+ */
+export function deriveDeniedBoops(boops: readonly Boop[]): Boop[] {
+  return boops.filter((b) => b.status === 'denied');
 }

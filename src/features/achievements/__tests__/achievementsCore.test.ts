@@ -88,6 +88,14 @@ describe('total-boop milestones', () => {
     ];
     expect(evaluate(boops)).toContain('classic_booper');
   });
+
+  it('does not count a shielded boop (M5 — it was blocked)', () => {
+    const boops = [
+      ...Array.from({ length: 4 }, () => boop()),
+      boop({ status: 'shielded' }),
+    ];
+    expect(evaluate(boops)).not.toContain('classic_booper');
+  });
 });
 
 describe('Triple Threat (3 people in one day)', () => {

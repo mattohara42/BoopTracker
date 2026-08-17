@@ -7,6 +7,7 @@ import {
 
 import { BOOP_TYPES, type BoopTypeId } from '@/config/constants';
 import { usePendingBoops, type PendingBoop } from '@/state/PendingBoops';
+import { usePowerups } from '@/state/Powerups';
 import { colors, radius, shadow, space } from '@/theme/colors';
 
 function typeMeta(id: BoopTypeId) {
@@ -27,7 +28,14 @@ export function ConfirmBoopsModal({
   visible: boolean;
   onClose: () => void;
 }) {
-  const { pending, confirm, deny } = usePendingBoops();
+  const { pending, confirm, deny, shield } = usePendingBoops();
+  const { powerups, spend } = usePowerups();
+
+  // Spend a Shield, then block the boop — only if the spend actually succeeds,
+  // so a boop is never shielded "for free" when you're out of shields.
+  async function shieldBoop(boopId: string) {
+    if (await spend('shield')) shield(boopId);
+  }
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -54,8 +62,10 @@ export function ConfirmBoopsModal({
                 <ConfirmCard
                   key={b.id}
                   boop={b}
+                  shieldsAvailable={powerups.shields}
                   onConfirm={(typeOk) => confirm(b.id, typeOk)}
                   onDeny={() => deny(b.id)}
+                  onShield={() => shieldBoop(b.id)}
                 />
               ))
             )}
@@ -68,12 +78,16 @@ export function ConfirmBoopsModal({
 
 function ConfirmCard({
   boop,
+  shieldsAvailable,
   onConfirm,
   onDeny,
+  onShield,
 }: {
   boop: PendingBoop;
+  shieldsAvailable: number;
   onConfirm: (typeConfirmed: boolean) => void;
   onDeny: () => void;
+  onShield: () => void;
 }) {
   const { emoji, label } = typeMeta(boop.boopType);
   return (
@@ -94,6 +108,11 @@ function ConfirmCard({
       <TouchableOpacity style={[styles.btn, styles.no]} onPress={onDeny}>
         <Text style={styles.noText}>Nope, didn’t happen</Text>
       </TouchableOpacity>
+      {shieldsAvailable > 0 ? (
+        <TouchableOpacity style={[styles.btn, styles.shield]} onPress={onShield}>
+          <Text style={styles.shieldText}>🛡️ Shield it — won’t count ({shieldsAvailable})</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -130,4 +149,6 @@ const styles = StyleSheet.create({
   partialText: { color: colors.text, fontWeight: '700', fontSize: 15 },
   no: { backgroundColor: colors.surfaceAlt },
   noText: { color: colors.danger, fontWeight: '700', fontSize: 15 },
+  shield: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.primary },
+  shieldText: { color: colors.primary, fontWeight: '800', fontSize: 15 },
 });

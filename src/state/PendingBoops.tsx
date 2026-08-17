@@ -40,15 +40,17 @@ export interface PendingBoop {
 interface PendingBoopsValue {
   pending: PendingBoop[];
   /**
-   * How many boops the player has RECEIVED that still count (not denied) —
-   * pending + confirmed. Feeds the "Boop Received" achievement. A pending boop
-   * counts immediately (M3a), so it's included here too.
+   * How many boops the player has RECEIVED that still count — pending +
+   * confirmed (not denied, not shielded). Feeds the "Boop Received" achievement.
+   * A pending boop counts immediately (M3a), so it's included here too.
    */
   timesBooped: number;
   /** False until the first Firestore snapshot lands (gates achievement seeding). */
   loaded: boolean;
   confirm: (boopId: string, typeConfirmed: boolean) => void;
   deny: (boopId: string) => void;
+  /** Block an incoming boop with a Shield (M5): it happened but won't count. */
+  shield: (boopId: string) => void;
 }
 
 const PendingBoopsContext = createContext<PendingBoopsValue | null>(null);
@@ -83,8 +85,13 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
         });
       list.sort((a, b) => b.at - a.at);
       setPending(list);
-      // Received boops that still count (pending + confirmed, i.e. not denied).
-      setTimesBooped(snap.docs.filter((d) => d.data().status !== 'denied').length);
+      // Received boops that still count (not denied, not shielded).
+      setTimesBooped(
+        snap.docs.filter((d) => {
+          const s = d.data().status;
+          return s !== 'denied' && s !== 'shielded';
+        }).length,
+      );
       setLoaded(true);
     });
   }, [uid]);
@@ -104,9 +111,18 @@ export function PendingBoopsProvider({ children }: { children: ReactNode }) {
     }).catch(() => {});
   }, []);
 
+  // Only 'status' + 'resolvedAt' change here, so the subject-update rule (which
+  // allows status/typeConfirmed/resolvedAt) permits it — no rule change needed.
+  const shield = useCallback((boopId: string) => {
+    void updateDoc(doc(db, 'boops', boopId), {
+      status: 'shielded',
+      resolvedAt: serverTimestamp(),
+    }).catch(() => {});
+  }, []);
+
   const value = useMemo<PendingBoopsValue>(
-    () => ({ pending, timesBooped, loaded, confirm, deny }),
-    [pending, timesBooped, loaded, confirm, deny],
+    () => ({ pending, timesBooped, loaded, confirm, deny, shield }),
+    [pending, timesBooped, loaded, confirm, deny, shield],
   );
 
   return <PendingBoopsContext.Provider value={value}>{children}</PendingBoopsContext.Provider>;

@@ -126,9 +126,9 @@ export function localHourOf(atMs: number): number {
 // Evaluation
 // ---------------------------------------------------------------------------
 
-/** A denied boop doesn't count — mirrors boopLogCore's `counted`. */
+/** Denied and shielded boops don't count — mirrors boopLogCore's `counted`. */
 function counted(boops: readonly AchievementBoop[]): AchievementBoop[] {
-  return boops.filter((b) => b.status !== 'denied');
+  return boops.filter((b) => b.status !== 'denied' && b.status !== 'shielded');
 }
 
 /** Longest run of consecutive day-indices in a set (e.g. {1,2,3,5} → 3). */

@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { BOOP_TYPES } from '@/config/constants';
 import { isBigDeal } from '@/features/achievements/achievementsCore';
+import { Confetti } from '@/features/juice/Confetti';
 import { useAchievements, type CelebrationItem } from '@/state/Achievements';
 import { usePowerups, type PowerupKind } from '@/state/Powerups';
 import { colors, gradients, radius, space } from '@/theme/colors';
@@ -49,8 +50,9 @@ function present(item: CelebrationItem, all: ReturnType<typeof useAchievements>[
  * it works no matter *how* it happened: recording a boop (finish screen),
  * confirming a boop you received ("Boop Received"), or adding a fifth friend.
  *
- * It shows one item at a time; the button advances to the next queued one. Real
- * confetti + sound is the M7.5 juice pass — this is the honest stand-in.
+ * It shows one item at a time; the button advances to the next queued one. The
+ * M7.5 juice pass gave it a real falling-confetti burst (`Confetti`) and a
+ * spring "pop" on the badge, in place of the old static 🎉.
  *
  * "Big deal" unlocks grant a Free Boop / Shield *choice* (SPEC): the two big-deal
  * badges (Boop Received, Boop Collector) and every boop-type-family unlock. For
@@ -64,14 +66,21 @@ export function AchievementCelebration() {
   const { grant } = usePowerups();
   const item = celebration[0];
   const view = item ? present(item, all) : null;
-  // A stable key for the haptic effect so it fires once per queued item.
+  // A stable key for the effects so they fire once per queued item.
   const itemKey = item ? `${item.kind}:${item.id}` : null;
 
+  // Spring "pop" on the badge emoji, re-run for each queued item.
+  const pop = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (itemKey) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    }
-  }, [itemKey]);
+    if (!itemKey) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    pop.setValue(0);
+    Animated.spring(pop, { toValue: 1, friction: 5, tension: 90, useNativeDriver: true }).start();
+  }, [itemKey, pop]);
+
+  const popStyle = {
+    transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
+  };
 
   if (!view) return null;
 
@@ -93,10 +102,10 @@ export function AchievementCelebration() {
       onRequestClose={bigDeal ? () => {} : dismissCelebration}
     >
       <View style={styles.backdrop}>
+        <Confetti />
         <View style={styles.card}>
-          <Text style={styles.confetti}>🎉</Text>
           <Text style={styles.kicker}>{view.kicker}</Text>
-          <Text style={styles.badgeEmoji}>{view.emoji}</Text>
+          <Animated.Text style={[styles.badgeEmoji, popStyle]}>{view.emoji}</Animated.Text>
           <Text style={styles.label}>{view.label}</Text>
           <Text style={styles.desc}>{view.description}</Text>
 
@@ -164,7 +173,6 @@ const styles = StyleSheet.create({
     padding: space.xl,
     alignItems: 'center',
   },
-  confetti: { fontSize: 44 },
   kicker: {
     fontSize: 14,
     fontWeight: '800',

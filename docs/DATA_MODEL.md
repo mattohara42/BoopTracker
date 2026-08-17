@@ -69,6 +69,30 @@ The player's powerup wallet, kept private (owner read/write only — deliberatel
 > is older than the current month, both top back up to full and `refillMonth`
 > advances (no Cloud Function → stays on the Spark plan).
 
+### `users/{uid}/private/pushToken`  *(seam — M7, dormant)*
+The device's Expo push token, so the (dormant) `sendBoopPush` function can push a
+boop nudge. Written by `registerForPushAsync`; read server-side via the Admin SDK.
+```
+{ expoPushToken: string, platform: 'ios' | 'android', updatedAt: Timestamp }
+```
+> Owner-only, under the existing `private/{doc}` rule (no new rule). Not written
+> yet: push needs a dev build + Blaze to activate — see `docs/M7_PLAN.md`.
+
+### `users/{uid}/public/stats`  *(done — M6)*
+The player's public leaderboard aggregates. Kept as a tiny separate doc so a
+leaderboard can read one small doc per group member instead of everyone's raw
+boops — cheaper, and it exposes only three numbers, not boop details/photos.
+```
+{ username: string,
+  totalBoops: number, uniquePeopleBooped: number, boopsReceived: number,
+  updatedAt: Timestamp }
+```
+> Written client-side by `StatsPublisher` (mirrors the signed-in player's live
+> `BoopLog` + `PendingBoops` numbers), gated on both feeds loading so a fresh
+> mount never overwrites real data with zeros. Read by any signed-in user (the
+> M6 read widening). No Cloud Function — the counts are re-derived and re-written
+> whenever the player's own boops change, so they stay on the Spark plan.
+
 ## Build order within M2
 
 1. **Auth** — signup (username + email + password) / signin / signout, with the
@@ -88,13 +112,16 @@ live in [`firestore.rules`](../firestore.rules) at the repo root and enforce:
   a username → display name when adding a friend); only the owner can write.
 - **`users/{uid}/people`** — owner only.
 - **`users/{uid}/private/{doc}`** — owner only (M5 powerup wallet lives here).
+- **`users/{uid}/public/{doc}`** — any signed-in user can *read* (leaderboards
+  rank group members); only the owner writes. M6 aggregate stats live here.
 - **`usernames/{name}`** — any signed-in user can read (lookup + uniqueness
   check); you can only create one pointing to your own uid, and existing ones
   can't be overwritten or deleted (that's what keeps usernames unique).
 - **`boops`** — you can only read/write boops where `booperUid` is you.
 
-> Reads are deliberately tight for M2. M3 (notify the booped person) and M6
-> (leaderboards) will widen specific reads — do that per feature, not by
+> Reads are deliberately tight for M2. M3 (notify the booped person) widened the
+> boops read to the subject; M6 (leaderboards) widened reads to the per-user
+> `public/{doc}` aggregate, **not** the raw boops. Widen per feature, not by
 > re-opening everything.
 
 ### Deploy the rules

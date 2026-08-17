@@ -5,7 +5,10 @@ something Frankie can actually try, even if it's rough.
 
 > **Status (2026-08-17):** M0 ✅ · M1 ✅ · M2 ✅ (rules pending publish) ·
 > M3 (M3a shipped — in-app confirm; M3b email **deferred**; M3c photos optional) ·
-> M4 ✅ · M5 ✅ (incl. stacked boop-type-family powerup choice) · M6–M8 not started.
+> M4 ✅ · M5 ✅ (incl. stacked boop-type-family powerup choice) · M6 ✅
+> (leaderboards — needs the `public/{doc}` rule published) · M7 ⏸️ (push
+> foundation built but dormant — needs a dev build + Blaze) · M7.5 ✅ (real
+> confetti + payoff pops) · M8 not started.
 > Live detail in [`HANDOFF.md`](../HANDOFF.md); M3 breakdown in
 > [`M3_PLAN.md`](M3_PLAN.md).
 
@@ -84,20 +87,49 @@ something Frankie can actually try, even if it's rough.
   The celebration queue carries a `CelebrationItem` union; seeded silently so
   existing accounts don't get retroactive powerups.
 
-## M6: Leaderboards
-- Family group and friend group leaderboards
-- Three stats each: most unique people booped, most total boops, most/least boops
-  received
-- All-time only for v1
+## M6: Leaderboards  ✅
+- ✅ Family group and friend group leaderboards. Groups are derived from the
+  existing people list (no new "groups" collection): **Friends** = every
+  app-account friend; **Family** = app friends tagged with a family relation
+  (`leaderboardCore.groupMemberUids`). You're always in both. Only app accounts
+  appear — a non-app contact has no stats to rank.
+- ✅ The four stats (`LEADERBOARD_STATS`): most unique people booped, most total
+  boops, most boops received, least boops received. Ranking (ties = competition
+  ranking; only "least received" ascending) is pure + tested in `leaderboardCore`.
+- ✅ All-time only for v1 (week/month windows stay BACKLOG).
+- **How the cross-user data works (no Cloud Function, still Spark):** each player
+  publishes a small `users/{uid}/public/stats` doc (`StatsPublisher`); the screen
+  reads one doc per group member + folds in my own live numbers. This is the
+  deliberate M6 read widening — a per-user **aggregate** doc, not everyone's raw
+  boops. New `firestore.rules` match: `users/{uid}/public/{doc}` read = any
+  signed-in user, write = owner. **Needs publishing** (Matt) with the rest.
+- ⏳ Not in v1: the "win a leaderboard for a full month" big-deal achievement is
+  time-windowed, which v1 leaderboards deliberately aren't — left for when
+  month-windowed views land (BACKLOG).
 
-## M7: Push Notifications
-- Push notification when a friend boops you (in addition to email)
-- Push notification when you unlock an achievement
+## M7: Push Notifications  ⏸️ (foundation built, dormant — needs a dev build + Blaze)
+- Push when a friend boops you, and when you unlock an achievement.
+- **Can't run on the current stack** (Expo Go dropped remote push in SDK 53+; the
+  sender needs Blaze), so handled like M3b: seams built, dormant, documented.
+  - ✅ Pure content (`src/notifications/pushCore.ts`, tested).
+  - ✅ Client registration seam (`registerForPush.ts` — permission + token →
+    `users/{uid}/private/pushToken`), guarded, **not auto-called** (no permission
+    nag in Expo Go).
+  - ✅ Server sender (`sendBoopPush` in `functions/`, Expo Push API, idempotent) —
+    compiles, **not deployed**.
+- Activation checklist (Blaze + a dev build + wire the client + deploy) in
+  [`M7_PLAN.md`](M7_PLAN.md).
 
-## M7.5: Juice Pass
-- Confetti animation actually good, not a placeholder
-- Sound effects for boop/achievement (optional, ask Frankie)
-- Polish the finish screen, the locked-boop-type teaser, the badge unlock moment
+## M7.5: Juice Pass  ✅ (confetti + payoff pops; sound still optional)
+- ✅ Real confetti — `src/features/juice/Confetti.tsx` (React Native `Animated`,
+  no extra dep, safe in Expo Go), layout math in the pure/tested `confettiCore`.
+  Replaces the static 🎉 in the finish screen **and** the achievement celebration.
+- ✅ Payoff "pop" — a spring scale on the finish headline and the celebration
+  badge to land the unlock moment.
+- ⏳ Sound effects for boop/achievement — still **optional, ask Frankie** (SPEC);
+  not added (no verified kid-facing audio assets, and it's gated on him).
+- Locked-boop-type teaser polish is light-touch for now; deeper juice there can
+  ride a later pass.
 
 ## M8: Playtest and Fix
 - Real usage with the family for a week

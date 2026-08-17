@@ -14,6 +14,7 @@ import { BoopLogProvider } from '@/state/BoopLog';
 import { PendingBoopsProvider } from '@/state/PendingBoops';
 import { PeopleProvider } from '@/state/People';
 import { PowerupsProvider } from '@/state/Powerups';
+import { StatsPublisher } from '@/state/StatsPublisher';
 import { colors } from '@/theme/colors';
 
 /**
@@ -44,6 +45,8 @@ function Gate() {
               </NavigationContainer>
               {/* Global overlay so the unlock moment fires from anywhere. */}
               <AchievementCelebration />
+              {/* Publishes my aggregate stats for the M6 leaderboards. */}
+              <StatsPublisher />
             </AchievementsProvider>
           </PendingBoopsProvider>
         </BoopLogProvider>

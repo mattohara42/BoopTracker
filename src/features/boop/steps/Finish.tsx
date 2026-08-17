@@ -1,21 +1,23 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { Confetti } from '@/features/juice/Confetti';
 import { colors, gradients } from '@/theme/colors';
 
 /**
  * Finish screen. The boop is already recorded by the time we get here — this is
- * the payoff moment: a haptic buzz and (placeholder) confetti.
+ * the payoff moment: a haptic buzz, a real confetti burst, and a spring "pop" on
+ * the headline (the M7.5 juice pass replaced the old static 🎉 placeholder).
  *
  * The optional photo attach lives HERE, on the finish screen, rather than as a
  * step between "pick type" and "finish". That keeps the three-tap core loop
  * (BOOP → who → type) intact — a hard constraint in CLAUDE.md — while still
  * offering the camera-roll photo the spec calls for.
  *
- * Real confetti (and any sound) is the M7.5 "juice pass"; this is a stand-in.
+ * (Sound effects stay optional/deferred, gated on Frankie — SPEC M7.5.)
  */
 export function Finish({
   personName,
@@ -31,11 +33,18 @@ export function Finish({
   onDone: () => void;
 }) {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const pop = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Haptic buzz on arrival. No-ops on platforms without haptics (e.g. web).
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-  }, []);
+    // Spring "pop" on the headline to land the payoff moment.
+    Animated.spring(pop, { toValue: 1, friction: 5, tension: 90, useNativeDriver: true }).start();
+  }, [pop]);
+
+  const popStyle = {
+    transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }],
+  };
 
   async function pickPhoto() {
     try {
@@ -57,10 +66,9 @@ export function Finish({
 
   return (
     <View style={styles.container}>
+      <Confetti />
       <View style={styles.center}>
-        {/* Confetti placeholder — real animation is M7.5. */}
-        <Text style={styles.confetti}>🎉</Text>
-        <Text style={styles.headline}>Booped {personName}!</Text>
+        <Animated.Text style={[styles.headline, popStyle]}>Booped {personName}!</Animated.Text>
         <Text style={styles.subhead}>{typeLabel}</Text>
 
         {photoUri ? (
@@ -97,7 +105,6 @@ export function Finish({
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, justifyContent: 'space-between' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  confetti: { fontSize: 64, marginBottom: 8 },
   headline: { fontSize: 28, fontWeight: '900', color: colors.text, textAlign: 'center' },
   subhead: { fontSize: 18, color: colors.primary, fontWeight: '700', marginTop: 4 },
   photoWrap: { alignItems: 'center', marginTop: 28 },

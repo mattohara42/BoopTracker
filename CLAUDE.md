@@ -328,6 +328,53 @@ doesn't re-litigate them.
   so the recommendation is to not approach the public stores until v1 is played
   and that stance is decided.
 
+- 2026-08-17 — **M6 (Leaderboards) built.** Family + Friend leaderboards, four
+  all-time stats (most people booped / most boops / most & least boops received),
+  still on the **Spark plan**. Key decisions:
+  - **No "groups" collection.** Groups are derived from the existing people list:
+    **Friends** = every app-account friend (`friendUid` set); **Family** = app
+    friends tagged a family relation (`PERSON_RELATIONS` minus "Friend"). You're
+    always in both. Only app accounts can appear — a non-app contact has no stats
+    to rank. Reuses M4's relation picker; no new data-entry UI.
+  - **Cross-user data via a per-user *public aggregate* doc, not raw boops.** Each
+    player publishes `users/{uid}/public/stats` = `{ username, totalBoops,
+    uniquePeopleBooped, boopsReceived, updatedAt }` via a mounted `StatsPublisher`
+    (mirrors live `BoopLog` + `PendingBoops`, gated on both `loaded` so it never
+    writes 0s over real data). The screen reads one small doc per group member +
+    folds in my own live numbers. This is the deliberate M6 read widening — three
+    aggregate numbers, **not** everyone's boop details/photos — chosen over
+    reading all boops (doesn't scale, over-exposes) and over a scheduled Cloud
+    Function (needs Blaze). New rule: `users/{uid}/public/{doc}` read = any
+    signed-in user, write = owner. **Needs publishing** with the rest (Matt).
+  - **Ranking is pure + tested** (`src/features/leaderboard/leaderboardCore.ts`):
+    competition ranking (ties share a rank), only "least received" ascending,
+    alphabetical tiebreak for stable display. 13 new tests (102 total).
+  - **"Win a leaderboard for a full month" big-deal achievement stays deferred** —
+    it's time-windowed, and v1 leaderboards are deliberately all-time only
+    (week/month views are BACKLOG). Not wired; revisit if windowed views land.
+
+- 2026-08-17 — **M7.5 (Juice pass) built; M7 (Push) scaffolded but dormant.**
+  - **M7.5:** real confetti replaces the static 🎉 in both the finish screen and
+    the achievement celebration. `src/features/juice/Confetti.tsx` uses React
+    Native's `Animated` (no new dependency → safe in Expo Go); the piece layout is
+    pure + tested in `confettiCore.ts`. Added a spring "pop" scale on the finish
+    headline and the celebration badge for the payoff beat. **Sound stays
+    optional/deferred** (SPEC says "ask Frankie"; no verified kid audio assets, so
+    not added). Locked-type teaser polish left light-touch.
+  - **M7 push handled like M3b — built, dormant, documented, NOT deployed.**
+    Rationale: remote push can't run on this stack — **Expo Go dropped remote push
+    in SDK 53+** (no token obtainable without a dev build) and the sender needs
+    **Blaze**. Shipping an active push path here would nag for a permission it
+    can't use. So: pure tested `src/notifications/pushCore.ts` (content); a guarded
+    `registerForPush.ts` client seam that is **deliberately not auto-called**; and
+    a `sendBoopPush` Cloud Function (Expo Push API, idempotent via `pushLog/{boopId}`)
+    that compiles but isn't deployed. New data doc `users/{uid}/private/pushToken`
+    (owner-only, no new rule — reuses the `private/{doc}` match). Full activation
+    checklist (Blaze + dev build + wire client + deploy) in `docs/M7_PLAN.md`.
+    Added `expo-notifications` (~0.32.17, the SDK-54 pin from
+    `bundledNativeModules.json`, since the Expo version API isn't reachable from
+    the sandbox). Tests 114 green; app + functions typecheck clean.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

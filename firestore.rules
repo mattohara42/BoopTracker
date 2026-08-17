@@ -7,8 +7,10 @@ rules_version = '2';
 // wide-open "test mode" rules the project starts with.
 //
 // Scope note: reads are intentionally tight for M2 (you see your own boops).
-// M3 (verification — notify the booped person) and M6 (leaderboards) will widen
-// specific reads; do that deliberately, per feature, rather than opening it up.
+// M3 (verification — notify the booped person) widened the boops read to the
+// subject; M6 (leaderboards) widened reads to a per-user PUBLIC AGGREGATE doc
+// (users/{uid}/public/{doc}) — not the raw boops. Widen deliberately, per
+// feature, rather than opening it up.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -40,6 +42,16 @@ service cloud.firestore {
       // signed-in profile read above.
       match /private/{doc} {
         allow read, write: if isUser(uid);
+      }
+
+      // A user's public aggregate stats (M6 leaderboards: total boops, unique
+      // people booped, boops received). Any signed-in user can read them so a
+      // leaderboard can rank group members; only the owner writes. This is the
+      // deliberate M6 read widening — three aggregate numbers, NOT the raw boops
+      // (that read scope stays tight below).
+      match /public/{doc} {
+        allow read: if signedIn();
+        allow write: if isUser(uid);
       }
     }
 

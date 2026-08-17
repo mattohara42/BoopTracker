@@ -312,6 +312,22 @@ doesn't re-litigate them.
   threshold without double-granting; the helper stays as a tested alt-seam.)
   Tests 89 green; typecheck clean. Landed as a fresh change after #6 merged.
 
+- 2026-08-17 — **Docs refreshed for handoff + app-store path documented
+  (planning only).** After M4/M5 merged, brought `HANDOFF.md` current (tabs now
+  Home/Friends/Awards/Leaderboard; provider list incl. `Powerups` + `Achievements`;
+  89 tests; M3 marked v1-done; next-build options M6 vs. distribution) and rewrote
+  "Tomorrow's checklist" around playtesting the merged M1–M5. Added
+  `docs/APP_STORE_SETUP.md`: practical Xcode / Apple Developer / EAS Build /
+  TestFlight steps (+ Android APK/Play), framed for this managed-Expo project.
+  **No stack change** — dev + playtests stay on **Expo Go**; standalone builds are
+  a future distribution step, not started. Bundle ids (`com.booptracker.app`) are
+  already in `app.json`; `eas.json` + an Apple Developer account ($99/yr) are the
+  missing pieces. **Flagged:** a *public* store release raises real kids/COPPA +
+  privacy-policy requirements (the app is used by a 10-year-old and stores
+  email/username) — TestFlight/internal testing within the family sidesteps them,
+  so the recommendation is to not approach the public stores until v1 is played
+  and that stance is decided.
+
 ## Open questions still to settle
 
 Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of

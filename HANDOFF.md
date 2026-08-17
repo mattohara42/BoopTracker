@@ -9,47 +9,38 @@ _Last updated: 2026-08-17._
 
 ## 📋 Tomorrow's checklist (Matt)
 
+**M4 + M5 are merged to `main`.** Nothing is half-finished in code — tomorrow is
+about *playing* it, publishing the rules, and picking the next build.
+
 1. **Publish the Firestore security rules.** The project is still in wide-open
    test mode. Copy [`firestore.rules`](firestore.rules) into the Firebase
    console → **Firestore Database → Rules** → **Publish**. (Steps in
-   `docs/DATA_MODEL.md`.) Do this first — M3a added rules the confirm flow needs,
-   and **M5 added one more** (the private `users/{uid}/private/{doc}` powerup
-   wallet). Until test mode expires everything still works, but republish so the
-   powerup wallet stays owner-only when it does.
-2. **Test the two-account flow on a phone** (re-download / `git pull`, then
-   `npm install` → `npm start`):
-   - Make a 2nd account (e.g. `you+frankie@gmail.com`; Sign out is top-left).
-   - Account A: **Friends → Add a friend by username** → B's username → boop them.
-   - Account B: Home shows **"🔔 1 boop to confirm"** → open it → confirm / deny.
-   - Watch A's score react (a denied boop stops counting).
-   - If you see **"Missing or insufficient permissions"**, tell Claude — a rule
-     needs a tweak.
-3. ~~Decide two things for M3b (the email nudge).~~ **Decided: skip the email for
-   v1.** Verification is **in-app only** (M3a already covers it), so no Blaze plan
-   and no email provider are needed. The drafted `functions/` code stays
-   **dormant** (documented, re-deployable) in case a nudge is wanted later —
-   likely as push (M7) rather than email.
-4. **Try M4 (achievements) with Frankie.** No new Firestore rules, so nothing to
-   publish for this — just `git pull` + `npm start`. Things to poke at:
-   - Boop a few times and watch **Boopstache unlock at 5 boops** in the type
-     picker (locked cards show "Unlock at N"). Bellyboop @10, Underboop @15.
-   - Tag someone **Brother/Sister** on the Friends tab, boop them → **Sibling
-     Boop** badge pops (the celebration overlay).
-   - Check the new **Awards** tab (🏅) — the trophy case of all 14 badges.
-   - The "⭐ big deal" badges (Boop Received, Boop Collector) now hand you a real
-     **Free Boop / Shield pick** in the celebration (see M5 below).
-5. **Try M5 (powerups) with Frankie.** Home shows your ⚡ Free Boops + 🛡️ Shields.
-   - Earn **Boop Collector** (10 boops) → pick a Free Boop or a Shield.
-   - **Shield:** when someone boops you, open "boops to confirm" → **🛡️ Shield it**
-     (only shows if you hold a shield) → that boop won't count against you.
-   - **Free Boop (overrule):** get a boop of yours **denied**, then — if you hold
-     a Free Boop — Home shows **"⚡ N denied — overrule?"** → spend one to make it
-     count again. (A Free Boop can only ever overrule an already-denied boop.)
-   - **Stacked type-family picks (now wired):** unlocking a boop-type family at
-     5/10/15 boops also hands you a Free Boop / Shield pick. These **stack** — at
-     10 boops you'll pick twice: once for Boop Collector, once for the Bellyboop
-     unlock. (Existing accounts already past a threshold get no retroactive picks
-     — only crossings from here on grant.)
+   `docs/DATA_MODEL.md`.) M3a and M5 both added rules — M5's is the private
+   `users/{uid}/private/{doc}` powerup wallet. Everything works under test mode
+   until it expires; republish so those stay owner-only when it does.
+2. **Playtest M1–M5 on a phone** (`git pull` → `npm install` → `npm start`,
+   scan with Expo Go). Suggested run-through:
+   - **Two-account core:** make a 2nd account (`you+frankie@gmail.com`; Sign out
+     top-left) → Account A **Friends → Add by username** → boop B → B's Home shows
+     **"🔔 1 boop to confirm"** → confirm/deny → watch A's score react. *(If you
+     see "Missing or insufficient permissions", a rule needs a tweak — tell me.)*
+   - **Ladder (M4):** boop a few times, watch **Boopstache unlock at 5** in the
+     type picker (locked cards show "Unlock at N"); Bellyboop @10, Underboop @15.
+   - **Siblings (M4):** tag someone **Brother/Sister** on Friends → boop them →
+     **Sibling Boop** badge pops. Check the **Awards** tab (🏅).
+   - **Powerups (M5):** Home shows ⚡/🛡️ counts. Earn **Boop Collector** (10
+     boops) → pick Free Boop or Shield. **Shield:** in "boops to confirm" → **🛡️
+     Shield it** → that boop won't count. **Overrule:** get one of your boops
+     **denied**, then (holding a Free Boop) Home shows **"⚡ N denied — overrule?"**.
+     At **10 boops you'll get two picks** (Boop Collector + the Bellyboop unlock).
+3. **Pick the next build** (tell me which):
+   - **M6 Leaderboards** — the next milestone. Heads-up: it needs a **rules
+     read-scope widening** (today you can only read your *own* boops), so it wants
+     a quick design pass before coding. See `docs/BUILD_PLAN.md` M6.
+   - **Get it onto more phones (beyond Expo Go)** — a wider family test via
+     TestFlight (iOS) or a sideloaded APK (Android). Practical steps in the new
+     [`docs/APP_STORE_SETUP.md`](docs/APP_STORE_SETUP.md). Not required for the
+     playtests above; do it when a relative won't scan a QR.
 
 ## Where we are
 
@@ -66,7 +57,7 @@ overrule flow, and the shield flow). Still on the **free Spark plan** throughout
 - **M1 The boop button (fake data)** — ✅ done, playtested & loved
 - **M2 Real accounts + data** — ✅ core done (auth, cloud people + boops,
   add-by-username, security rules written). Pending: Matt publishes the rules.
-- **M3 Verification** — 🔨 in progress
+- **M3 Verification** — ✅ v1 done (in-app confirm is the shipped verification)
   - **M3a** in-app confirm loop — ✅ built (needs the two-account test)
   - **M3b** email nudge — ⏸️ **deferred (not in v1).** Function is drafted and
     left dormant in `functions/`; verification is in-app only. A push nudge (M7)
@@ -92,22 +83,29 @@ overrule flow, and the shield flow). Still on the **free Spark plan** throughout
 npm install
 cp .env.example .env     # then paste your Firebase web config (see .env.example)
 npm start                # scan the QR with Expo Go
-npm test                 # 31 unit tests
+npm test                 # 89 unit tests
 npm run typecheck
 ```
 
 Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
-`docs/DATA_MODEL.md`.
+`docs/DATA_MODEL.md`. Getting off Expo Go (TestFlight / APK / App Store):
+`docs/APP_STORE_SETUP.md`.
 
 ## Architecture at a glance
 
 - **Client:** Expo SDK 54 / RN 0.81 / React 19 / TS strict. `@/*` → `src/*`.
-  Bottom tabs (Home / Friends / Leaderboard); the record flow is a modal.
-- **State providers** (mount when signed in): `People` (`users/{uid}/people`),
-  `BoopLog` (`boops` where `booperUid == me`), `PendingBoops` (`boops` where
-  `subjectUid == me`). Pure logic sits in `*Core.ts` files and is unit-tested.
+  Bottom tabs (Home / Friends / **Awards** 🏅 / Leaderboard); the record flow,
+  confirm, and overrule screens are modals over Home.
+- **State providers** (mount when signed in, nested in this order): `Powerups`
+  (`users/{uid}/private/powerups`), `People` (`users/{uid}/people`), `BoopLog`
+  (`boops` where `booperUid == me`), `PendingBoops` (`boops` where
+  `subjectUid == me`), `Achievements` (joins the above; local per-uid persistence
+  for earned badges + granted type-families). Pure logic sits in `*Core.ts` files
+  and is unit-tested (`boopLogCore`, `boopTypesCore`, `achievementsCore`,
+  `powerupsCore`, `contactsCore`).
 - **Backend:** Firebase Auth (email+password) + Firestore. Config via
-  `EXPO_PUBLIC_FIREBASE_*` env. Rules in `firestore.rules`.
+  `EXPO_PUBLIC_FIREBASE_*` env. Rules in `firestore.rules`. Still on the **Spark**
+  (free) plan — no Cloud Functions; powerup refill is client-side + lazy.
 - **One place to tune numbers:** `src/config/constants.ts`.
 
 ## Known limitations / tracked to-dos
@@ -115,11 +113,18 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
 - Firestore rules exist but **aren't published yet** (test mode live).
 - `photoUri` is a local device path — photos don't load cross-device until M3c
   (Storage upload).
+- **Achievements + granted powerup-families persist locally** (AsyncStorage,
+  per-uid), so earned badges don't follow across devices; powerups themselves
+  *are* in Firestore. Moving the achievement sets to Firestore is a future
+  improvement, not a v1 blocker.
 - Home stats recompute from all your boops; fine at family scale, would move to
   counters at large scale (see the scaling notes — same applies to M6
   leaderboards, which need aggregation, not reading everyone's boops).
 - Editing/deleting an *older* boop has no home yet (no-feed constraint) — see
   `docs/BACKLOG.md`.
+- Runs in **Expo Go only** — no standalone/TestFlight build is set up yet.
+  When that's needed, `docs/APP_STORE_SETUP.md` has the path (bundle ids are
+  already set; `eas.json` + an Apple Developer account are the missing pieces).
 
 ## Open questions that block future milestones
 
@@ -134,7 +139,11 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
 ## How to pick up in a new session
 
 1. Point the session at the `mattohara42/BoopTracker` repo (primary dir).
-2. Read `CLAUDE.md`, then this file, then `docs/BUILD_PLAN.md` +
-   (for the current milestone) `docs/M3_PLAN.md` + `docs/DATA_MODEL.md`.
-3. `npm install`; ensure `.env` exists; `npm start`. Then continue M3
-   (M3b/M3c) once Matt's decisions are in, or whatever he points you at.
+2. Read `CLAUDE.md`, then this file, then `docs/BUILD_PLAN.md`. For the likely
+   next build add `docs/DATA_MODEL.md` (M6 leaderboards will widen read rules) or
+   `docs/APP_STORE_SETUP.md` (getting off Expo Go).
+3. `npm install`; ensure `.env` exists; `npm start` (+ `npm test` / `npm run
+   typecheck` — 89 tests, typecheck clean at last commit).
+4. **M1–M5 are done and merged.** Next up is whatever Matt points at in the
+   checklist above — most likely **M6 (Leaderboards)** (needs a rules read-scope
+   pass first) or a **TestFlight/APK build** for a wider family test.

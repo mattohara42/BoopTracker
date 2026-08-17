@@ -104,6 +104,15 @@ something Frankie can actually try, even if it's rough.
 - Fix whatever's annoying (this is where "is 3 taps too many" gets answered for
   real, not guessed)
 
+## Distribution (orthogonal to the milestones)
+Not a numbered milestone — the app runs in **Expo Go** for all of M1–M8, which is
+the fastest playtest loop. When a wider family test needs the app on a phone
+*without* Expo Go (a relative who won't scan a QR), or a real release is on the
+table, the practical path — Apple Developer + Xcode, EAS Build, TestFlight, and
+the Android/Play equivalents — lives in [`APP_STORE_SETUP.md`](APP_STORE_SETUP.md).
+The kids-privacy questions there gate any *public* release; TestFlight/internal
+testing within the family does not.
+
 ---
 
 Design gate before M4: confirm the week-one achievement thresholds still feel right

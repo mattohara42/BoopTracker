@@ -409,8 +409,12 @@ Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
 - 2026-08-26 — **Repo metadata pass** (no code change). Root `package.json` gained
   `description` / `keywords` / `license` / `author` / `repository` / `homepage` /
   `bugs` (mirroring what `functions/package.json` already had); `license` is
-  **`UNLICENSED`**, which is the accurate statement for a private repo with no
-  LICENSE file — not a decision to open-source, and not a license choice. `app.json`
+  **`UNLICENSED`**, which is the accurate statement for a repo with no LICENSE
+  file (default copyright, all rights reserved) — not a decision to open-source,
+  and not a license choice. Note `package.json`'s separate `private: true` means
+  only "never publish to npm"; **the GitHub repo itself is public** (confirmed via
+  the API), which is worth remembering against the kids/privacy stance in
+  `docs/SECURITY_AND_HARDENING.md`. `app.json`
   gained an Expo `description` (the store-listing/expo.dev blurb) and
   `primaryColor` (`#FF6F61`, the coral brand token from `src/theme/colors.ts`).
   README's **Status** section was stale (it claimed M0–M2 done / M3 in progress) —

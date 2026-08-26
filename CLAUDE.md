@@ -405,3 +405,17 @@ Tracked in full in `docs/BACKLOG.md` ("Open Questions") and the bottom of
 - Email provider for the boop-notification — **moot for v1** (email nudge
   deferred; verification is in-app). Revisit only if a push nudge lands (M7).
 - Region detection for leaderboards (backlog, not v1).
+
+- 2026-08-26 — **Repo metadata pass** (no code change). Root `package.json` gained
+  `description` / `keywords` / `license` / `author` / `repository` / `homepage` /
+  `bugs` (mirroring what `functions/package.json` already had); `license` is
+  **`UNLICENSED`**, which is the accurate statement for a private repo with no
+  LICENSE file — not a decision to open-source, and not a license choice. `app.json`
+  gained an Expo `description` (the store-listing/expo.dev blurb) and
+  `primaryColor` (`#FF6F61`, the coral brand token from `src/theme/colors.ts`).
+  README's **Status** section was stale (it claimed M0–M2 done / M3 in progress) —
+  rewritten for the real state (M0–M6 + M7.5 built, M8 current, M3b/M7 dormant), and
+  the planning-docs list now includes `M4_DESIGN_GATE` / `M7_PLAN` /
+  `SECURITY_AND_HARDENING` / `APP_STORE_SETUP`. **Not done:** GitHub-side metadata
+  (repo description, topics, homepage) — that's console/API work for Matt; no author
+  email was written into any committed file. Tests 114 green; typecheck clean.

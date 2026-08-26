@@ -1,7 +1,27 @@
 {
   "name": "booptracker",
   "version": "0.0.1",
+  "description": "BoopTracker — a family boop-scorekeeping app (Expo + Firebase). Not social media: open it, record a boop or check your score, leave.",
+  "keywords": [
+    "expo",
+    "react-native",
+    "firebase",
+    "family",
+    "kids",
+    "game",
+    "boop"
+  ],
   "private": true,
+  "license": "UNLICENSED",
+  "author": "Matt O'Hara and Frankie",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattohara42/BoopTracker.git"
+  },
+  "homepage": "https://github.com/mattohara42/BoopTracker#readme",
+  "bugs": {
+    "url": "https://github.com/mattohara42/BoopTracker/issues"
+  },
   "main": "index.ts",
   "scripts": {
     "start": "expo start",

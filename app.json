@@ -3,6 +3,8 @@
     "name": "BoopTracker",
     "slug": "booptracker",
     "version": "0.0.1",
+    "description": "Keep score of boops with your family and friends. Record a boop in three taps, let the person you booped confirm it, and climb the leaderboard.",
+    "primaryColor": "#FF6F61",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "scheme": "booptracker",

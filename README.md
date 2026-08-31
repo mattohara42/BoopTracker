@@ -13,12 +13,20 @@ Designed by Frankie (age 10) and Matt.
 
 ## Status
 
-Working app running in **Expo Go**. Milestones **M0–M2 are done** and **M3
-(verification) is in progress** — see [`HANDOFF.md`](HANDOFF.md) for the live
-state and the next steps. What works today: accounts (username + email +
-password), your people and boops synced to Firebase, adding friends by username,
-the three-tap record flow, and **in-app boop confirmation** (the person you
-booped confirms it; a denied boop stops counting).
+Working app running in **Expo Go**. **M0–M6 plus the M7.5 juice pass are
+built**; **M8 (playtest and fix)** is the current milestone — see
+[`HANDOFF.md`](HANDOFF.md) for the live state and the next steps.
+
+What works today: accounts (username + email + password), your people and boops
+synced to Firebase, adding friends by username or from your phone contacts, the
+three-tap record flow, **in-app boop confirmation** (the person you booped
+confirms it; a denied boop stops counting), the boop-type **ladder**,
+**achievements** with an Awards tab, **powerups** (Free Boops + Shields), and
+**family/friend leaderboards**.
+
+Two pieces are built but deliberately **dormant**: the M3b email nudge (verification
+is in-app only) and M7 push (needs a dev build + a paid Firebase plan). Photo-as-proof
+(M3c) isn't wired.
 
 ## Running the app
 
@@ -47,7 +55,16 @@ Start here:
 - [`docs/ACHIEVEMENTS.md`](docs/ACHIEVEMENTS.md) — the full brainstormed
   achievements master list (~200 ideas).
 - [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — Firestore schema + Firebase setup.
-- [`docs/M3_PLAN.md`](docs/M3_PLAN.md) — the current milestone (verification).
+- [`docs/M3_PLAN.md`](docs/M3_PLAN.md) — the verification milestone (M3a shipped;
+  M3b email deferred).
+- [`docs/M4_DESIGN_GATE.md`](docs/M4_DESIGN_GATE.md) — the achievement/unlock
+  decisions made with Frankie before M4.
+- [`docs/M7_PLAN.md`](docs/M7_PLAN.md) — push notifications: what's built, and the
+  checklist to activate it.
+- [`docs/SECURITY_AND_HARDENING.md`](docs/SECURITY_AND_HARDENING.md) — Firestore
+  rules review and what to fix before any public listing.
+- [`docs/APP_STORE_SETUP.md`](docs/APP_STORE_SETUP.md) — TestFlight / Play
+  distribution steps (planning only; dev stays on Expo Go).
 
 ## Stack
 

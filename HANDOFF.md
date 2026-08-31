@@ -5,18 +5,51 @@ constraints + dated assumptions log) and `docs/` (the actual plan). This file is
 a **snapshot**, not a history — the blow-by-blow lives in the CLAUDE.md
 assumptions log and git.
 
-_Last updated: 2026-08-17._
+_Last updated: 2026-08-31._
+
+## ⚠️ Pending from the 2026-08-31 branch audit
+
+**No unmerged work here** — everything that was on a branch has landed. Five
+stale refs to delete, and one correction to this file (below).
+
+```
+git push origin --delete claude/coding-session-39g3wq         # was 34e0d0f
+git push origin --delete claude/coding-session-t0gq9a         # was 7177155
+git push origin --delete claude/whats-next-kqu2gl             # was 240a9ad
+git push origin --delete claude/yesterday-summary-kids-san1u8 # was a8cae8f
+git push origin --delete claude/repo-metadata-pvad5i          # was f481cd2
+```
+
+Why each is safe:
+
+- **`repo-metadata-pvad5i`** — that's PR #13, merged 2026-08-31 as `fbdc9e9`
+  (package/app metadata + the README Status rewrite).
+- **`coding-session-39g3wq`** — the original M0 Expo scaffold, 30 commits
+  behind. `main` has 47 files under `src/` and its own `app.json`; the scaffold
+  landed long ago.
+- **`yesterday-summary-kids-san1u8`** — the M3b deferral docs. `CLAUDE.md`'s
+  assumptions log already carries the 2026-08-16 entry.
+- **`coding-session-t0gq9a`, `whats-next-kqu2gl`** — squash-merged leftovers;
+  merging either produces a byte-identical tree.
+
+Reversible: `git push origin <sha>:refs/heads/<branch>`. Enabling
+**Settings → General → "Automatically delete head branches"** stops these
+accumulating.
+
+**Correction:** the sections below described M6, M7 and M7.5 as "built on a
+branch / draft PR, not merged yet". They merged in **#10**, and the branch is
+gone. Treat every milestone through M7.5 as on `main`.
 
 ## 📋 Tomorrow's checklist (Matt)
 
-**M4 + M5 are merged to `main`; M6 (leaderboards) is built on a branch / draft
-PR.** Nothing is half-finished in code — tomorrow is about *playing* it,
-publishing the rules, and picking the next build.
+**M4 + M5 are merged to `main`; M6, M7.5 and M7's dormant push foundation are
+merged too (#10).** Nothing is half-finished in code — this is about *playing*
+it, publishing the rules, and picking the next build.
 
 1. **Publish the Firestore security rules.** The project is still in wide-open
    test mode. Copy [`firestore.rules`](firestore.rules) into the Firebase
    console → **Firestore Database → Rules** → **Publish**. (Steps in
-   `docs/DATA_MODEL.md`.) M3a, M5, and now **M6** all added rules — M6's is the
+   `docs/DATA_MODEL.md`.) M3a, M5, and **M6** all added rules — M6's is the
    new `users/{uid}/public/{doc}` **aggregate stats** doc that the leaderboards
    read (read = any signed-in user, write = owner). Everything works under test
    mode until it expires; republish so these stay scoped when it does. **The
@@ -36,12 +69,12 @@ publishing the rules, and picking the next build.
      Shield it** → that boop won't count. **Overrule:** get one of your boops
      **denied**, then (holding a Free Boop) Home shows **"⚡ N denied — overrule?"**.
      At **10 boops you'll get two picks** (Boop Collector + the Bellyboop unlock).
-3. **Playtest M6 leaderboards** (once the branch is merged / pulled). Open the
-   **🏆 Leaderboard** tab: toggle **Family / Friends**, tap through the four stats
-   (most boops, most people booped, most/least booped). With two accounts booping
-   each other you'll see both ranked; your own row is highlighted. *(Family = app
-   friends you've tagged with a family relation; Friends = all app friends. A
-   contact with no account won't appear — nothing to rank.)*
+3. **Playtest M6 leaderboards.** Open the **🏆 Leaderboard** tab: toggle
+   **Family / Friends**, tap through the four stats (most boops, most people
+   booped, most/least booped). With two accounts booping each other you'll see
+   both ranked; your own row is highlighted. *(Family = app friends you've tagged
+   with a family relation; Friends = all app friends. A contact with no account
+   won't appear — nothing to rank.)*
 4. **Pick the next build** (tell me which):
    - **M8 Playtest** — the last v1 milestone: play M1–M7.5 with the family for a
      week and fix what's annoying. Everything to play it is now built.
@@ -56,16 +89,16 @@ publishing the rules, and picking the next build.
 ## Where we are
 
 The app is real: **Expo + Firebase**, running in Expo Go. Accounts, cloud data,
-friends-by-username, in-app boop **confirmation**, **achievements**, and now
+friends-by-username, in-app boop **confirmation**, **achievements**, and
 **powerups** all work. Milestones M0–M2 are done; **M3a shipped** (in-app confirm
 — the v1 verification), **M3b (email) deferred**, **M3c (photos) optional**;
 **M4 shipped** (badge engine + Awards tab + Ladder + celebration); **M5 shipped**
 (Free Boops + Shields: caps, lazy monthly refill, big-deal badge → choice, the
-overrule flow, and the shield flow); **M6 built** (Family/Friends leaderboards,
-four all-time stats, ranked from per-user public aggregate docs); **M7.5 built**
+overrule flow, and the shield flow); **M6 shipped** (Family/Friends leaderboards,
+four all-time stats, ranked from per-user public aggregate docs); **M7.5 shipped**
 (real confetti + payoff pops); **M7 push scaffolded but dormant** (needs a dev
-build + Blaze) — all on a branch / draft PR, not merged yet. Still on the **free
-Spark plan** throughout.
+build + Blaze) — all merged to `main` in #10. Still on the **free Spark plan**
+throughout.
 
 ### Milestone status (see `docs/BUILD_PLAN.md`)
 - **M0 Repo skeleton** — ✅ done
@@ -90,7 +123,7 @@ Spark plan** throughout.
   (block an incoming boop → new `shielded` status) both built. A **boop-type-family
   unlock** grants a **stacked** pick too (Matt's call): crossing 5/10/15 boops
   hands out a choice on top of any badge earned at that moment.
-- **M6 Leaderboards** — ✅ built (branch / draft PR). Family + Friends groups
+- **M6 Leaderboards** — ✅ shipped (merged in #10). Family + Friends groups
   (derived from the people list — no new "groups" collection), the four all-time
   stats, ranked in pure `leaderboardCore` (`src/features/leaderboard/`). Cross-user
   data comes from a per-user public aggregate doc (`users/{uid}/public/stats`,
@@ -98,13 +131,13 @@ Spark plan** throughout.
   each account. Needs the new `public/{doc}` rule published. The "win a
   leaderboard for a month" big-deal achievement stays deferred (time-windowed;
   v1 leaderboards are all-time only).
-- **M7 Push** — ⏸️ **foundation built, dormant** (branch / draft PR). Real remote
+- **M7 Push** — ⏸️ **foundation built, dormant** (merged in #10). Real remote
   push can't run on this stack (Expo Go dropped it in SDK 53+; the sender needs
   Blaze), so — like M3b — the seams are built and documented but inert: pure
   tested `pushCore`, a guarded (not auto-called) `registerForPush` client seam,
   and a `sendBoopPush` Cloud Function (compiles, not deployed). Activation
   checklist in `docs/M7_PLAN.md`.
-- **M7.5 Juice pass** — ✅ built (branch / draft PR). Real confetti
+- **M7.5 Juice pass** — ✅ shipped (merged in #10). Real confetti
   (`src/features/juice/Confetti.tsx`, RN `Animated`, no new dep) + a spring pop on
   the finish headline and the celebration badge, replacing the static 🎉. Sound
   stays optional/deferred (ask Frankie).
@@ -192,7 +225,7 @@ Full run/playtest guide: `docs/PLAYTEST.md`. Firebase setup + schema:
    has the current schema incl. the M6 `public/{doc}` stats.
 3. `npm install`; ensure `.env` exists; `npm start` (+ `npm test` / `npm run
    typecheck` — 114 tests, typecheck clean at last commit).
-4. **M1–M5 are done and merged; M6 + M7.5 are built and M7's push foundation is
-   scaffolded (dormant), all on a branch / draft PR.** Next up is whatever Matt
-   points at in the checklist above — most likely **M8 (the family playtest)** or
-   a **dev build** (which also unlocks activating M7 push).
+4. **M1–M7.5 are all done and merged to `main`** (M7's push foundation is
+   scaffolded but dormant). Next up is whatever Matt points at in the checklist
+   above — most likely **M8 (the family playtest)** or a **dev build** (which
+   also unlocks activating M7 push).

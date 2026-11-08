@@ -34,3 +34,6 @@ yarn-error.*
 # Editor
 .vscode/
 .idea/
+
+# Claude Code personal settings. Approved commands saved here can contain secrets.
+.claude/settings.local.json
